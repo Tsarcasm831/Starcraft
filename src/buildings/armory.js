@@ -103,8 +103,54 @@ export class Armory {
             };
         }
         
-        // TODO: Add vehicle and ship weapon/armor upgrades
-        // newCommands[1] = ...
+        const vehicleWeaponLevel = gameState.upgrades.vehicleWeapons;
+        const vehicleArmorLevel = gameState.upgrades.vehicleArmor;
+        const shipWeaponLevel = gameState.upgrades.shipWeapons;
+        const shipArmorLevel = gameState.upgrades.shipArmor;
+
+        if (vehicleWeaponLevel < 3) {
+            newCommands[1] = {
+                command: `research_vehicle_weapons_${vehicleWeaponLevel + 1}`,
+                hotkey: 'V',
+                icon: 'assets/images/upgrade_infantry_weapons_icon.png',
+                name: `Upgrade Vehicle Weapons (Lvl ${vehicleWeaponLevel + 1})`,
+                cost: { minerals: 100 * (vehicleWeaponLevel + 1), vespene: 100 * (vehicleWeaponLevel + 1) },
+                researchTime: 167
+            };
+        }
+
+        if (vehicleArmorLevel < 3) {
+            newCommands[2] = {
+                command: `research_vehicle_armor_${vehicleArmorLevel + 1}`,
+                hotkey: 'A',
+                icon: 'assets/images/upgrade_infantry_armor_icon.png',
+                name: `Upgrade Vehicle Armor (Lvl ${vehicleArmorLevel + 1})`,
+                cost: { minerals: 100 * (vehicleArmorLevel + 1), vespene: 100 * (vehicleArmorLevel + 1) },
+                researchTime: 167
+            };
+        }
+
+        if (shipWeaponLevel < 3) {
+            newCommands[3] = {
+                command: `research_ship_weapons_${shipWeaponLevel + 1}`,
+                hotkey: 'S',
+                icon: 'assets/images/upgrade_infantry_weapons_icon.png',
+                name: `Upgrade Ship Weapons (Lvl ${shipWeaponLevel + 1})`,
+                cost: { minerals: 100 * (shipWeaponLevel + 1), vespene: 100 * (shipWeaponLevel + 1) },
+                researchTime: 167
+            };
+        }
+
+        if (shipArmorLevel < 3) {
+            newCommands[4] = {
+                command: `research_ship_armor_${shipArmorLevel + 1}`,
+                hotkey: 'R',
+                icon: 'assets/images/upgrade_infantry_armor_icon.png',
+                name: `Upgrade Ship Armor (Lvl ${shipArmorLevel + 1})`,
+                cost: { minerals: 100 * (shipArmorLevel + 1), vespene: 100 * (shipArmorLevel + 1) },
+                researchTime: 167
+            };
+        }
 
         this.commands = newCommands;
     }
@@ -174,6 +220,14 @@ export class Armory {
                 const finished = this.buildQueue.shift();
                 if (finished.originalCommand.includes('charon_boosters')) {
                     gameState.upgrades.charonBoosters = true;
+                } else if (finished.originalCommand.includes('vehicle_weapons')) {
+                    gameState.upgrades.vehicleWeapons++;
+                } else if (finished.originalCommand.includes('vehicle_armor')) {
+                    gameState.upgrades.vehicleArmor++;
+                } else if (finished.originalCommand.includes('ship_weapons')) {
+                    gameState.upgrades.shipWeapons++;
+                } else if (finished.originalCommand.includes('ship_armor')) {
+                    gameState.upgrades.shipArmor++;
                 }
                 this.updateCommands(gameState);
             }

@@ -19,7 +19,21 @@ export function createMoveIndicator(position) {
 
     scene.add(indicator);
 
-    activeEffects.push({ mesh: indicator, life: 0.75 });
+    activeEffects.push({ mesh: indicator, life: 0.75, initialLife: 0.75 });
+}
+
+export function createScannerSweep(position) {
+    const geometry = new THREE.RingGeometry(4, 4.5, 64);
+    const material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide, transparent: true });
+    const sweep = new THREE.Mesh(geometry, material);
+
+    sweep.position.copy(position);
+    sweep.position.y += 0.05;
+    sweep.rotation.x = -Math.PI / 2;
+
+    scene.add(sweep);
+
+    activeEffects.push({ mesh: sweep, life: 1.5, initialLife: 1.5 });
 }
 
 export function updateGatheringEffects(units) {
@@ -108,8 +122,9 @@ export function updateActiveEffects(delta) {
             effect.mesh.material.dispose();
             activeEffects.splice(i, 1);
         } else {
-            effect.mesh.material.opacity = effect.life / 0.75;
-            const scale = 1.0 + (1.0 - (effect.life / 0.75)) * 1.5;
+            const initial = effect.initialLife || 0.75;
+            effect.mesh.material.opacity = effect.life / initial;
+            const scale = 1.0 + (1.0 - (effect.life / initial)) * 1.5;
             effect.mesh.scale.set(scale, scale, scale);
         }
     }

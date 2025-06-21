@@ -54,9 +54,36 @@ function toggleGrid() {
     }
 }
 
-function toggleSpotifyModal() {
+let adTimeout = null;
+
+function showSpotifyAd() {
     if (!isGameRunning) return;
-    spotifyModal.classList.toggle('hidden');
+
+    const placeholder = document.getElementById('spotify-player-placeholder');
+    if (!placeholder) return;
+
+    spotifyModal.classList.remove('hidden');
+    placeholder.innerHTML =
+        '<iframe id="spotify-ad-iframe" ' +
+        'src="https://open.spotify.com/embed/track/6A9JER2SJiuZbAnYDZmIo2?si=3a3b921b296741a3&autoplay=1" ' +
+        'width="100%" height="80" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>';
+
+    if (adTimeout) {
+        clearTimeout(adTimeout);
+    }
+    adTimeout = setTimeout(hideSpotifyAd, 15000);
+}
+
+function hideSpotifyAd() {
+    const placeholder = document.getElementById('spotify-player-placeholder');
+    if (placeholder) {
+        placeholder.innerHTML = '<p>Spotify Player Placeholder</p>';
+    }
+    spotifyModal.classList.add('hidden');
+    if (adTimeout) {
+        clearTimeout(adTimeout);
+        adTimeout = null;
+    }
 }
 
 function toggleDevLogModal() {
@@ -176,7 +203,7 @@ export function initUI(commandExecutor, startGameCallback, audioManager, getGrid
         sfxVolumeSlider.value = e.target.value;
     });
 
-    closeSpotifyModalButton.addEventListener('click', toggleSpotifyModal);
+    closeSpotifyModalButton.addEventListener('click', hideSpotifyAd);
     closeDevLogModalButton.addEventListener('click', toggleDevLogModal);
     clearDevLogButton.addEventListener('click', () => devLogger.clearLogs());
     closeChangelogModalButton.addEventListener('click', toggleChangelogModal);
@@ -205,7 +232,7 @@ export function initUI(commandExecutor, startGameCallback, audioManager, getGrid
                 togglePause();
                 break;
             case 'KeyM':
-                toggleSpotifyModal();
+                showSpotifyAd();
                 break;
             case 'Backslash':
                 if (devLogger.isActive) {

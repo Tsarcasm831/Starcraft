@@ -69,6 +69,20 @@ export function createIrradiate(position) {
     activeEffects.push({ mesh: irradiate, life: 3, initialLife: 3 });
 }
 
+export function createYamatoBlast(start, target) {
+    const material = new THREE.LineBasicMaterial({
+        color: 0xff4500,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending,
+    });
+    const points = [start.clone(), target.clone()];
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const beam = new THREE.Line(geometry, material);
+    scene.add(beam);
+    activeEffects.push({ mesh: beam, life: 0.5, initialLife: 0.5 });
+}
+
 export function updateGatheringEffects(units) {
     const activeUnits = new Set(units);
 

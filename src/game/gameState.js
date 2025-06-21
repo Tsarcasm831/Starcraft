@@ -15,6 +15,8 @@ export const gameState = {
         siegeModeResearched: false,
         charonBoosters: false,
         empShockwave: false,
+        wraithCloaking: false,
+        dropThrusters: false,
     },
     academyBuilt: false,
     engineeringBayBuilt: false,

@@ -7,6 +7,7 @@ import { SCVMark2 } from '../units/scv-mark-2.js';
 import { SCV } from '../units/scv.js';
 import { Bunker } from '../buildings/bunker.js';
 import { Dropship } from '../units/dropship.js';
+import { Infantry } from '../units/infantry.js';
 import { devLogger } from '../utils/dev-logger.js';
 import { getGroundMeshes } from '../utils/terrain.js';
 
@@ -175,6 +176,27 @@ export function handleRightClick(event) {
                     pos.z + radius * Math.sin(angle)
                 );
                 rep.repair(clickedObject, pathfinder, targetPos);
+            });
+            return;
+        }
+
+        const medics = selectedObjects.filter(obj => obj instanceof Infantry && obj.constructor.name === 'Medic');
+        if (medics.length > 0 && clickedObject instanceof Infantry && clickedObject.currentHealth < clickedObject.maxHealth) {
+            onMoveSound();
+            createMoveIndicator(clickedObject.mesh.position);
+            const collider = clickedObject.getCollider();
+            const size = collider.getSize(new THREE.Vector3());
+            const pos = clickedObject.mesh.position;
+            const radius = Math.max(size.x, size.z) / 2 + 1.0;
+
+            medics.forEach((medic, i) => {
+                const angle = (i / medics.length) * (Math.PI * 2);
+                const targetPos = new THREE.Vector3(
+                    pos.x + radius * Math.cos(angle),
+                    pos.y,
+                    pos.z + radius * Math.sin(angle)
+                );
+                medic.heal(clickedObject, pathfinder, targetPos);
             });
             return;
         }

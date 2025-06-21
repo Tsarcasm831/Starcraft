@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { assetManager } from '../utils/asset-manager.js';
+import { createDefensiveMatrix, createEMPShockwave, createIrradiate } from '../game/effects.js';
 
 export class ScienceVessel {
     constructor(position) {
@@ -131,13 +132,35 @@ export class ScienceVessel {
     executeCommand(commandName, gameState, statusCallback) {
         switch (commandName) {
             case 'defensive_matrix':
-                statusCallback("Defensive Matrix not yet implemented.");
+                if (this.energy < 100) {
+                    statusCallback('Not enough energy.');
+                    break;
+                }
+                this.energy -= 100;
+                createDefensiveMatrix(this.mesh.position);
+                statusCallback('Defensive Matrix deployed.');
                 break;
             case 'emp_shockwave':
-                statusCallback("EMP Shockwave not yet implemented.");
+                if (!gameState.upgrades.empShockwave) {
+                    statusCallback('EMP Shockwave not researched.');
+                    break;
+                }
+                if (this.energy < 100) {
+                    statusCallback('Not enough energy.');
+                    break;
+                }
+                this.energy -= 100;
+                createEMPShockwave(this.mesh.position);
+                statusCallback('EMP Shockwave fired.');
                 break;
             case 'irradiate':
-                statusCallback("Irradiate not yet implemented.");
+                if (this.energy < 75) {
+                    statusCallback('Not enough energy.');
+                    break;
+                }
+                this.energy -= 75;
+                createIrradiate(this.mesh.position);
+                statusCallback('Irradiate activated.');
                 break;
         }
     }

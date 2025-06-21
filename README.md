@@ -13,4 +13,5 @@
 - SCV can now construct basic buildings and repair damaged allies.
 - Medics can heal wounded infantry at the cost of energy.
 - Ghosts can cloak, use Lockdown and call Nuclear Strikes when a loaded Nuclear Silo is available.
+- Science Vessels can deploy Defensive Matrix, EMP Shockwave and Irradiate abilities.
 

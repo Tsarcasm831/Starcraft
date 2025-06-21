@@ -36,6 +36,39 @@ export function createScannerSweep(position) {
     activeEffects.push({ mesh: sweep, life: 1.5, initialLife: 1.5 });
 }
 
+export function createDefensiveMatrix(position) {
+    const geometry = new THREE.RingGeometry(2, 2.4, 32);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.DoubleSide, transparent: true });
+    const matrix = new THREE.Mesh(geometry, material);
+    matrix.position.copy(position);
+    matrix.position.y += 0.1;
+    matrix.rotation.x = -Math.PI / 2;
+    scene.add(matrix);
+    activeEffects.push({ mesh: matrix, life: 3, initialLife: 3 });
+}
+
+export function createEMPShockwave(position) {
+    const geometry = new THREE.RingGeometry(3.5, 4, 64);
+    const material = new THREE.MeshBasicMaterial({ color: 0x41aeff, side: THREE.DoubleSide, transparent: true });
+    const emp = new THREE.Mesh(geometry, material);
+    emp.position.copy(position);
+    emp.position.y += 0.05;
+    emp.rotation.x = -Math.PI / 2;
+    scene.add(emp);
+    activeEffects.push({ mesh: emp, life: 1.5, initialLife: 1.5 });
+}
+
+export function createIrradiate(position) {
+    const geometry = new THREE.RingGeometry(1.5, 1.9, 32);
+    const material = new THREE.MeshBasicMaterial({ color: 0xffa500, side: THREE.DoubleSide, transparent: true });
+    const irradiate = new THREE.Mesh(geometry, material);
+    irradiate.position.copy(position);
+    irradiate.position.y += 0.05;
+    irradiate.rotation.x = -Math.PI / 2;
+    scene.add(irradiate);
+    activeEffects.push({ mesh: irradiate, life: 3, initialLife: 3 });
+}
+
 export function updateGatheringEffects(units) {
     const activeUnits = new Set(units);
 

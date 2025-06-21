@@ -27,7 +27,7 @@ export class Vulture {
             const asset = assetManager.get('vulture');
             this.mesh = this.createMeshFromGLB(asset);
         } catch (error) {
-            console.warn("Could not load vulture.glb, using procedural fallback.", error);
+            console.warn("Could not load vulture model, using procedural fallback.", error);
             this.mesh = this.createProceduralMesh();
         }
 
@@ -48,9 +48,9 @@ export class Vulture {
         const selectionMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
         this.selectionIndicator = new THREE.Mesh(selectionGeometry, selectionMaterial);
         this.selectionIndicator.rotation.x = -Math.PI / 2;
-        this.selectionIndicator.position.y = -this.baseY + 0.01; // Position on the ground
+        this.selectionIndicator.position.y = position.y + 0.01;
         this.selectionIndicator.visible = false;
-        this.mesh.add(this.selectionIndicator);
+        // The indicator is added to the scene in index.js to avoid flickering with hover animation
 
         this.collider = new THREE.Box3().setFromObject(this.mesh);
     }
@@ -68,10 +68,9 @@ export class Vulture {
             model.scale.set(scale, scale, scale);
         }
         
-        // The GLB model's "front" is along its local +X axis.
-        // We need to rotate it so it aligns with the parent group's +Z axis,
-        // which is what Three.js's lookAt() uses as the forward direction.
-        model.rotation.y = -Math.PI / 2;
+        // The GLB model's "front" is now aligned with what lookAt() expects.
+        // It was previously rotated 180 degrees (Math.PI).
+        model.rotation.y = 0;
 
         const wrapper = new THREE.Group();
         wrapper.add(model);
@@ -122,6 +121,9 @@ export class Vulture {
             }
         });
 
+        // Rotate procedural mesh to align with lookAt's +Z forward direction
+        group.rotation.y = -Math.PI / 2;
+
         return group;
     }
 
@@ -162,6 +164,13 @@ export class Vulture {
                  this.mesh.position.y = this.baseY;
                  this.driveTime = 0;
             }
+        }
+        
+        // Update selection indicator position to follow the unit on the ground
+        if (this.selectionIndicator) {
+             this.selectionIndicator.position.x = this.mesh.position.x;
+             this.selectionIndicator.position.z = this.mesh.position.z;
+             this.selectionIndicator.position.y = getTerrainHeight(scene, this.mesh.position.x, this.mesh.position.z) + 0.01;
         }
     }
 

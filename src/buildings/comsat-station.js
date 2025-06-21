@@ -55,21 +55,21 @@ export class ComsatStation {
         const mainMaterial = new THREE.MeshStandardMaterial({ color: 0x7a8a9a, metalness: 0.7, roughness: 0.6 });
         const accentMaterial = new THREE.MeshStandardMaterial({ color: 0x4a5a6a, metalness: 0.8, roughness: 0.5 });
 
-        const baseGeo = new THREE.BoxGeometry(5, 2.5, 5);
+        const baseGeo = new THREE.BoxGeometry(4, 2, 4);
         const base = new THREE.Mesh(baseGeo, mainMaterial);
-        base.position.y = 1.25;
+        base.position.y = 1.0;
         group.add(base);
 
-        const supportGeo = new THREE.CylinderGeometry(0.7, 0.7, 1.5, 8);
+        const supportGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.0, 8);
         const support = new THREE.Mesh(supportGeo, accentMaterial);
-        support.position.y = 3.25;
+        support.position.y = 2.5;
         group.add(support);
         
-        const dishGeo = new THREE.SphereGeometry(3, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2.5);
-        const dish = new THREE.Mesh(dishGeo, mainMaterial);
-        dish.position.y = 4;
-        dish.rotation.x = -Math.PI / 5;
-        group.add(dish);
+        const dishGeo = new THREE.SphereGeometry(2, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2.5);
+        this.dish = new THREE.Mesh(dishGeo, mainMaterial);
+        this.dish.position.y = 3.0;
+        this.dish.rotation.x = -Math.PI / 5;
+        group.add(this.dish);
 
         return group;
     }
@@ -80,15 +80,17 @@ export class ComsatStation {
         this.selected = true; 
         if(this.parentBuilding && !this.parentBuilding.selected) this.parentBuilding.select();
     }
-    deselect(calledByAddon = false) { 
+    deselect() { 
         this.selected = false;
-        if(this.parentBuilding && this.parentBuilding.selected && !calledByAddon) this.parentBuilding.deselect(true);
+        if(this.parentBuilding && this.parentBuilding.selected) this.parentBuilding.deselect(true); // pass flag to avoid feedback loop
     }
     
     executeCommand(commandName, gameState, statusCallback) {
         if (commandName === 'scanner_sweep') {
             statusCallback("Scanner Sweep not yet implemented.");
+            return true; // Command was handled
         }
+        return false; // Command was not handled
     }
 
     update(delta) {
@@ -99,6 +101,9 @@ export class ComsatStation {
         if (this.energy > this.maxEnergy) {
             this.energy = this.maxEnergy;
         }
+
+        if (this.dish) {
+            this.dish.rotation.y += delta * 0.4;
+        }
     }
 }
-

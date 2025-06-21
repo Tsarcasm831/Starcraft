@@ -6,6 +6,7 @@ import { Firebat } from '../units/firebat.js';
 import { Medic } from '../units/medic.js';
 import { Ghost } from '../units/ghost.js';
 import { Vulture } from '../units/vulture.js';
+import { SiegeTank } from '../units/siege-tank.js';
 import { CommandCenter } from '../buildings/command-center.js';
 import { SupplyDepot } from '../buildings/supply-depot.js';
 import { Refinery } from '../buildings/refinery.js';
@@ -18,6 +19,16 @@ import { Factory } from '../buildings/factory.js';
 import { Starport } from '../buildings/starport.js';
 import { ComsatStation } from '../buildings/comsat-station.js';
 import { NuclearSilo } from '../buildings/nuclear-silo.js';
+import { Goliath } from '../units/goliath.js';
+import { Wraith } from '../units/wraith.js';
+import { Dropship } from '../units/dropship.js';
+import { Armory } from '../buildings/armory.js';
+import { ScienceVessel } from '../units/science-vessel.js';
+import { ScienceFacility } from '../buildings/science-facility.js';
+import { ControlTower } from '../buildings/control-tower.js';
+import { Valkyrie } from '../units/valkyrie.js';
+import { Battlecruiser } from '../units/battlecruiser.js';
+import { PhysicsLab } from '../buildings/physics-lab.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -74,11 +85,8 @@ export function handleSingleSelection(event) {
     const intersects = raycaster.intersectObjects(objectMeshes, true);
 
     if (intersects.length > 0) {
-        let clickedObject = intersects[0].object.userData.owner;
+        const clickedObject = intersects[0].object.userData.owner;
         if (clickedObject) {
-            if (clickedObject.isAddon) {
-                clickedObject = clickedObject.parentBuilding;
-            }
             changeSelection([clickedObject]);
         } else {
              changeSelection([]);
@@ -109,6 +117,13 @@ export function handleBoxSelection(selectionBox) {
                 selectable instanceof Medic ||
                 selectable instanceof Ghost ||
                 selectable instanceof Vulture ||
+                selectable instanceof SiegeTank ||
+                selectable instanceof Goliath ||
+                selectable instanceof Wraith ||
+                selectable instanceof Dropship ||
+                selectable instanceof ScienceVessel ||
+                selectable instanceof Valkyrie ||
+                selectable instanceof Battlecruiser ||
                 selectable instanceof CommandCenter ||
                 selectable instanceof SupplyDepot ||
                 selectable instanceof Refinery ||
@@ -119,6 +134,10 @@ export function handleBoxSelection(selectionBox) {
                 selectable instanceof MissileTurret ||
                 selectable instanceof Factory ||
                 selectable instanceof Starport ||
+                selectable instanceof Armory ||
+                selectable instanceof ScienceFacility ||
+                selectable instanceof ControlTower ||
+                selectable instanceof PhysicsLab ||
                 selectable instanceof ComsatStation ||
                 selectable instanceof NuclearSilo
             ) {

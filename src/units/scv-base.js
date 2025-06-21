@@ -132,7 +132,7 @@ export class SCVBase {
     findClosestDropOff(allBuildings) {
         let closest = null;
         let minDistance = Infinity;
-        const depots = allBuildings.filter(b => b.name === 'Command Center' && b.state === 'grounded');
+        const depots = allBuildings.filter(b => b.name === 'Command Center');
         depots.forEach(building => {
             const distance = this.mesh.position.distanceToSquared(building.mesh.position);
             if (distance < minDistance) {
@@ -215,19 +215,13 @@ export class SCVBase {
                 }
                 break;
             case 'returning':
-                 if (!this.dropOffPoint || this.dropOffPoint.state !== 'grounded') {
-                    // Current drop-off is gone or flying, find a new one.
+                 if (!this.dropOffPoint) {
                     this.findClosestDropOff(allBuildings);
                     if (!this.dropOffPoint) {
-                        // No available drop-off point, stop and wait.
                         this.state = 'idle';
-                        this.path = [];
                         return;
                     }
-                    // Found a new drop-off, path will be recalculated below.
-                    this.path = [];
                  }
-
                 const dropOffPos = this.dropOffPoint.mesh.position;
                 if (!this.path || this.path.length === 0) {
                     const newPath = pathfinder.findPath(this.mesh.position, dropOffPos);

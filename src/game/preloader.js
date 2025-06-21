@@ -9,6 +9,15 @@ export async function preloadAssets(audioManager) {
     tasks.push(() => assetManager.loadGLB('assets/models/scv.glb', 'scv'));
     tasks.push(() => assetManager.loadGLB('assets/models/scv2.glb', 'scv2'));
     tasks.push(() => assetManager.loadGLB('assets/models/vulture.glb', 'vulture'));
+    tasks.push(() => assetManager.loadGLB('assets/models/goliath.glb', 'goliath'));
+    tasks.push(() => assetManager.loadGLB('assets/models/wraith.glb', 'wraith'));
+    tasks.push(() => assetManager.loadGLB('assets/models/dropship.glb', 'dropship'));
+    tasks.push(() => assetManager.loadGLB('assets/models/science_vessel.glb', 'science_vessel'));
+    tasks.push(() => assetManager.loadGLB('assets/models/valkyrie.glb', 'valkyrie'));
+    tasks.push(() => assetManager.loadGLB('assets/models/battlecruiser.glb', 'battlecruiser'));
+    tasks.push(() => assetManager.loadGLB('assets/models/science_facility.glb', 'science_facility'));
+    tasks.push(() => assetManager.loadGLB('assets/models/control_tower.glb', 'control_tower'));
+    tasks.push(() => assetManager.loadGLB('assets/models/physics_lab.glb', 'physics_lab'));
     tasks.push(() => assetManager.loadSound('assets/audio/select.mp3', 'select'));
     tasks.push(() => assetManager.loadSound('assets/audio/move.mp3', 'move'));
 
@@ -24,8 +33,12 @@ export async function preloadAssets(audioManager) {
         'assets/images/build_missile_turret_icon.png',
         'assets/images/build_factory_icon.png',
         'assets/images/build_starport_icon.png',
+        'assets/images/build_armory_icon.png',
         'assets/images/build_scv_icon.png',
         'assets/images/build_scv2_icon.png',
+        'assets/images/build_science_facility_icon.png',
+        'assets/images/build_control_tower_icon.png',
+        'assets/images/build_physics_lab_icon.png',
         'assets/images/build_basic_structures_icon.png',
         'assets/images/build_advanced_structures_icon.png',
         'assets/images/build_comsat_station_icon.png',
@@ -44,6 +57,8 @@ export async function preloadAssets(audioManager) {
         'assets/images/train_medic_icon.png',
         'assets/images/train_firebat_icon.png',
         'assets/images/train_vulture_icon.png',
+        'assets/images/train_siege_tank_icon.png',
+        'assets/images/train_goliath_icon.png',
         'assets/images/train_wraith_icon.png',
         'assets/images/train_dropship_icon.png',
         'assets/images/train_science_vessel_icon.png',
@@ -53,14 +68,39 @@ export async function preloadAssets(audioManager) {
         'assets/images/upgrade_infantry_armor_icon.png',
         'assets/images/stim_pack_icon.png',
         'assets/images/u238_shells_icon.png',
+        'assets/images/siege_mode_icon.png',
+        'assets/images/tank_mode_icon.png',
+        'assets/images/research_siege_mode_icon.png',
+        'assets/images/charon_boosters_icon.png',
         'assets/images/scanner_sweep_icon.png',
         'assets/images/arm_nuke_icon.png',
+        'assets/images/yamato_cannon_icon.png',
+        'assets/images/defensive_matrix_icon.png',
+        'assets/images/emp_shockwave_icon.png',
+        'assets/images/irradiate_icon.png',
         'assets/images/cloak_icon.png',
         'assets/images/lockdown_icon.png',
         'assets/images/nuke_strike_icon.png',
+        'assets/images/train_ghost_icon.png',
     ];
 
     iconPaths.forEach(path => {
+        const name = path.split('/').pop().replace('.png', '');
+        tasks.push(() => assetManager.loadImage(path, name));
+    });
+
+    // Preload portraits
+    const portraitPaths = [
+        'assets/images/wraith_portrait.png',
+        'assets/images/dropship_portrait.png',
+        'assets/images/science_vessel_portrait.png',
+        'assets/images/valkyrie_portrait.png',
+        'assets/images/battlecruiser_portrait.png',
+        'assets/images/science_facility_portrait.png',
+        'assets/images/control_tower_portrait.png',
+        'assets/images/physics_lab_portrait.png',
+    ];
+    portraitPaths.forEach(path => {
         const name = path.split('/').pop().replace('.png', '');
         tasks.push(() => assetManager.loadImage(path, name));
     });
@@ -76,6 +116,19 @@ export async function preloadAssets(audioManager) {
             audioManager.scvConstructedSoundNames.push(name);
         });
     });
+
+    const scvMark2ConstructUrls = [
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/22_aint_paid_enough.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/01_scv_good_to.wav'
+    ];
+    scvMark2ConstructUrls.forEach((url, i) => {
+        const name = `scv_mark2_constructed_${i}`;
+        tasks.push(async () => {
+            await assetManager.loadSound(url, name);
+            audioManager.scvMark2ConstructedSoundNames.push(name);
+        });
+    });
+
     const bgUrls = [
         'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Terran%20BGM.mp3',
         'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Terran%20BGM2.mp3',
@@ -85,7 +138,6 @@ export async function preloadAssets(audioManager) {
     tasks.push(() => audioManager.loadBackgroundTracks(bgUrls));
 
     let loaded = 0;
-    if (loadingOverlay) loadingOverlay.classList.remove('hidden');
 
     for (const task of tasks) {
         try {
@@ -100,5 +152,5 @@ export async function preloadAssets(audioManager) {
         }
     }
 
-    if (loadingOverlay) loadingOverlay.classList.add('hidden');
+    if (loadingOverlay) loadingOverlay.classList.remove('visible');
 }

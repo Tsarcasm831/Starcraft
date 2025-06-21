@@ -1,7 +1,8 @@
 import * as THREE from 'three';
+import { FlyingBuildingBehavior } from './flying-building-behavior.js';
 
 export class Factory {
-    constructor(position, { isUnderConstruction = false, buildTime = 50.4 } = {}) {
+    constructor(position, { isUnderConstruction = false, buildTime = 50.4, onStateChange = () => {} } = {}) {
         this.name = 'Factory';
         this.portraitUrl = 'assets/images/factory_portrait.png';
         this.maxHealth = 1250;
@@ -9,11 +10,17 @@ export class Factory {
         this.selected = false;
         this.isUnderConstruction = isUnderConstruction;
         this.buildTime = buildTime;
-        this.state = 'grounded';
+        this.onStateChange = onStateChange;
+
+        // Behaviors
+        this.flyingBehavior = new FlyingBuildingBehavior(this, {
+            onStateChange: this.onStateChange,
+        });
 
         this._commands = [];
         this.buildQueue = [];
         this.rallyPoint = new THREE.Vector3(position.x - 6, 0, position.z);
+        this.hasArmory = undefined;
 
         this.mesh = this.createMesh();
         this.mesh.position.copy(position);
@@ -48,11 +55,18 @@ export class Factory {
         const buildingWidth = 8;
         const buildingDepth = 6;
         const buildingHeight = 6;
-        this.collider = new THREE.Box3(
+        this.groundCollider = new THREE.Box3(
             new THREE.Vector3(-buildingWidth / 2, 0, -buildingDepth / 2),
             new THREE.Vector3(buildingWidth / 2, buildingHeight, buildingDepth / 2)
         );
-        this.collider.translate(this.mesh.position);
+        this.groundCollider.translate(this.mesh.position);
+    }
+
+    get state() {
+        return this.flyingBehavior.state;
+    }
+    set state(newState) {
+        this.flyingBehavior.state = newState;
     }
 
     get commands() {
@@ -97,24 +111,62 @@ export class Factory {
         }
 
         const newCommands = new Array(12).fill(null);
-        newCommands[0] = {
-            command: 'train_vulture',
-            hotkey: 'V',
-            icon: 'assets/images/train_vulture_icon.png',
-            name: 'Build Vulture',
-            cost: { minerals: 75, supply: 2 },
-            buildTime: 25.2
-        };
-        // Placeholders for other units
-        // newCommands[1] = { command: 'train_siege_tank', ... };
-        // newCommands[2] = { command: 'train_goliath', ... };
-        
-        newCommands[8] = {
-            command: 'lift_off',
-            hotkey: 'L',
-            icon: 'assets/images/lift_off_icon.png',
-            name: 'Lift Off'
-        };
+
+        if (this.state === 'grounded') {
+            newCommands[0] = {
+                command: 'train_vulture',
+                hotkey: 'V',
+                icon: 'assets/images/train_vulture_icon.png',
+                name: 'Build Vulture',
+                cost: { minerals: 75, supply: 2 },
+                buildTime: 25.2
+            };
+            newCommands[1] = {
+                command: 'train_siege_tank',
+                hotkey: 'T',
+                icon: 'assets/images/train_siege_tank_icon.png',
+                name: 'Build Siege Tank',
+                cost: { minerals: 150, vespene: 100, supply: 2 },
+                buildTime: 50
+            };
+            if (gameState.armoryBuilt) {
+                newCommands[2] = {
+                    command: 'train_goliath',
+                    hotkey: 'G',
+                    icon: 'assets/images/train_goliath_icon.png',
+                    name: 'Build Goliath',
+                    cost: { minerals: 100, vespene: 50, supply: 2 },
+                    buildTime: 40
+                };
+            }
+            
+            if (!gameState.upgrades.siegeModeResearched) {
+                newCommands[5] = {
+                    command: 'research_siege_mode',
+                    hotkey: 'S',
+                    icon: 'assets/images/research_siege_mode_icon.png',
+                    name: 'Research Siege Mode',
+                    cost: { minerals: 150, vespene: 150 },
+                    researchTime: 80,
+                };
+            }
+            
+            newCommands[8] = {
+                command: 'lift_off',
+                hotkey: 'L',
+                icon: 'assets/images/lift_off_icon.png',
+                name: 'Lift Off'
+            };
+        } else if (this.state === 'flying') {
+            newCommands[0] = { command: 'move', hotkey: 'M', icon: 'assets/images/move_icon.png', name: 'Move' };
+            newCommands[8] = {
+                command: 'land_factory',
+                hotkey: 'L',
+                icon: 'assets/images/lower_depot_icon.png',
+                name: 'Land',
+                cost: {}, // for placement system
+            };
+        }
 
         this.commands = newCommands;
     }
@@ -134,63 +186,128 @@ export class Factory {
         this.updateCommands(gameState);
     }
 
-    getCollider() { return this.collider; }
+    getCollider() {
+        const flyingCollider = this.flyingBehavior.getCollider();
+        if (flyingCollider.isEmpty()) {
+            return flyingCollider;
+        }
+        return this.groundCollider;
+    }
     select() { this.selected = true; this.selectionIndicator.visible = true; }
     deselect() { this.selected = false; this.selectionIndicator.visible = false; }
+
+    setPath(path) {
+        this.flyingBehavior.setPath(path);
+    }
+
+    landAt(position, pathfinder) {
+        this.flyingBehavior.landAt(position, pathfinder);
+    }
 
     executeCommand(commandName, gameState, statusCallback) {
         const command = this.commands.find(c => c && c.command === commandName);
         if (!command) return;
 
+        if (commandName.startsWith('train_')) {
+            if (this.state !== 'grounded') {
+                statusCallback("Must be landed to train units.");
+                return;
+            }
+            if (this.buildQueue.length >= 5) {
+                statusCallback("Build queue is full.");
+                return;
+            }
+            if (gameState.minerals < command.cost.minerals) {
+                statusCallback("Not enough minerals.");
+                return;
+            }
+            if (command.cost.vespene && gameState.vespene < command.cost.vespene) {
+                statusCallback("Not enough vespene.");
+                return;
+            }
+            if (gameState.supplyUsed + command.cost.supply > gameState.supplyCap) {
+                statusCallback("Additional supply required.");
+                return;
+            }
+            
+            gameState.minerals -= command.cost.minerals;
+            if(command.cost.vespene) gameState.vespene -= command.cost.vespene;
+
+            let unitType = '';
+            switch(commandName) {
+                case 'train_vulture': unitType = 'Vulture'; break;
+                case 'train_siege_tank': unitType = 'Siege Tank'; break;
+                case 'train_goliath': unitType = 'Goliath'; break;
+            }
+
+            this.buildQueue.push({
+                type: unitType,
+                progress: 0,
+                buildTime: command.buildTime,
+                originalCommand: commandName,
+            });
+            statusCallback(`${unitType} training...`);
+            return;
+        }
+
         switch (commandName) {
-            case 'train_vulture':
-                if (this.buildQueue.length >= 5) {
-                    statusCallback("Build queue is full.");
+            case 'research_siege_mode':
+                if (this.state !== 'grounded') {
+                    statusCallback("Must be landed to research.");
                     return;
                 }
-                if (gameState.minerals < command.cost.minerals) {
-                    statusCallback("Not enough minerals.");
+                if (this.buildQueue.length > 0) {
+                    statusCallback("Already building or researching.");
                     return;
                 }
-                if (gameState.supplyUsed + command.cost.supply > gameState.supplyCap) {
-                    statusCallback("Additional supply required.");
+                if (gameState.minerals < command.cost.minerals || (command.cost.vespene && gameState.vespene < command.cost.vespene)) {
+                    statusCallback("Not enough resources.");
                     return;
                 }
-                
+
                 gameState.minerals -= command.cost.minerals;
+                gameState.vespene -= command.cost.vespene;
                 this.buildQueue.push({
-                    type: 'Vulture',
+                    type: 'Research',
                     progress: 0,
                     buildTime: command.buildTime,
-                    cost: command.cost,
                     originalCommand: commandName,
                 });
-                statusCallback("Vulture training...");
+                statusCallback("Researching Siege Mode...");
                 break;
             case 'lift_off':
-                statusCallback("Lift-off sequence not yet available.");
+                 if (this.flyingBehavior.liftOff()) {
+                     statusCallback("Lift-off sequence initiated.");
+                 } else {
+                     if (this.state !== 'grounded') statusCallback("Already airborne.");
+                 }
                 break;
         }
     }
 
     update(delta, gameState, spawnUnitCallback) {
+        this.flyingBehavior.update(delta);
+
         if (this.isUnderConstruction) {
             const buildProgress = Math.max(0.01, this.currentHealth / this.maxHealth);
             this.mesh.scale.y = buildProgress;
             return;
         }
 
-        // Only update commands if needed.
-        if (this.commands.length === 0 && !this.isUnderConstruction) {
-            this.updateCommands(gameState);
-        }
+        this.updateCommands(gameState);
 
         if (this.buildQueue.length > 0) {
             const trainingUnit = this.buildQueue[0];
             trainingUnit.progress += delta;
             if (trainingUnit.progress >= trainingUnit.buildTime) {
                 const finishedUnit = this.buildQueue.shift();
-                spawnUnitCallback(finishedUnit.type, this.rallyPoint.clone());
+                if (finishedUnit.type === 'Research') {
+                    if (finishedUnit.originalCommand === 'research_siege_mode') {
+                        gameState.upgrades.siegeModeResearched = true;
+                    }
+                } else {
+                    spawnUnitCallback(finishedUnit.type, this.rallyPoint.clone());
+                }
             }
         }
     }

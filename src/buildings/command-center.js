@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { FlyingBuildingBehavior } from './flying-building-behavior.js';
+import { AddonBehavior } from './addon-behavior.js';
 
 export class CommandCenter {
     constructor(position, { isUnderConstruction = false, buildTime = 75, onStateChange = () => {} } = {}) {
@@ -11,12 +12,9 @@ export class CommandCenter {
         this.selected = false;
         this.isUnderConstruction = isUnderConstruction;
         this.buildTime = buildTime;
-        this.addon = null;
-        this.addonToBuild = null;
-        this.addonBuildProgress = 0;
         this.onStateChange = onStateChange;
 
-        // Flying properties are now managed by the behavior
+        // Behaviors
         this.flyingBehavior = new FlyingBuildingBehavior(this, {
             onStateChange: this.onStateChange,
             hoverHeight: 5,
@@ -24,7 +22,10 @@ export class CommandCenter {
             speed: 10
         });
 
+        this.addonBehavior = new AddonBehavior(this);
+
         // Command Card is now a getter
+        this._commands = [];
         this.buildQueue = [];
         this.rallyPoint = new THREE.Vector3(position.x - 8, 0, position.z); // Default rally point
 
@@ -113,30 +114,43 @@ export class CommandCenter {
     }
 
     get commands() {
+        return this._commands;
+    }
+
+    updateCommands(gameState) {
+        this.addonBehavior.updateCommands(gameState);
+
         const commandList = new Array(12).fill(null);
 
-        // If addon is building, show a cancel button
-        if (this.addonToBuild) {
-            // In a real implementation, we'd add a cancel button
-            return commandList;
+        // Addon behavior might be showing a cancel button or nothing.
+        if (this.addonBehavior.isBuilding()) {
+            this._commands = this.addonBehavior.getCommands();
+            return;
         }
 
         // Base commands
-        if (this.state === 'grounded' && !this.addonToBuild) {
+        if (this.state === 'grounded') {
+            const scvsInQueue = this.buildQueue.filter(item => item.type === 'SCV').length;
+            const scvCountForCost = Math.max(0, gameState.unitCounts.scv + scvsInQueue - 4);
+            const scvCost = Math.round(50 * Math.pow(1.4, scvCountForCost));
             commandList[0] = { 
                 command: 'train_scv', 
                 hotkey: 'S', 
                 icon: 'assets/images/build_scv2_icon.png', 
                 name: 'Build SCV',
-                cost: { minerals: 50, supply: 1 },
+                cost: { minerals: scvCost, supply: 1 },
                 buildTime: 17 // seconds
             };
+
+            const scvM2sInQueue = this.buildQueue.filter(item => item.type === 'SCV Mark 2').length;
+            const scvM2CountForCost = Math.max(0, gameState.unitCounts.scv_mark_2 + scvM2sInQueue - 4);
+            const scvM2Cost = Math.round(75 * Math.pow(1.4, scvM2CountForCost));
             commandList[1] = {
                 command: 'train_scv_mark_2',
                 hotkey: 'D',
                 icon: 'assets/images/build_scv_icon.png',
                 name: 'Build SCV Mark 2',
-                cost: { minerals: 75, supply: 1 },
+                cost: { minerals: scvM2Cost, supply: 1 },
                 buildTime: 22
             };
         }
@@ -151,44 +165,21 @@ export class CommandCenter {
         } else if (this.state === 'flying') {
             commandList[0] = { command: 'move', hotkey: 'M', icon: 'assets/images/move_icon.png', name: 'Move' };
             commandList[8] = {
-                command: 'land',
+                command: 'land_command_center',
                 hotkey: 'L',
-                icon: 'assets/images/raise_depot_icon.png', // Placeholder icon
+                icon: 'assets/images/lower_depot_icon.png',
                 name: 'Land',
                 cost: {}, // for placement system
             };
         }
 
-        // If an addon is attached, merge its commands.
-        if (this.state === 'grounded' && this.addon) {
-            if (this.addon.commands) {
-                this.addon.commands.forEach((cmd, index) => {
-                    if (cmd) commandList[index] = cmd;
-                });
-            }
-        } else if (this.state === 'grounded') {
-            // If no addon, show build options
-            commandList[2] = {
-                command: 'build_comsat_station',
-                hotkey: 'C',
-                icon: 'assets/images/build_comsat_station_icon.png',
-                name: 'Build Comsat Station',
-                cost: { minerals: 50, vespene: 50 },
-                buildTime: 25.2,
-                prereq: 'academyBuilt'
-            };
-            commandList[3] = {
-                command: 'build_nuclear_silo',
-                hotkey: 'N',
-                icon: 'assets/images/build_nuclear_silo_icon.png',
-                name: 'Build Nuclear Silo',
-                cost: { minerals: 100, vespene: 100 },
-                buildTime: 50.4,
-                prereq: 'scienceFacilityBuilt' // Corrected prereq
-            };
-        }
+        // Merge commands from addon behavior (build options or addon commands)
+        const addonCommands = this.addonBehavior.getCommands();
+        addonCommands.forEach((cmd, index) => {
+            if (cmd) commandList[index] = cmd;
+        });
         
-        return commandList;
+        this._commands = commandList;
     }
 
     createMesh() {
@@ -266,6 +257,7 @@ export class CommandCenter {
                 child.material.transparent = false;
             }
         });
+        this.updateCommands(gameState);
     }
 
     getCollider() {
@@ -276,9 +268,9 @@ export class CommandCenter {
         }
 
         // Otherwise, on the ground, calculate union of self and addon.
-        if (this.addon) {
+        if (this.addonBehavior.addon) {
             const ccBox = this.groundCollider.clone();
-            const addonBox = this.addon.getCollider();
+            const addonBox = this.addonBehavior.addon.getCollider();
             return ccBox.union(addonBox);
         }
         return this.groundCollider;
@@ -287,16 +279,16 @@ export class CommandCenter {
     select() {
         this.selected = true;
         this.selectionIndicator.visible = true;
-        if (this.addon) {
-            this.addon.selected = true;
+        if (this.addonBehavior.addon) {
+            this.addonBehavior.addon.selected = true;
         }
     }
 
     deselect(calledByAddon = false) {
         this.selected = false;
         this.selectionIndicator.visible = false;
-        if (this.addon && !calledByAddon) {
-            this.addon.deselect();
+        if (this.addonBehavior.addon && !calledByAddon) {
+            this.addonBehavior.addon.deselect();
         }
     }
 
@@ -305,18 +297,20 @@ export class CommandCenter {
     }
 
     executeCommand(commandName, gameState, statusCallback) {
-        const command = this.commands.find(c => c && c.command === commandName);
-        if (!command) {
-            // If command not found on CC, try addon
-            if (this.addon && this.addon.executeCommand) {
-                this.addon.executeCommand(commandName, gameState, statusCallback);
-            }
-            return;
+        // First, see if the addon behavior handles this command
+        if (this.addonBehavior.executeCommand(commandName, gameState, statusCallback)) {
+            return; // Command was handled by addon behavior
         }
+        
+        // We need to re-fetch the command to get the dynamic cost
+        this.updateCommands(gameState); // Explicitly update commands to get latest cost
+        const command = this._commands.find(c => c && c.command === commandName);
+        if (!command) return;
 
         if (command.prereq && !gameState[command.prereq]) {
             let prereqName = "prerequisites";
             if (command.prereq === 'academyBuilt') prereqName = "Academy";
+            else if (command.prereq === 'engineeringBayBuilt') prereqName = "Engineering Bay";
             else if (command.prereq === 'scienceFacilityBuilt') prereqName = "Science Facility";
             statusCallback(`Requires ${prereqName}.`);
             return;
@@ -329,7 +323,7 @@ export class CommandCenter {
                     statusCallback("Must be landed to train units.");
                     return;
                 }
-                if (this.addonToBuild) {
+                if (this.addonBehavior.isBuilding()) {
                     statusCallback("Cannot train units while building an addon.");
                     return;
                 }
@@ -352,32 +346,9 @@ export class CommandCenter {
                     type: command.name.replace('Build ', ''),
                     progress: 0,
                     buildTime: command.buildTime,
-                    cost: command.cost,
                     originalCommand: commandName,
                 });
                 statusCallback(`${command.name.replace('Build ', '')} training...`);
-                break;
-
-            case 'build_comsat_station':
-            case 'build_nuclear_silo':
-                if (this.addonToBuild || this.addon) {
-                    statusCallback("Addon already built or in progress.");
-                    return;
-                }
-                if (gameState.minerals < command.cost.minerals || (command.cost.vespene && gameState.vespene < command.cost.vespene)) {
-                    statusCallback("Not enough resources.");
-                    return;
-                }
-                
-                gameState.minerals -= command.cost.minerals;
-                if(command.cost.vespene) gameState.vespene -= command.cost.vespene;
-
-                this.addonToBuild = {
-                    type: command.name.replace('Build ', ''),
-                    buildTime: command.buildTime,
-                };
-                this.addonBuildProgress = 0;
-                statusCallback(`Constructing ${this.addonToBuild.type}...`);
                 break;
 
             case 'lift_off':
@@ -385,18 +356,18 @@ export class CommandCenter {
                      statusCallback("Lift-off sequence initiated.");
                  } else {
                      if (this.state !== 'grounded') statusCallback("Already airborne.");
-                     else if (this.addon) statusCallback("Cannot lift off with an addon attached.");
+                     else if (this.addonBehavior.addon) statusCallback("Cannot lift off with an addon attached.");
                  }
                  break;
-            case 'land':
+            case 'land_command_center':
                  // This is now handled by the placement system via game/index.js
                  // It will call landAt() on this instance.
                  break;
         }
     }
 
-    landAt(position) {
-        this.flyingBehavior.landAt(position);
+    landAt(position, pathfinder) {
+        this.flyingBehavior.landAt(position, pathfinder);
     }
 
     update(delta, gameState, spawnUnitCallback, spawnBuildingCallback) {
@@ -407,44 +378,24 @@ export class CommandCenter {
         }
 
         this.flyingBehavior.update(delta);
+        this.addonBehavior.update(delta, gameState);
+        this.updateCommands(gameState); // Keep commands fresh
 
-        // Addon Construction
-        if (this.state === 'grounded' && this.addonToBuild && !this.isUnderConstruction) {
-            this.addonBuildProgress += delta;
-            
-            if (this.addonBuildProgress >= this.addonToBuild.buildTime) {
-                const addonInfo = this.addonToBuild;
-                const ccSize = this.groundCollider.getSize(new THREE.Vector3());
-                const addonWidth = 5; // from addon class
-                const addonOffset = new THREE.Vector3(ccSize.x / 2 + addonWidth / 2, 0, 0);
-                const addonPosition = this.mesh.position.clone().add(addonOffset);
-                
-                const newAddon = spawnBuildingCallback(addonInfo.type, addonPosition, { 
-                    isUnderConstruction: false, 
-                    buildTime: addonInfo.buildTime,
-                    parent: this,
-                });
-                
-                this.addon = newAddon;
-                this.addonToBuild = null;
-                this.addonBuildProgress = 0;
-                this.onStateChange(); // Update pathfinding
-            }
-        }
-
+        // Unit/Addon Production
         if (this.buildQueue.length > 0) {
-            const trainingUnit = this.buildQueue[0];
-            trainingUnit.progress += delta;
+            const job = this.buildQueue[0];
+            job.progress += delta;
 
-            if (trainingUnit.progress >= trainingUnit.buildTime) {
-                // Unit finished
-                const finishedUnit = this.buildQueue.shift();
-                spawnUnitCallback(finishedUnit.type, this.rallyPoint.clone(), { cost: finishedUnit.cost });
+            if (job.progress >= job.buildTime) {
+                // Job finished
+                const finishedJob = this.buildQueue.shift();
+                
+                if (finishedJob.isAddon) {
+                    this.addonBehavior.completeAddonConstruction(finishedJob, spawnBuildingCallback, gameState);
+                } else {
+                    spawnUnitCallback(finishedJob.type, this.rallyPoint.clone());
+                }
             }
-        }
-
-        if (this.addon && this.addon.update) {
-            this.addon.update(delta, gameState);
         }
     }
 }

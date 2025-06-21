@@ -76,9 +76,9 @@ export class NuclearSilo {
         this.selected = true; 
         if(this.parentBuilding && !this.parentBuilding.selected) this.parentBuilding.select();
     }
-    deselect(calledByAddon = false) { 
+    deselect(flag) { 
         this.selected = false;
-        if(this.parentBuilding && this.parentBuilding.selected && !calledByAddon) this.parentBuilding.deselect(true);
+        if(this.parentBuilding && this.parentBuilding.selected && !flag) this.parentBuilding.deselect(true); // pass flag to avoid feedback loop
     }
     
     executeCommand(commandName, gameState, statusCallback) {

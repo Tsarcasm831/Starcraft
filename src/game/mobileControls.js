@@ -1,6 +1,6 @@
-import { getSelectedObjects, handleSingleSelection } from './controls.js';
+import { getSelectedObjects, handleSingleSelection } from './selection.js';
 import { handleRightClick } from './rightClickHandler.js';
-import { getPlacementMode, cancelPlacementMode, attemptPlacement } from './placement.js';
+import { getPlacementMode } from './placement.js';
 
 let keyState;
 let isInitialized = false;
@@ -9,9 +9,11 @@ let commandButton;
 let tapStartTime = 0;
 let tapTimeout = null;
 const TAP_THRESHOLD = 200; // ms for a tap
-const HOLD_THRESHOLD = 300; // ms for a hold action
+const HOLD_THRESHOLD = 500; // ms for a hold to become a command
+let lastTapTime = 0;
+const DOUBLE_TAP_THRESHOLD = 300; // ms for double tap
 
-function initJoystick(keyState) {
+function initJoystick() {
     const joystickZone = document.getElementById('joystick-zone');
     if (!joystickZone) return;
 
@@ -70,45 +72,49 @@ function initActionButtons() {
     }
 }
 
+function handleDoubleTap(event) {
+    if (getSelectedObjects().length === 0) return;
+
+    const touch = event.changedTouches[0];
+    const rect = renderer.domElement.getBoundingClientRect();
+    const eventData = {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top,
+        width: rect.width,
+        height: rect.height,
+        isMobile: true,
+    };
+
+    handleRightClick(eventData);
+}
+
 function handleTapStart(event) {
     event.preventDefault();
     if (event.touches.length > 1) return;
 
-    // Set a timeout for a "hold" action (right-click equivalent to cancel placement)
-    tapTimeout = setTimeout(() => {
-        tapTimeout = null; // Clear the timeout ID, indicating a hold has occurred.
+    tapStartTime = Date.now();
+    const touch = event.touches[0];
 
+    // Set a timeout for a "hold" action (right-click equivalent)
+    tapTimeout = setTimeout(() => {
+        tapTimeout = null; // Clear the timeout ID
+        // This is a hold, treat as right-click/command
+        const centerCoords = getCenterAsEvent(renderer);
         const placementMode = getPlacementMode();
+
         if (placementMode) {
-             cancelPlacementMode();
-        } else {
-            // Future: hold could open a command wheel if no placement is active.
-            // For now, check if units are selected. If so, a long press on the screen can be a move command.
-            const selected = getSelectedObjects();
-            if (selected.length > 0) {
-                 const touch = event.touches[0];
-                 const rect = rendererDomElement.getBoundingClientRect();
-                 const eventData = {
-                     clientX: touch.clientX,
-                     clientY: touch.clientY,
-                     isMobile: true,
-                     x: touch.clientX - rect.left,
-                     y: touch.clientY - rect.top,
-                     width: rect.width,
-                     height: rect.height,
-                 };
-                 handleRightClick(eventData);
-            }
+             if (window.cancelPlacementMode) window.cancelPlacementMode();
+        } else if (getSelectedObjects().length > 0) {
+            handleRightClick(centerCoords);
         }
     }, HOLD_THRESHOLD);
 
-    // Use { once: true } to auto-remove listeners after they fire.
     rendererDomElement.addEventListener('touchend', handleTapEnd, { once: true });
     rendererDomElement.addEventListener('touchmove', handleTouchMove, { once: true });
 }
 
 function handleTouchMove(event) {
-    // If finger moves significantly, it's a drag/pan, not a tap or hold.
+    // If finger moves, it's not a tap, cancel the hold timeout.
     clearTimeout(tapTimeout);
     tapTimeout = null;
     rendererDomElement.removeEventListener('touchend', handleTapEnd);
@@ -120,36 +126,36 @@ function handleTapEnd(event) {
         clearTimeout(tapTimeout);
         tapTimeout = null;
         
+        const now = Date.now();
         const touch = event.changedTouches[0];
-        const rect = rendererDomElement.getBoundingClientRect();
         const eventData = {
             clientX: touch.clientX,
             clientY: touch.clientY,
             isMobile: true,
-            // Add canvas-relative coords for handlers that need them
-            x: touch.clientX - rect.left,
-            y: touch.clientY - rect.top,
-            width: rect.width,
-            height: rect.height,
         };
+
+        if (now - lastTapTime < DOUBLE_TAP_THRESHOLD) {
+            // It's a double tap
+            handleDoubleTap(event);
+            lastTapTime = 0; // Reset to avoid triple-tap issues
+            return; // Don't process as a single tap
+        }
+        
+        // It's a single tap
+        lastTapTime = now;
 
         const placementMode = getPlacementMode();
         if (placementMode) {
-            attemptPlacement(eventData);
-        } else {
-            // "Tap target = smart command" logic
-            if (getSelectedObjects().length > 0) {
-                // If units are selected, a tap is a command (right-click).
-                handleRightClick(eventData);
-            } else {
-                // If no units selected, a tap is for selection.
-                handleSingleSelection(eventData);
+            if (window.attemptPlacement) {
+                window.attemptPlacement(eventData);
             }
+        } else {
+            handleSingleSelection(eventData);
         }
     }
 }
 
-function initTapToCommand() {
+function initTapToSelect() {
     if (!rendererDomElement) return;
     rendererDomElement.addEventListener('touchstart', handleTapStart, { passive: false });
 }
@@ -184,12 +190,9 @@ export function initMobileControls(deps) {
 
     initActionButtons();
 
-    // Expose functions to be called after the start button is clicked
-    // This allows initialization to happen only when mobile controls are enabled.
+    // Expose a function to be called after the start button is clicked
     window.mobileControls = {
-        init: () => {
-            initJoystick(deps.keyState);
-            initTapToCommand();
-        }
+        initJoystick: initJoystick,
+        initTapToSelect: initTapToSelect,
     };
 }

@@ -18,7 +18,18 @@ import { NuclearSilo } from '../buildings/nuclear-silo.js';
 import { Factory } from '../buildings/factory.js';
 import { Starport } from '../buildings/starport.js';
 import { Vulture } from '../units/vulture.js';
+import { SiegeTank } from '../units/siege-tank.js';
+import { Goliath } from '../units/goliath.js';
+import { Wraith } from '../units/wraith.js';
+import { Dropship } from '../units/dropship.js';
+import { ScienceVessel } from '../units/science-vessel.js';
+import { Armory } from '../buildings/armory.js';
+import { ScienceFacility } from '../buildings/science-facility.js';
+import { ControlTower } from '../buildings/control-tower.js';
 import { getTerrainHeight } from '../utils/terrain.js';
+import { Valkyrie } from '../units/valkyrie.js';
+import { Battlecruiser } from '../units/battlecruiser.js';
+import { PhysicsLab } from '../buildings/physics-lab.js';
 
 let deps;
 
@@ -31,6 +42,9 @@ export function spawnBuilding(type, position, buildTime, extraData = {}) {
     let building;
     const options = (typeof buildTime === 'object') ? buildTime : { isUnderConstruction: true, buildTime: buildTime };
     const pathfinderUpdateCallback = () => pathfinder.updateObstacles(collidableObjects);
+
+    // Add onStateChange callback to all building options
+    options.onStateChange = pathfinderUpdateCallback;
 
     if (type === 'build_command_center') {
         building = new CommandCenter(position, options);
@@ -52,10 +66,18 @@ export function spawnBuilding(type, position, buildTime, extraData = {}) {
         building = new Factory(position, options);
     } else if (type === 'build_starport') {
         building = new Starport(position, options);
+    } else if (type === 'build_armory') {
+        building = new Armory(position, options);
+    } else if (type === 'build_science_facility') {
+        building = new ScienceFacility(position, options);
     } else if (type === 'Comsat Station') {
         building = new ComsatStation(position, { ...options, parent: extraData.parent });
     } else if (type === 'Nuclear Silo') {
         building = new NuclearSilo(position, { ...options, parent: extraData.parent });
+    } else if (type === 'Control Tower') {
+        building = new ControlTower(position, { ...options, parent: extraData.parent });
+    } else if (type === 'Physics Lab') {
+        building = new PhysicsLab(position, { ...options, parent: extraData.parent });
     }
 
     if (building) {
@@ -68,44 +90,73 @@ export function spawnBuilding(type, position, buildTime, extraData = {}) {
     return building;
 }
 
-export function spawnUnit(unitType, position, extraData = {}) {
+export function spawnUnit(unitType, position) {
     const { scene, units, selectables, gameState, audioManager } = deps;
     const terrainY = getTerrainHeight(scene, position.x, position.z);
     const spawnPos = new THREE.Vector3(position.x, terrainY, position.z);
     let unit;
-    let cost = extraData.cost || {}; // Get cost from training command
-
     switch (unitType) {
         case 'SCV':
             unit = new SCV(spawnPos);
-            gameState.supplyUsed += cost.supply || 1;
+            gameState.supplyUsed += 1;
             if (audioManager && audioManager.scvConstructedSoundNames.length) {
                 audioManager.playRandomSound(audioManager.scvConstructedSoundNames);
             }
             break;
         case 'Marine':
             unit = new Unit(spawnPos);
-            gameState.supplyUsed += cost.supply || 1;
+            gameState.supplyUsed += 1;
             break;
         case 'Firebat':
             unit = new Firebat(spawnPos);
-            gameState.supplyUsed += cost.supply || 1;
+            gameState.supplyUsed += 1;
             break;
         case 'Medic':
             unit = new Medic(spawnPos);
-            gameState.supplyUsed += cost.supply || 1;
+            gameState.supplyUsed += 1;
             break;
         case 'Ghost':
             unit = new Ghost(spawnPos);
-            gameState.supplyUsed += cost.supply || 1;
+            gameState.supplyUsed += 1;
+            break;
+        case 'Wraith':
+            unit = new Wraith(spawnPos);
+            gameState.supplyUsed += 2;
+            break;
+        case 'Dropship':
+            unit = new Dropship(spawnPos);
+            gameState.supplyUsed += 2;
+            break;
+        case 'Science Vessel':
+            unit = new ScienceVessel(spawnPos);
+            gameState.supplyUsed += 2;
+            break;
+        case 'Valkyrie':
+            unit = new Valkyrie(spawnPos);
+            gameState.supplyUsed += 3;
+            break;
+        case 'Battlecruiser':
+            unit = new Battlecruiser(spawnPos);
+            gameState.supplyUsed += 6;
             break;
         case 'Vulture':
             unit = new Vulture(spawnPos);
-            gameState.supplyUsed += cost.supply || 2;
+            gameState.supplyUsed += 2;
+            break;
+        case 'Siege Tank':
+            unit = new SiegeTank(spawnPos);
+            gameState.supplyUsed += 2;
+            break;
+        case 'Goliath':
+            unit = new Goliath(spawnPos);
+            gameState.supplyUsed += 2;
             break;
         case 'SCV Mark 2':
             unit = new SCVMark2(spawnPos);
-            gameState.supplyUsed += cost.supply || 1;
+            gameState.supplyUsed += 1;
+            if (audioManager && audioManager.scvMark2ConstructedSoundNames.length) {
+                audioManager.playRandomSound(audioManager.scvMark2ConstructedSoundNames);
+            }
             break;
     }
 

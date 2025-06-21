@@ -52,8 +52,9 @@ function onMouseDown(event) {
     if (getPlacementMode()) {
         if (event.button === 0) { // Left-click for placement
             attemptPlacement(event);
+        } else if (event.button === 2) { // Right-click to cancel placement
+            cancelPlacementMode();
         }
-        // Right click is handled in onMouseUp to cancel
         return;
     }
 
@@ -101,14 +102,6 @@ function onMouseMove(event) {
 }
 
 function onMouseUp(event) {
-    if (getPlacementMode() && event.button === 2) { // Right-click to cancel placement
-        cancelPlacementMode();
-        isDragging = false;
-        selectionBox.style.display = 'none';
-        if (orbitControls) orbitControls.enabled = true;
-        return;
-    }
-
     if (isDragging) {
         const dragDistance = startPoint.distanceTo(new THREE.Vector2(event.clientX, event.clientY));
         

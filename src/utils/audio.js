@@ -6,6 +6,7 @@ export class AudioManager {
         // The manager should be initialized before any sounds are played.
         this.backgroundTrackNames = [];
         this.scvConstructedSoundNames = [];
+        this.scvMark2ConstructedSoundNames = [];
         this.backgroundGain = null;
         this.currentTrackIndex = 0;
         this.backgroundPlaying = false;
@@ -117,12 +118,6 @@ export class AudioManager {
                 console.warn(`Background track not loaded: ${trackName}. Trying next...`, e);
                 this.currentTrackIndex = (this.currentTrackIndex + 1) % this.backgroundTrackNames.length;
                 setTimeout(playNext, 1000); // Wait a moment before trying the next track
-                return;
-            }
-            if (!buffer) { // Handle case where assetManager returns undefined/null
-                console.warn(`Buffer for ${trackName} is invalid. Trying next...`);
-                this.currentTrackIndex = (this.currentTrackIndex + 1) % this.backgroundTrackNames.length;
-                setTimeout(playNext, 1000);
                 return;
             }
 

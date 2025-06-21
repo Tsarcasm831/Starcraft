@@ -49,14 +49,10 @@ export class SCVMark2 extends SCVBase {
             commands[2] = { command: 'build_refinery', hotkey: 'R', icon: 'assets/images/build_refinery_icon.png', name: 'Build Refinery', cost: { minerals: 100 }, buildTime: 25.2 };
             commands[3] = { command: 'build_barracks', hotkey: 'B', icon: 'assets/images/build_barracks_icon.png', name: 'Build Barracks', cost: { minerals: 150 }, buildTime: 50.4 };
             commands[4] = { command: 'build_engineering_bay', hotkey: 'E', icon: 'assets/images/build_engineering_bay_icon.png', name: 'Build Engineering Bay', cost: { minerals: 125 }, buildTime: 37.8 };
-            commands[5] = { command: 'build_academy', hotkey: 'A', icon: 'assets/images/build_academy_icon.png', name: 'Build Academy', cost: { minerals: 150 }, buildTime: 50.4 };
+            commands[5] = { command: 'build_academy', hotkey: 'A', icon: 'assets/images/build_academy_icon.png', name: 'Build Academy', cost: { minerals: 150 }, buildTime: 50.4, prereq: 'barracksBuilt' };
             commands[6] = { command: 'build_bunker', hotkey: 'K', icon: 'assets/images/build_bunker_icon.png', name: 'Build Bunker', cost: { minerals: 100 }, buildTime: 18.9 };
             
-            if (gameState.engineeringBayBuilt) {
-                 commands[7] = { command: 'build_missile_turret', hotkey: 'T', icon: 'assets/images/build_missile_turret_icon.png', name: 'Build Missile Turret', cost: { minerals: 75 }, buildTime: 18.9 };
-            } else {
-                 commands[7] = null;
-            }
+            commands[7] = { command: 'build_missile_turret', hotkey: 'T', icon: 'assets/images/build_missile_turret_icon.png', name: 'Build Missile Turret', cost: { minerals: 75 }, buildTime: 18.9, prereq: 'engineeringBayBuilt' };
 
             commands[11] = { command: 'cancel_build_menu', hotkey: 'Escape', icon: 'assets/images/stop_icon.png', name: 'Cancel' };
         } else if (this.commandMode === 'build_advanced') {
@@ -77,6 +73,24 @@ export class SCVMark2 extends SCVBase {
                 cost: { minerals: 150, vespene: 100 },
                 buildTime: 50.4,
                 prereq: 'factoryBuilt'
+            };
+            commands[2] = {
+                command: 'build_armory',
+                hotkey: 'A',
+                icon: 'assets/images/build_armory_icon.png',
+                name: 'Build Armory',
+                cost: { minerals: 100, vespene: 50 },
+                buildTime: 50.4,
+                prereq: 'factoryBuilt'
+            };
+            commands[3] = {
+                command: 'build_science_facility',
+                hotkey: 'C',
+                icon: 'assets/images/build_science_facility_icon.png',
+                name: 'Build Science Facility',
+                cost: { minerals: 100, vespene: 150 },
+                buildTime: 60,
+                prereq: 'starportBuilt'
             };
 
             // Here you could add Science Facility, etc.

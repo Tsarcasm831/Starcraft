@@ -5,6 +5,8 @@ import { Refinery } from '../buildings/refinery.js';
 import { CommandCenter } from '../buildings/command-center.js';
 import { SCVMark2 } from '../units/scv-mark-2.js';
 import { Bunker } from '../buildings/bunker.js';
+import { Dropship } from '../units/dropship.js';
+import { devLogger } from '../utils/dev-logger.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -58,6 +60,7 @@ function assignGatherersToResource(gatherers, resource) {
 function handleMoveCommand(unitsToMove, targetPosition) {
     if (!unitsToMove || unitsToMove.length === 0 || !targetPosition) return;
     
+    devLogger.log('RightClickHandler', `Issuing move command to ${unitsToMove.length} units to ${targetPosition.x.toFixed(1)}, ${targetPosition.z.toFixed(1)}.`);
     onMoveSound();
     
     createMoveIndicator(targetPosition);
@@ -78,6 +81,11 @@ function handleMoveCommand(unitsToMove, targetPosition) {
         const offsetZ = row * spacing - halfSize;
         const finalTarget = targetPosition.clone().add(new THREE.Vector3(offsetX, 0, offsetZ));
         
+        if (unit.isFlying) {
+            unit.setPath([finalTarget]);
+            return;
+        }
+
         let path = pathfinder.findPath(unit.mesh.position, finalTarget);
         if (!path || path.length === 0) {
             path = pathfinder.findPath(unit.mesh.position, targetPosition);
@@ -109,6 +117,12 @@ export function handleRightClick(event) {
     const objectIntersects = raycaster.intersectObjects(objectMeshes, true);
 
     let clickedObject = objectIntersects.length > 0 ? objectIntersects[0].object.userData.owner : null;
+    
+    if (clickedObject) {
+        devLogger.log('RightClickHandler', `Clicked on object: ${clickedObject.name}`);
+    } else {
+        devLogger.log('RightClickHandler', `Clicked on ground.`);
+    }
 
     if (clickedObject && clickedObject.isAddon) {
         clickedObject = clickedObject.parentBuilding;
@@ -139,10 +153,10 @@ export function handleRightClick(event) {
         }
 
         const garrisonableUnits = selectedObjects.filter(obj => typeof obj.garrison === 'function');
-        if (garrisonableUnits.length > 0 && clickedObject instanceof Bunker) {
+        if (garrisonableUnits.length > 0 && (clickedObject instanceof Bunker || clickedObject instanceof Dropship)) {
             const spaceAvailable = clickedObject.capacity - clickedObject.garrisonedUnits.length;
             if (spaceAvailable <= 0) {
-                updateStatusText("Bunker is full.");
+                updateStatusText(`${clickedObject.name} is full.`);
                 return;
             }
             onMoveSound();
@@ -151,7 +165,7 @@ export function handleRightClick(event) {
             unitsToGarrison.forEach(unit => unit.garrison(clickedObject));
             handleMoveCommand(unitsToGarrison, clickedObject.mesh.position);
             if (unitsToGarrison.length < garrisonableUnits.length) {
-                updateStatusText("Not enough space in Bunker for all units.");
+                updateStatusText(`Not enough space in ${clickedObject.name} for all units.`);
             }
             return;
         }

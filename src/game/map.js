@@ -38,10 +38,10 @@ export function createMap(width, height) {
         const lakeGeom = new THREE.ExtrudeGeometry(shape, extrudeSettings);
         // The geometry is created on XY plane, we want it on XZ
         lakeGeom.rotateX(-Math.PI / 2);
-        
+        lakeGeom.rotateY(rotationY);
+
         const lakeMesh = new THREE.Mesh(lakeGeom, waterMaterial);
         lakeMesh.position.copy(position);
-        lakeMesh.rotation.y = rotationY; // Apply rotation here
         lakeMesh.receiveShadow = true;
         group.add(lakeMesh);
 

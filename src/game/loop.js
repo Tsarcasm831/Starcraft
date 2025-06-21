@@ -3,6 +3,7 @@ import { updateUI } from './ui.js';
 import { getSelectedObjects } from './controls.js';
 import { updateGatheringEffects, updateActiveEffects } from './effects.js';
 import { update as updateMinimap } from './minimap.js';
+import { devLogger } from '../utils/dev-logger.js';
 
 const clock = new THREE.Clock();
 let deps;
@@ -21,9 +22,14 @@ function animate() {
     }
 
     const delta = clock.getDelta();
-    const { scene, camera, renderer, buildings, units, vespeneGeysers, gameState, pathfinder, spawnUnit, spawnBuilding, updateCamera, updateGridLabels, gridLabels } = deps;
+    devLogger.log('Loop', `Frame delta: ${delta.toFixed(4)}s`);
+    const { scene, camera, renderer, buildings, units, vespeneGeysers, gameState, pathfinder, spawnUnit, spawnBuilding, updateCamera } = deps;
 
     updateCamera(delta);
+
+    // Update unit counts in gameState for dynamic costs
+    gameState.unitCounts.scv = units.filter(u => u.name === 'SCV').length;
+    gameState.unitCounts.scv_mark_2 = units.filter(u => u.name === 'SCV Mark 2').length;
 
     if (buildings.length > 0 && buildings[0].update) {
         buildings[0].update(delta, gameState, spawnUnit, spawnBuilding);
@@ -47,11 +53,9 @@ function animate() {
     const selectedObjects = getSelectedObjects();
     updateUI(selectedObjects, gameState);
     updateMinimap(selectedObjects);
+
     updateGatheringEffects(units);
     updateActiveEffects(delta);
-    if (gridLabels) {
-        updateGridLabels(gridLabels);
-    }
 
     renderer.render(scene, camera);
 }

@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { Unit } from '../units/unit.js';
+import { FlyingBuildingBehavior } from './flying-building-behavior.js';
 
 export class Barracks {
-    constructor(position, { isUnderConstruction = false, buildTime = 50.4 } = {}) {
+    constructor(position, { isUnderConstruction = false, buildTime = 50.4, onStateChange = () => {} } = {}) {
         // UI and game properties
         this.name = 'Barracks';
         this.portraitUrl = 'assets/images/barracks_portrait.png';
@@ -11,7 +12,12 @@ export class Barracks {
         this.selected = false;
         this.isUnderConstruction = isUnderConstruction;
         this.buildTime = buildTime;
-        this.state = 'grounded'; // grounded, lifting, flying, landing
+        this.onStateChange = onStateChange;
+
+        // Behaviors
+        this.flyingBehavior = new FlyingBuildingBehavior(this, {
+            onStateChange: this.onStateChange,
+        });
 
         // Command Card definition
         this._commands = [];
@@ -55,11 +61,18 @@ export class Barracks {
         const buildingWidth = 7;
         const buildingDepth = 7;
         const buildingHeight = 5;
-        this.collider = new THREE.Box3(
+        this.groundCollider = new THREE.Box3(
             new THREE.Vector3(-buildingWidth / 2, 0, -buildingDepth / 2),
             new THREE.Vector3(buildingWidth / 2, buildingHeight, buildingDepth / 2)
         );
-        this.collider.translate(this.mesh.position);
+        this.groundCollider.translate(this.mesh.position);
+    }
+
+    get state() {
+        return this.flyingBehavior.state;
+    }
+    set state(newState) {
+        this.flyingBehavior.state = newState;
     }
 
     get commands() {
@@ -111,58 +124,72 @@ export class Barracks {
     }
 
     updateCommands(gameState) {
+        if (this.isUnderConstruction) return;
+
         // Only update if the academy status has changed, to avoid constant array creation
-        if (this.hasAcademy === gameState.academyBuilt && !this.isUnderConstruction) {
+        if (this.hasAcademy === gameState.academyBuilt && this.state === 'grounded') {
             return;
         }
-        if (this.isUnderConstruction) return;
 
         this.hasAcademy = gameState.academyBuilt;
 
         const newCommands = new Array(12).fill(null);
-        newCommands[0] = { 
-            command: 'train_marine', 
-            hotkey: 'A', 
-            icon: 'assets/images/train_marine_icon.png', 
-            name: 'Train Marine',
-            cost: { minerals: 50, supply: 1 },
-            buildTime: 20 // seconds
-        };
 
-        if (gameState.academyBuilt) {
-            newCommands[1] = {
-                command: 'train_firebat',
-                hotkey: 'F',
-                icon: 'assets/images/train_firebat_icon.png',
-                name: 'Train Firebat',
-                cost: { minerals: 50, vespene: 25, supply: 1 },
-                buildTime: 20
+        if (this.state === 'grounded') {
+            newCommands[0] = {
+                command: 'train_marine',
+                hotkey: 'A',
+                icon: 'assets/images/train_marine_icon.png',
+                name: 'Train Marine',
+                cost: { minerals: 50, supply: 1 },
+                buildTime: 20 // seconds
             };
-            newCommands[2] = {
-                command: 'train_medic',
-                hotkey: 'E',
-                icon: 'assets/images/train_medic_icon.png',
-                name: 'Train Medic',
-                cost: { minerals: 50, vespene: 25, supply: 1 },
-                buildTime: 25,
+
+            if (gameState.academyBuilt) {
+                newCommands[1] = {
+                    command: 'train_firebat',
+                    hotkey: 'F',
+                    icon: 'assets/images/train_firebat_icon.png',
+                    name: 'Train Firebat',
+                    cost: { minerals: 50, vespene: 25, supply: 1 },
+                    buildTime: 20
+                };
+                newCommands[2] = {
+                    command: 'train_medic',
+                    hotkey: 'E',
+                    icon: 'assets/images/train_medic_icon.png',
+                    name: 'Train Medic',
+                    cost: { minerals: 50, vespene: 25, supply: 1 },
+                    buildTime: 25,
+                };
+            }
+
+            if (gameState.academyBuilt && gameState.covertOpsBuilt) {
+                newCommands[3] = {
+                    command: 'train_ghost',
+                    hotkey: 'G',
+                    icon: 'assets/images/train_ghost_icon.png',
+                    name: 'Train Ghost',
+                    cost: { minerals: 25, vespene: 75, supply: 1 },
+                    buildTime: 50
+                };
+            }
+        
+            newCommands[8] = {
+                command: 'lift_off',
+                hotkey: 'L',
+                icon: 'assets/images/lift_off_icon.png',
+                name: 'Lift Off'
             };
-        }
 
-        newCommands[8] = {
-            command: 'lift_off',
-            hotkey: 'L',
-            icon: 'assets/images/lift_off_icon.png',
-            name: 'Lift Off'
-        };
-
-        if (gameState.academyBuilt && gameState.covertOpsBuilt) {
-            newCommands[3] = {
-                command: 'train_ghost',
-                hotkey: 'G',
-                icon: 'assets/images/train_ghost_icon.png',
-                name: 'Train Ghost',
-                cost: { minerals: 25, vespene: 75, supply: 1 },
-                buildTime: 50
+        } else if (this.state === 'flying') {
+            newCommands[0] = { command: 'move', hotkey: 'M', icon: 'assets/images/move_icon.png', name: 'Move' };
+            newCommands[8] = {
+                command: 'land_barracks',
+                hotkey: 'L',
+                icon: 'assets/images/lower_depot_icon.png',
+                name: 'Land',
+                cost: {}, // for placement system
             };
         }
         
@@ -185,7 +212,11 @@ export class Barracks {
     }
 
     getCollider() {
-        return this.collider;
+        const flyingCollider = this.flyingBehavior.getCollider();
+        if (flyingCollider.isEmpty()) {
+            return flyingCollider;
+        }
+        return this.groundCollider;
     }
 
     select() {
@@ -198,113 +229,75 @@ export class Barracks {
         this.selectionIndicator.visible = false;
     }
 
+    setPath(path) {
+        this.flyingBehavior.setPath(path);
+    }
+
+    landAt(position, pathfinder) {
+        this.flyingBehavior.landAt(position, pathfinder);
+    }
+
     executeCommand(commandName, gameState, statusCallback) {
         const command = this.commands.find(c => c && c.command === commandName);
         if (!command) return;
 
+        if (commandName.startsWith('train_')) {
+            if (this.state !== 'grounded') {
+                statusCallback("Must be landed to train units.");
+                return;
+            }
+            if (this.buildQueue.length >= 5) {
+                statusCallback("Build queue is full.");
+                return;
+            }
+            if (gameState.minerals < command.cost.minerals) {
+                statusCallback("Not enough minerals.");
+                return;
+            }
+            if (command.cost.vespene && gameState.vespene < command.cost.vespene) {
+                statusCallback("Not enough vespene.");
+                return;
+            }
+            if (gameState.supplyUsed + command.cost.supply > gameState.supplyCap) {
+                statusCallback("Additional supply required.");
+                return;
+            }
+
+            gameState.minerals -= command.cost.minerals;
+            if (command.cost.vespene) gameState.vespene -= command.cost.vespene;
+            
+            let unitType = '';
+            switch(commandName) {
+                case 'train_marine': unitType = 'Marine'; break;
+                case 'train_firebat': unitType = 'Firebat'; break;
+                case 'train_medic': unitType = 'Medic'; break;
+                case 'train_ghost': unitType = 'Ghost'; break;
+            }
+            
+            this.buildQueue.push({
+                type: unitType,
+                progress: 0,
+                buildTime: command.buildTime,
+                originalCommand: commandName,
+            });
+            statusCallback(`${unitType} training...`);
+            return;
+        }
+
         switch(commandName) {
-            case 'train_marine':
-                if (this.buildQueue.length >= 5) {
-                    statusCallback("Build queue is full.");
-                    return;
-                }
-                if (gameState.minerals < command.cost.minerals) {
-                    statusCallback("Not enough minerals.");
-                    return;
-                }
-                if (gameState.supplyUsed + command.cost.supply > gameState.supplyCap) {
-                    statusCallback("Additional supply required.");
-                    return;
-                }
-
-                gameState.minerals -= command.cost.minerals;
-                this.buildQueue.push({
-                    type: 'Marine',
-                    progress: 0,
-                    buildTime: command.buildTime,
-                    originalCommand: commandName,
-                });
-                statusCallback("Marine training...");
-                break;
-            case 'train_firebat':
-                if (this.buildQueue.length >= 5) {
-                    statusCallback("Build queue is full.");
-                    return;
-                }
-                if (gameState.minerals < command.cost.minerals || (command.cost.vespene && gameState.vespene < command.cost.vespene)) {
-                    statusCallback("Not enough resources.");
-                    return;
-                }
-                if (gameState.supplyUsed + command.cost.supply > gameState.supplyCap) {
-                    statusCallback("Additional supply required.");
-                    return;
-                }
-
-                gameState.minerals -= command.cost.minerals;
-                gameState.vespene -= command.cost.vespene;
-                this.buildQueue.push({
-                    type: 'Firebat',
-                    progress: 0,
-                    buildTime: command.buildTime,
-                    originalCommand: commandName,
-                });
-                statusCallback("Firebat training...");
-                break;
-            case 'train_medic':
-                if (this.buildQueue.length >= 5) {
-                    statusCallback("Build queue is full.");
-                    return;
-                }
-                if (gameState.minerals < command.cost.minerals || (command.cost.vespene && gameState.vespene < command.cost.vespene)) {
-                    statusCallback("Not enough resources.");
-                    return;
-                }
-                if (gameState.supplyUsed + command.cost.supply > gameState.supplyCap) {
-                    statusCallback("Additional supply required.");
-                    return;
-                }
-
-                gameState.minerals -= command.cost.minerals;
-                gameState.vespene -= command.cost.vespene;
-                this.buildQueue.push({
-                    type: 'Medic',
-                    progress: 0,
-                    buildTime: command.buildTime,
-                    originalCommand: commandName,
-                });
-                statusCallback("Medic training...");
-                break;
-            case 'train_ghost':
-                if (this.buildQueue.length >= 5) {
-                    statusCallback("Build queue is full.");
-                    return;
-                }
-                if (gameState.minerals < command.cost.minerals || (command.cost.vespene && gameState.vespene < command.cost.vespene)) {
-                    statusCallback("Not enough resources.");
-                    return;
-                }
-                if (gameState.supplyUsed + command.cost.supply > gameState.supplyCap) {
-                    statusCallback("Additional supply required.");
-                    return;
-                }
-
-                gameState.minerals -= command.cost.minerals;
-                gameState.vespene -= command.cost.vespene;
-                this.buildQueue.push({
-                    type: 'Ghost',
-                    progress: 0,
-                    buildTime: command.buildTime,
-                    originalCommand: commandName,
-                });
-                statusCallback("Ghost training...");
-                break;
             case 'lift_off':
-                 statusCallback("Lift-off sequence not yet available.");
+                 if (this.flyingBehavior.liftOff()) {
+                     statusCallback("Lift-off sequence initiated.");
+                 } else {
+                     if (this.state !== 'grounded') statusCallback("Already airborne.");
+                 }
                  break;
         }
     }
 
     update(delta, gameState, spawnUnitCallback) {
+        this.flyingBehavior.update(delta);
+
         if (this.isUnderConstruction) {
             const buildProgress = Math.max(0.01, this.currentHealth / this.maxHealth);
             this.mesh.scale.y = buildProgress;

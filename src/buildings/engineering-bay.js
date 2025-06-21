@@ -1,7 +1,8 @@
 import * as THREE from 'three';
+import { FlyingBuildingBehavior } from './flying-building-behavior.js';
 
 export class EngineeringBay {
-    constructor(position, { isUnderConstruction = false, buildTime = 37.8 } = {}) {
+    constructor(position, { isUnderConstruction = false, buildTime = 37.8, onStateChange = () => {} } = {}) {
         this.name = 'Engineering Bay';
         this.portraitUrl = 'assets/images/engineering_bay_portrait.png';
         this.maxHealth = 850;
@@ -9,7 +10,12 @@ export class EngineeringBay {
         this.selected = false;
         this.isUnderConstruction = isUnderConstruction;
         this.buildTime = buildTime;
-        this.state = 'grounded';
+        this.onStateChange = onStateChange;
+
+        // Behaviors
+        this.flyingBehavior = new FlyingBuildingBehavior(this, {
+            onStateChange: this.onStateChange,
+        });
 
         this._commands = [];
         this.buildQueue = []; // Used for research progress
@@ -47,13 +53,20 @@ export class EngineeringBay {
         const buildingWidth = 6;
         const buildingDepth = 6;
         const buildingHeight = 5;
-        this.collider = new THREE.Box3(
+        this.groundCollider = new THREE.Box3(
             new THREE.Vector3(-buildingWidth / 2, 0, -buildingDepth / 2),
             new THREE.Vector3(buildingWidth / 2, buildingHeight, buildingDepth / 2)
         );
-        this.collider.translate(this.mesh.position);
+        this.groundCollider.translate(this.mesh.position);
     }
     
+    get state() {
+        return this.flyingBehavior.state;
+    }
+    set state(newState) {
+        this.flyingBehavior.state = newState;
+    }
+
     get commands() {
         return this._commands;
     }
@@ -94,34 +107,45 @@ export class EngineeringBay {
         const weaponLevel = gameState.upgrades.infantryWeapons;
         const armorLevel = gameState.upgrades.infantryArmor;
 
-        if (weaponLevel < 3) {
-            newCommands[0] = {
-                command: `research_infantry_weapons_${weaponLevel + 1}`,
-                hotkey: 'W',
-                icon: 'assets/images/upgrade_infantry_weapons_icon.png',
-                name: `Upgrade Infantry Weapons (Lvl ${weaponLevel + 1})`,
-                cost: { minerals: 100 * (weaponLevel + 1), vespene: 100 * (weaponLevel + 1) },
-                researchTime: 167
-            };
-        }
-        
-        if (armorLevel < 3) {
-            newCommands[1] = {
-                command: `research_infantry_armor_${armorLevel + 1}`,
-                hotkey: 'A',
-                icon: 'assets/images/upgrade_infantry_armor_icon.png',
-                name: `Upgrade Infantry Armor (Lvl ${armorLevel + 1})`,
-                cost: { minerals: 100 * (armorLevel + 1), vespene: 100 * (armorLevel + 1) },
-                researchTime: 167
-            };
-        }
+        if (this.state === 'grounded') {
+            if (weaponLevel < 3) {
+                newCommands[0] = {
+                    command: `research_infantry_weapons_${weaponLevel + 1}`,
+                    hotkey: 'W',
+                    icon: 'assets/images/upgrade_infantry_weapons_icon.png',
+                    name: `Upgrade Infantry Weapons (Lvl ${weaponLevel + 1})`,
+                    cost: { minerals: 100 * (weaponLevel + 1), vespene: 100 * (weaponLevel + 1) },
+                    researchTime: 167
+                };
+            }
+            
+            if (armorLevel < 3) {
+                newCommands[1] = {
+                    command: `research_infantry_armor_${armorLevel + 1}`,
+                    hotkey: 'A',
+                    icon: 'assets/images/upgrade_infantry_armor_icon.png',
+                    name: `Upgrade Infantry Armor (Lvl ${armorLevel + 1})`,
+                    cost: { minerals: 100 * (armorLevel + 1), vespene: 100 * (armorLevel + 1) },
+                    researchTime: 167
+                };
+            }
 
-        newCommands[8] = {
-            command: 'lift_off',
-            hotkey: 'L',
-            icon: 'assets/images/lift_off_icon.png',
-            name: 'Lift Off'
-        };
+            newCommands[8] = {
+                command: 'lift_off',
+                hotkey: 'L',
+                icon: 'assets/images/lift_off_icon.png',
+                name: 'Lift Off'
+            };
+        } else if (this.state === 'flying') {
+            newCommands[0] = { command: 'move', hotkey: 'M', icon: 'assets/images/move_icon.png', name: 'Move' };
+            newCommands[8] = {
+                command: 'land_engineering_bay',
+                hotkey: 'L',
+                icon: 'assets/images/lower_depot_icon.png',
+                name: 'Land',
+                cost: {}, // for placement system
+            };
+        }
 
         this.commands = newCommands;
     }
@@ -142,10 +166,24 @@ export class EngineeringBay {
         this.updateCommands(gameState);
     }
 
-    getCollider() { return this.collider; }
+    getCollider() {
+        const flyingCollider = this.flyingBehavior.getCollider();
+        if (flyingCollider.isEmpty()) {
+            return flyingCollider;
+        }
+        return this.groundCollider;
+    }
     select() { this.selected = true; this.selectionIndicator.visible = true; }
     deselect() { this.selected = false; this.selectionIndicator.visible = false; }
     
+    setPath(path) {
+        this.flyingBehavior.setPath(path);
+    }
+
+    landAt(position, pathfinder) {
+        this.flyingBehavior.landAt(position, pathfinder);
+    }
+
     executeCommand(commandName, gameState, statusCallback) {
         const command = this.commands.find(c => c && c.command === commandName);
         if (!command) return;
@@ -172,11 +210,17 @@ export class EngineeringBay {
 
             statusCallback(`Researching ${command.name}...`);
         } else if (commandName === 'lift_off') {
-            statusCallback("Lift-off sequence not yet available.");
+             if (this.flyingBehavior.liftOff()) {
+                 statusCallback("Lift-off sequence initiated.");
+             } else {
+                 if (this.state !== 'grounded') statusCallback("Already airborne.");
+             }
         }
     }
     
     update(delta, gameState) {
+        this.flyingBehavior.update(delta);
+
         if (this.isUnderConstruction) {
             const buildProgress = Math.max(0.01, this.currentHealth / this.maxHealth);
             this.mesh.scale.y = buildProgress;

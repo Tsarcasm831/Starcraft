@@ -50,16 +50,22 @@ export function setPlacementMode(mode) {
 
     const sizeData = {
         'build_command_center': new THREE.Vector3(13, 10, 8),
-        'land': new THREE.Vector3(13, 10, 8),
+        'land_command_center': new THREE.Vector3(13, 10, 8),
         'build_supply_depot': new THREE.Vector3(4, 2.5, 4),
         'build_refinery': new THREE.Vector3(4.4, 2.5, 4.4),
         'build_barracks': new THREE.Vector3(7, 5, 7),
+        'land_barracks': new THREE.Vector3(7, 5, 7),
         'build_engineering_bay': new THREE.Vector3(6, 5, 6),
+        'land_engineering_bay': new THREE.Vector3(6, 5, 6),
         'build_bunker': new THREE.Vector3(4, 3, 4),
         'build_academy': new THREE.Vector3(6, 4, 6),
         'build_missile_turret': new THREE.Vector3(3, 5, 3),
         'build_factory': new THREE.Vector3(8, 6, 6),
+        'land_factory': new THREE.Vector3(8, 6, 6),
         'build_starport': new THREE.Vector3(9, 7, 9),
+        'land_starport': new THREE.Vector3(9, 7, 9),
+        'build_armory': new THREE.Vector3(6, 5, 6),
+        'build_science_facility': new THREE.Vector3(8, 6, 8),
     };
 
     const size = sizeData[commandName];
@@ -140,7 +146,7 @@ export function attemptPlacement(event) {
         if (placementCheckResult.valid) {
             if (placementMode.type === 'land') {
                 const finalPosition = placementCheckResult.extraData?.position || position;
-                placementMode.building.landAt(finalPosition);
+                placementMode.building.landAt(finalPosition, pathfinder);
                 updateStatusText(`${placementMode.building.name} landing sequence initiated.`);
             } else { // 'build' type
                 const command = placementMode.command;
@@ -167,6 +173,27 @@ function checkPlacementValidity(position, buildingCommand, normal) {
     if (normal && normal.y < MAX_SLOPE_COS) {
         return { valid: false, reason: 'Terrain too steep.' };
     }
+
+    const commandToSizeMap = {
+        'build_command_center': new THREE.Vector3(13, 10, 8),
+        'land_command_center': new THREE.Vector3(13, 10, 8),
+        'build_supply_depot': new THREE.Vector3(4, 2.5, 4),
+        'build_refinery': new THREE.Vector3(4.4, 2.5, 4.4),
+        'build_barracks': new THREE.Vector3(7, 5, 7),
+        'land_barracks': new THREE.Vector3(7, 5, 7),
+        'build_engineering_bay': new THREE.Vector3(6, 5, 6),
+        'land_engineering_bay': new THREE.Vector3(6, 5, 6),
+        'build_bunker': new THREE.Vector3(4, 3, 4),
+        'build_academy': new THREE.Vector3(6, 4, 6),
+        'build_missile_turret': new THREE.Vector3(3, 5, 3),
+        'build_factory': new THREE.Vector3(8, 6, 6),
+        'land_factory': new THREE.Vector3(8, 6, 6),
+        'build_starport': new THREE.Vector3(9, 7, 9),
+        'land_starport': new THREE.Vector3(9, 7, 9),
+        'build_armory': new THREE.Vector3(6, 5, 6),
+        'build_science_facility': new THREE.Vector3(8, 6, 8),
+    };
+
     if (buildingCommand === 'build_refinery') {
         let targetGeyser = null;
         for (const geyser of vespeneGeysers) {
@@ -188,28 +215,9 @@ function checkPlacementValidity(position, buildingCommand, normal) {
         }
     }
 
-    let buildingSize;
-    if (buildingCommand === 'build_command_center' || buildingCommand === 'land') {
-        buildingSize = new THREE.Vector3(13, 10, 8);
-    } else if (buildingCommand === 'build_supply_depot') {
-        buildingSize = new THREE.Vector3(4, 2.5, 4);
-    } else if (buildingCommand === 'build_refinery') {
-        buildingSize = new THREE.Vector3(4.4, 2.5, 4.4);
-    } else if (buildingCommand === 'build_barracks') {
-        buildingSize = new THREE.Vector3(7, 5, 7);
-    } else if (buildingCommand === 'build_engineering_bay') {
-        buildingSize = new THREE.Vector3(6, 5, 6);
-    } else if (buildingCommand === 'build_bunker') {
-        buildingSize = new THREE.Vector3(4, 3, 4);
-    } else if (buildingCommand === 'build_academy') {
-        buildingSize = new THREE.Vector3(6, 4, 6);
-    } else if (buildingCommand === 'build_missile_turret') {
-        buildingSize = new THREE.Vector3(3, 5, 3);
-    } else if (buildingCommand === 'build_factory') {
-        buildingSize = new THREE.Vector3(8, 6, 6);
-    } else if (buildingCommand === 'build_starport') {
-        buildingSize = new THREE.Vector3(9, 7, 9);
-    } else {
+    const buildingSize = commandToSizeMap[buildingCommand];
+
+    if (!buildingSize) {
         return { valid: false, reason: 'Unknown building.' };
     }
 

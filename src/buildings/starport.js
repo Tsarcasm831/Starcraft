@@ -1,7 +1,9 @@
 import * as THREE from 'three';
+import { FlyingBuildingBehavior } from './flying-building-behavior.js';
+import { AddonBehavior } from './addon-behavior.js';
 
 export class Starport {
-    constructor(position, { isUnderConstruction = false, buildTime = 50.4 } = {}) {
+    constructor(position, { isUnderConstruction = false, buildTime = 50.4, onStateChange = () => {} } = {}) {
         this.name = 'Starport';
         this.portraitUrl = 'assets/images/starport_portrait.png';
         this.maxHealth = 1300;
@@ -9,7 +11,13 @@ export class Starport {
         this.selected = false;
         this.isUnderConstruction = isUnderConstruction;
         this.buildTime = buildTime;
-        this.state = 'grounded';
+        this.onStateChange = onStateChange;
+
+        // Behaviors
+        this.flyingBehavior = new FlyingBuildingBehavior(this, {
+            onStateChange: this.onStateChange,
+        });
+        this.addonBehavior = new AddonBehavior(this);
 
         this._commands = [];
         this.buildQueue = [];
@@ -17,7 +25,6 @@ export class Starport {
         this.addon = null;
         this.addonToBuild = null;
         this.addonBuildProgress = 0;
-
 
         this.mesh = this.createMesh();
         this.mesh.position.copy(position);
@@ -52,11 +59,18 @@ export class Starport {
         const buildingWidth = 9;
         const buildingDepth = 9;
         const buildingHeight = 7;
-        this.collider = new THREE.Box3(
+        this.groundCollider = new THREE.Box3(
             new THREE.Vector3(-buildingWidth / 2, 0, -buildingDepth / 2),
             new THREE.Vector3(buildingWidth / 2, buildingHeight, buildingDepth / 2)
         );
-        this.collider.translate(this.mesh.position);
+        this.groundCollider.translate(this.mesh.position);
+    }
+
+    get state() {
+        return this.flyingBehavior.state;
+    }
+    set state(newState) {
+        this.flyingBehavior.state = newState;
     }
 
     get commands() {
@@ -71,7 +85,6 @@ export class Starport {
         const mainMaterial = new THREE.MeshStandardMaterial({ color: 0x7a8a9a, metalness: 0.7, roughness: 0.6 });
         const accentMaterial = new THREE.MeshStandardMaterial({ color: 0x4a5a6a, metalness: 0.8, roughness: 0.5 });
         const padMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, metalness: 0.9, roughness: 0.4 });
-
 
         const baseGeo = new THREE.CylinderGeometry(4.5, 4.5, 1, 8);
         const base = new THREE.Mesh(baseGeo, mainMaterial);
@@ -103,56 +116,79 @@ export class Starport {
         }
 
         const newCommands = new Array(12).fill(null);
-        newCommands[0] = {
-            command: 'train_wraith',
-            hotkey: 'W',
-            icon: 'assets/images/train_wraith_icon.png',
-            name: 'Build Wraith',
-            cost: { minerals: 150, vespene: 100, supply: 2 },
-            buildTime: 42
-        };
-        newCommands[1] = {
-            command: 'train_dropship',
-            hotkey: 'D',
-            icon: 'assets/images/train_dropship_icon.png',
-            name: 'Build Dropship',
-            cost: { minerals: 100, vespene: 100, supply: 2 },
-            buildTime: 33.6
-        };
-        newCommands[2] = {
-            command: 'train_science_vessel',
-            hotkey: 'S',
-            icon: 'assets/images/train_science_vessel_icon.png',
-            name: 'Build Science Vessel',
-            cost: { minerals: 100, vespene: 225, supply: 2 },
-            buildTime: 66.7
-        };
-        newCommands[3] = {
-            command: 'train_valkyrie',
-            hotkey: 'Y',
-            icon: 'assets/images/train_valkyrie_icon.png',
-            name: 'Build Valkyrie',
-            cost: { minerals: 250, vespene: 125, supply: 3 },
-            buildTime: 42
-        };
 
-        if (gameState.covertOpsBuilt) { // Assuming a prerequisite for battlecruisers
-            newCommands[4] = {
-                command: 'train_battlecruiser',
-                hotkey: 'B',
-                icon: 'assets/images/train_battlecruiser_icon.png',
-                name: 'Build Battlecruiser',
-                cost: { minerals: 400, vespene: 300, supply: 6 },
-                buildTime: 83.3
+        if (this.state === 'grounded') {
+            newCommands[0] = {
+                command: 'train_wraith',
+                hotkey: 'W',
+                icon: 'assets/images/train_wraith_icon.png',
+                name: 'Build Wraith',
+                cost: { minerals: 150, vespene: 100, supply: 2 },
+                buildTime: 40
+            };
+            newCommands[1] = {
+                command: 'train_dropship',
+                hotkey: 'D',
+                icon: 'assets/images/train_dropship_icon.png',
+                name: 'Build Dropship',
+                cost: { minerals: 100, vespene: 100, supply: 2 },
+                buildTime: 40
+            };
+            
+            if (this.addonBehavior.addon?.name === 'Control Tower') {
+                newCommands[2] = {
+                    command: 'train_science_vessel',
+                    hotkey: 'S',
+                    icon: 'assets/images/train_science_vessel_icon.png',
+                    name: 'Build Science Vessel',
+                    cost: { minerals: 100, vespene: 225, supply: 2 },
+                    buildTime: 80,
+                    prereq: 'scienceFacilityBuilt',
+                };
+            }
+            if (this.addonBehavior.addon?.name === 'Control Tower') {
+                newCommands[3] = {
+                    command: 'train_valkyrie',
+                    hotkey: 'Y',
+                    icon: 'assets/images/train_valkyrie_icon.png',
+                    name: 'Build Valkyrie',
+                    cost: { minerals: 250, vespene: 125, supply: 3 },
+                    buildTime: 60
+                };
+            }
+
+            if (this.addonBehavior.addon?.name === 'Control Tower' && gameState.physicsLabBuilt) {
+                newCommands[4] = {
+                    command: 'train_battlecruiser',
+                    hotkey: 'B',
+                    icon: 'assets/images/train_battlecruiser_icon.png',
+                    name: 'Build Battlecruiser',
+                    cost: { minerals: 400, vespene: 300, supply: 6 },
+                    buildTime: 133
+                };
+            }
+            
+            const addonCommands = this.addonBehavior.getCommands();
+            addonCommands.forEach((cmd, index) => {
+                if (cmd) newCommands[index] = cmd;
+            });
+
+            newCommands[8] = {
+                command: 'lift_off',
+                hotkey: 'L',
+                icon: 'assets/images/lift_off_icon.png',
+                name: 'Lift Off'
+            };
+        } else if (this.state === 'flying') {
+            newCommands[0] = { command: 'move', hotkey: 'M', icon: 'assets/images/move_icon.png', name: 'Move' };
+            newCommands[8] = {
+                command: 'land_starport',
+                hotkey: 'L',
+                icon: 'assets/images/lower_depot_icon.png',
+                name: 'Land',
+                cost: {}, // for placement system
             };
         }
-        
-        newCommands[8] = {
-            command: 'lift_off',
-            hotkey: 'L',
-            icon: 'assets/images/lift_off_icon.png',
-            name: 'Lift Off'
-        };
 
         this.commands = newCommands;
     }
@@ -169,49 +205,173 @@ export class Starport {
                 child.material.transparent = false;
             }
         });
+        this.addonBehavior.updateCommands(gameState);
         this.updateCommands(gameState);
     }
 
-    getCollider() { return this.collider; }
-    select() { this.selected = true; this.selectionIndicator.visible = true; }
-    deselect() { this.selected = false; this.selectionIndicator.visible = false; }
+    getCollider() {
+        const flyingCollider = this.flyingBehavior.getCollider();
+        if (flyingCollider.isEmpty()) {
+            return flyingCollider;
+        }
+        if (this.addonBehavior.addon) {
+            const starportBox = this.groundCollider.clone();
+            const addonBox = this.addonBehavior.addon.getCollider();
+            return starportBox.union(addonBox);
+        }
+        return this.groundCollider;
+    }
+    select() {
+        this.selected = true;
+        this.selectionIndicator.visible = true;
+        if (this.addonBehavior.addon) {
+            this.addonBehavior.addon.selected = true;
+        }
+    }
+    deselect(calledByAddon = false) {
+        this.selected = false;
+        this.selectionIndicator.visible = false;
+        if (this.addonBehavior.addon && !calledByAddon) {
+            this.addonBehavior.addon.deselect();
+        }
+    }
+
+    setPath(path) {
+        this.flyingBehavior.setPath(path);
+    }
+
+    landAt(position, pathfinder) {
+        this.flyingBehavior.landAt(position, pathfinder);
+    }
 
     executeCommand(commandName, gameState, statusCallback) {
+        if (this.addonBehavior.executeCommand(commandName, gameState, statusCallback)) {
+            return;
+        }
+
         const command = this.commands.find(c => c && c.command === commandName);
         if (!command) return;
 
+        if (commandName.startsWith('train_')) {
+            if (this.state !== 'grounded') {
+                statusCallback("Must be landed to train units.");
+                return;
+            }
+            if (this.addonBehavior.isBuilding()) {
+                statusCallback("Cannot train units while building an addon.");
+                return;
+            }
+            if (command.prereq && !gameState[command.prereq]) {
+                let prereqName = 'prerequisites';
+                if (command.prereq === 'scienceFacilityBuilt') prereqName = 'Science Facility';
+                else if (command.prereq === 'physicsLabBuilt') prereqName = 'Physics Lab';
+                statusCallback(`Requires ${prereqName}.`);
+                return;
+            }
+            if (commandName === 'train_battlecruiser' && (!this.addonBehavior.addon || this.addonBehavior.addon.name !== 'Control Tower' || !gameState.physicsLabBuilt)) {
+                statusCallback("Requires Control Tower and Physics Lab.");
+                return;
+            }
+            if (commandName === 'train_valkyrie' && this.addonBehavior.addon?.name !== 'Control Tower') {
+                statusCallback("Requires Control Tower.");
+                return;
+            }
+            if (commandName === 'train_science_vessel' && (!this.addonBehavior.addon || this.addonBehavior.addon.name !== 'Control Tower' || !gameState.scienceFacilityBuilt)) {
+                statusCallback("Requires Control Tower and Science Facility.");
+                return;
+            }
+            if (this.buildQueue.length >= 5) {
+                statusCallback("Build queue is full.");
+                return;
+            }
+            if (gameState.minerals < command.cost.minerals) {
+                statusCallback("Not enough minerals.");
+                return;
+            }
+            if (command.cost.vespene && gameState.vespene < command.cost.vespene) {
+                statusCallback("Not enough vespene.");
+                return;
+            }
+            if (gameState.supplyUsed + command.cost.supply > gameState.supplyCap) {
+                statusCallback("Additional supply required.");
+                return;
+            }
+
+            gameState.minerals -= command.cost.minerals;
+            if (command.cost.vespene) gameState.vespene -= command.cost.vespene;
+
+            const unitTypeMap = {
+                'train_wraith': 'Wraith',
+                'train_dropship': 'Dropship',
+                'train_science_vessel': 'Science Vessel',
+                'train_valkyrie': 'Valkyrie',
+                'train_battlecruiser': 'Battlecruiser',
+            };
+            const unitType = unitTypeMap[commandName];
+
+            this.buildQueue.push({
+                type: unitType,
+                progress: 0,
+                buildTime: command.buildTime,
+                originalCommand: commandName,
+            });
+            statusCallback(`${unitType} training...`);
+            return;
+        }
+
         switch (commandName) {
-            case 'train_wraith':
-            case 'train_dropship':
-            case 'train_science_vessel':
-            case 'train_valkyrie':
-            case 'train_battlecruiser':
-                 statusCallback(`${command.name} unit not yet implemented.`);
-                break;
             case 'lift_off':
-                statusCallback("Lift-off sequence not yet available.");
+                 if (this.flyingBehavior.liftOff()) {
+                     statusCallback("Lift-off sequence initiated.");
+                 } else {
+                     if (this.state !== 'grounded') statusCallback("Already airborne.");
+                     else if (this.addonBehavior.addon) statusCallback("Cannot lift off with an addon attached.");
+                 }
                 break;
         }
     }
 
-    update(delta, gameState, spawnUnitCallback) {
+    update(delta, gameState, spawnUnitCallback, spawnBuildingCallback) {
+        this.flyingBehavior.update(delta);
+
         if (this.isUnderConstruction) {
             const buildProgress = Math.max(0.01, this.currentHealth / this.maxHealth);
             this.mesh.scale.y = buildProgress;
             return;
         }
 
-        if (this.commands.length === 0 && !this.isUnderConstruction) {
+        this.addonBehavior.update(delta, gameState);
+        
+        // Less aggressive command updates.
+        const shouldUpdateCmds = !this.isUnderConstruction && 
+                               (this.addonBehavior.addon?.name !== this._lastAddonName || 
+                                gameState.physicsLabBuilt !== this._lastPhysicsLabState ||
+                                gameState.controlTowerBuilt !== this._lastControlTowerState ||
+                                // Force update if build queue becomes empty
+                                (this.buildQueue.length === 0 && this._lastQueueLength > 0)
+                               );
+        
+        if (shouldUpdateCmds) {
+            this.addonBehavior.updateCommands(gameState);
             this.updateCommands(gameState);
+            this._lastAddonName = this.addonBehavior.addon?.name;
+            this._lastPhysicsLabState = gameState.physicsLabBuilt;
+            this._lastControlTowerState = gameState.controlTowerBuilt;
         }
+        this._lastQueueLength = this.buildQueue.length;
 
         if (this.buildQueue.length > 0) {
-            const trainingUnit = this.buildQueue[0];
-            trainingUnit.progress += delta;
+            const job = this.buildQueue[0];
+            job.progress += delta;
 
-            if (trainingUnit.progress >= trainingUnit.buildTime) {
-                const finishedUnit = this.buildQueue.shift();
-                spawnUnitCallback(finishedUnit.type, this.rallyPoint.clone());
+            if (job.progress >= job.buildTime) {
+                const finishedJob = this.buildQueue.shift();
+                
+                if (finishedJob.isAddon) {
+                    this.addonBehavior.completeAddonConstruction(finishedJob, spawnBuildingCallback, gameState);
+                } else {
+                    spawnUnitCallback(finishedJob.type, this.rallyPoint.clone());
+                }
             }
         }
     }

@@ -18,7 +18,9 @@ export class FlyingBuildingBehavior {
 
     liftOff() {
         if (this.state !== 'grounded') return false;
-        if (this.building.addon) return false; // Cannot lift with addon
+        // Cannot lift with addon
+        if (this.building.addonBehavior && this.building.addonBehavior.addon) return false; 
+        if (this.building.addon) return false;
 
         this.state = 'lifting';
         this.animationProgress = 0;
@@ -26,11 +28,14 @@ export class FlyingBuildingBehavior {
         return true;
     }
 
-    landAt(position) {
+    landAt(position, pathfinder) {
         if (this.state !== 'flying') return;
         this.targetLandPosition = position.clone();
         this.targetLandPosition.y = this.hoverHeight;
-        this.setPath([this.targetLandPosition]);
+        
+        const path = pathfinder.findPath(this.building.mesh.position, this.targetLandPosition);
+        this.setPath(path ? path.map(p => new THREE.Vector3(p.x, this.hoverHeight, p.z)) : [this.targetLandPosition]);
+
         this.state = 'movingToLand';
     }
 
@@ -70,6 +75,7 @@ export class FlyingBuildingBehavior {
             if (this.animationProgress >= 1) {
                 this.state = 'flying';
                 this.animationProgress = 0;
+                this.onStateChange();
             }
         } else if (this.state === 'landing') {
             this.animationProgress += delta / this.animationDuration;

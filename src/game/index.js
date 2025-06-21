@@ -19,7 +19,7 @@ import { setupInitialState } from './initial-state.js';
 import { setPathfinder as setRCHPathfinder } from './rightClickHandler.js';
 import { Pathfinder } from '../utils/pathfinding.js';
 
-let scene, camera, renderer, controls, pathfinder, terrainObstacles, gridHelper, expansionBarrier;
+let scene, camera, renderer, controls, pathfinder, terrainObstacles, gridHelper;
 let mapWidth, mapHeight;
 let loopDeps;
 let units = [];
@@ -34,13 +34,6 @@ let gameContainer;
 let devModeActive = false;
 
 function openMapChunk() {
-    if (!expansionBarrier) return;
-    scene.remove(expansionBarrier.mesh);
-    const idx = collidableObjects.indexOf(expansionBarrier);
-    if (idx !== -1) collidableObjects.splice(idx, 1);
-    const obsIdx = terrainObstacles.indexOf(expansionBarrier);
-    if (obsIdx !== -1) terrainObstacles.splice(obsIdx, 1);
-    expansionBarrier = null;
 
     const groundTexture = assetManager.get('ground');
     groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
@@ -57,6 +50,40 @@ function openMapChunk() {
     newGround.name = 'ground';
     newGround.position.set(mapWidth, 0, 0);
     scene.add(newGround);
+
+    const borderSize = 10;
+    const plateauHeight = 2;
+    function addBorderPlateau(x, z, sizeX, sizeZ) {
+        const plateauGeom = new THREE.BoxGeometry(sizeX, plateauHeight, sizeZ);
+        const plateau = new THREE.Mesh(plateauGeom, material);
+        plateau.position.set(x, plateauHeight / 2, z);
+        plateau.castShadow = true;
+        plateau.receiveShadow = true;
+        scene.add(plateau);
+
+        const minX = x - sizeX / 2;
+        const maxX = x + sizeX / 2;
+        const minZ = z - sizeZ / 2;
+        const maxZ = z + sizeZ / 2;
+        const obstacle = {
+            collider: new THREE.Box3(
+                new THREE.Vector3(minX, 0, minZ),
+                new THREE.Vector3(maxX, plateauHeight, maxZ)
+            ),
+            getCollider() { return this.collider; }
+        };
+        terrainObstacles.push(obstacle);
+        collidableObjects.push(obstacle);
+    }
+
+    const baseX = mapWidth;
+    const northZ = mapHeight / 2 - borderSize / 2;
+    const southZ = -mapHeight / 2 + borderSize / 2;
+    const eastX = baseX + mapWidth / 2 - borderSize / 2;
+
+    addBorderPlateau(baseX, northZ, mapWidth, borderSize);
+    addBorderPlateau(baseX, southZ, mapWidth, borderSize);
+    addBorderPlateau(eastX, 0, borderSize, mapHeight - 2 * borderSize);
 
     gameState.mapChunksUnlocked += 1;
 
@@ -117,7 +144,6 @@ async function startGame() {
     pathfinder = sceneData.pathfinder;
     window.pathfinder = pathfinder;
     terrainObstacles = sceneData.terrainObstacles;
-    expansionBarrier = sceneData.chunkBarrier;
     gridHelper = sceneData.gridHelper;
     mapWidth = sceneData.mapWidth;
     mapHeight = sceneData.mapHeight;

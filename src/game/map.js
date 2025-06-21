@@ -98,28 +98,7 @@ export function createMap(width, height) {
     addBorderPlateau(0, northZ, width, borderSize);
     addBorderPlateau(0, southZ, width, borderSize);
     addBorderPlateau(westX, 0, borderSize, height - 2 * borderSize);
-    addBorderPlateau(eastX, 0, borderSize, height - 2 * borderSize);
+    // The eastern edge will be left open for future expansion
 
-    // Barrier blocking the eastern chunk until unlocked
-    const barrierWidth = 2;
-    const barrierHeight = 4;
-    const barrierDepth = height - 2 * borderSize;
-    const barrierX = width / 4;
-    const barrierGeom = new THREE.BoxGeometry(barrierWidth, barrierHeight, barrierDepth);
-    const barrierMesh = new THREE.Mesh(barrierGeom, material);
-    barrierMesh.position.set(barrierX, barrierHeight / 2, 0);
-    group.add(barrierMesh);
-
-    const barrierCollider = new THREE.Box3(
-        new THREE.Vector3(barrierX - barrierWidth / 2, 0, -barrierDepth / 2),
-        new THREE.Vector3(barrierX + barrierWidth / 2, barrierHeight, barrierDepth / 2)
-    );
-    const chunkBarrier = {
-        mesh: barrierMesh,
-        collider: barrierCollider,
-        getCollider() { return this.collider; }
-    };
-    obstacles.push(chunkBarrier);
-
-    return { mesh: group, obstacles, chunkBarrier };
+    return { mesh: group, obstacles };
 }

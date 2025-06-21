@@ -256,6 +256,16 @@ export function updatePlacementText(message) {
 }
 
 export function updateStatusText(message) {
+    const lower = message.toLowerCase();
+    if (audioManagerRef) {
+        if (lower.includes('not enough minerals') && audioManagerRef.mineralsWarningSoundName) {
+            audioManagerRef.playSound(audioManagerRef.mineralsWarningSoundName);
+        } else if (lower.includes('not enough vespene') && audioManagerRef.gasWarningSoundName) {
+            audioManagerRef.playSound(audioManagerRef.gasWarningSoundName);
+        } else if (lower.includes('additional supply required') && audioManagerRef.supplyWarningSoundName) {
+            audioManagerRef.playSound(audioManagerRef.supplyWarningSoundName);
+        }
+    }
     messageDisplay.updateStatusText(message);
 }
 

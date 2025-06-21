@@ -33,6 +33,12 @@ import { PhysicsLab } from '../buildings/physics-lab.js';
 
 let deps;
 
+export function setPathfinder(newPathfinder) {
+    if (deps) {
+        deps.pathfinder = newPathfinder;
+    }
+}
+
 export function initSpawner(_deps) {
     deps = _deps;
 }

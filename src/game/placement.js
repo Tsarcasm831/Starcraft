@@ -2,8 +2,13 @@ import * as THREE from 'three';
 import { updateStatusText, updatePlacementText } from './ui.js';
 import { spawnBuilding } from './spawn.js';
 import { gameState } from './gameState.js';
+import { getGroundMeshes } from '../utils/terrain.js';
 
 let scene, camera, renderer, vespeneGeysers, collidableObjects, pathfinder;
+
+export function setPathfinder(newPathfinder) {
+    pathfinder = newPathfinder;
+}
 
 export let placementMode = null;
 let ghostBuilding = null;
@@ -100,9 +105,8 @@ export function updateGhostBuilding(event) {
 
     raycaster.setFromCamera(mouse, camera);
 
-    const groundGroup = scene.getObjectByName('ground');
-    if (groundGroup) {
-        const groundMeshes = groundGroup.children.length > 0 ? groundGroup.children : [groundGroup];
+    const groundMeshes = getGroundMeshes(scene);
+    if (groundMeshes.length > 0) {
         const intersects = raycaster.intersectObjects(groundMeshes, true);
         if (intersects.length > 0) {
             const hit = intersects[0];
@@ -131,10 +135,9 @@ export function attemptPlacement(event) {
 
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, camera);
-    const groundGroup = scene.getObjectByName('ground');
-    if (!groundGroup) return;
+    const groundMeshes = getGroundMeshes(scene);
+    if (groundMeshes.length === 0) return;
 
-    const groundMeshes = groundGroup.children.length > 0 ? groundGroup.children : [groundGroup];
     const intersects = raycaster.intersectObjects(groundMeshes, true);
     if (intersects.length > 0) {
         const hit = intersects[0];

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { setupScene } from './setupScene.js';
-import { initSpawner, spawnUnit, spawnBuilding } from './spawn.js';
-import { initPlacement, getPlacementMode, setPlacementMode, cancelPlacementMode, updateGhostBuilding, attemptPlacement } from './placement.js';
+import { initSpawner, spawnUnit, spawnBuilding, setPathfinder as setSpawnerPathfinder } from './spawn.js';
+import { initPlacement, getPlacementMode, setPlacementMode, cancelPlacementMode, updateGhostBuilding, attemptPlacement, setPathfinder as setPlacementPathfinder } from './placement.js';
 import { initEffects, createMoveIndicator } from './effects.js';
 import { initLoop } from './loop.js';
 import { gameState } from './gameState.js';
@@ -9,15 +9,19 @@ import { setupControls, getSelectedObjects } from './controls.js';
 import { AudioManager } from '../utils/audio.js';
 import { assetManager } from '../utils/asset-manager.js';
 import { initUI, updateStatusText, updatePlacementText, hideStartScreen, setGameRunning, isPaused, isGameRunning } from './ui.js';
-import { init as initMinimap } from './minimap.js';
+import { init as initMinimap, setMapSize as setMinimapSize } from './minimap.js';
 import { preloadAssets } from './preloader.js';
 import { initCameraController, updateCamera } from './cameraController.js';
 import { initCommandExecutor } from './commandExecutor.js';
 import { initMobileControls } from './mobileControls.js';
 import { devLogger } from '../utils/dev-logger.js';
 import { setupInitialState } from './initial-state.js';
+import { setPathfinder as setRCHPathfinder } from './rightClickHandler.js';
+import { Pathfinder } from '../utils/pathfinding.js';
 
 let scene, camera, renderer, controls, pathfinder, terrainObstacles, gridHelper, expansionBarrier;
+let mapWidth, mapHeight;
+let loopDeps;
 let units = [];
 let buildings = [];
 let mineralFields = [];
@@ -36,9 +40,35 @@ function openMapChunk() {
     if (idx !== -1) collidableObjects.splice(idx, 1);
     const obsIdx = terrainObstacles.indexOf(expansionBarrier);
     if (obsIdx !== -1) terrainObstacles.splice(obsIdx, 1);
-    pathfinder.updateObstacles(collidableObjects);
-    gameState.mapChunksUnlocked += 1;
     expansionBarrier = null;
+
+    const groundTexture = assetManager.get('ground');
+    groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set(mapWidth / 4, mapHeight / 4);
+    const material = new THREE.MeshStandardMaterial({
+        map: groundTexture,
+        metalness: 0.1,
+        roughness: 0.9,
+    });
+    const geometry = new THREE.PlaneGeometry(mapWidth, mapHeight);
+    const newGround = new THREE.Mesh(geometry, material);
+    newGround.rotation.x = -Math.PI / 2;
+    newGround.receiveShadow = true;
+    newGround.name = 'ground';
+    newGround.position.set(mapWidth, 0, 0);
+    scene.add(newGround);
+
+    gameState.mapChunksUnlocked += 1;
+
+    const newWidth = mapWidth * (gameState.mapChunksUnlocked + 1);
+    pathfinder = new Pathfinder(newWidth, mapHeight, 1);
+    window.pathfinder = pathfinder;
+    setSpawnerPathfinder(pathfinder);
+    setPlacementPathfinder(pathfinder);
+    setRCHPathfinder(pathfinder);
+    if (loopDeps) loopDeps.pathfinder = pathfinder;
+    pathfinder.updateObstacles(collidableObjects);
+    setMinimapSize(newWidth, mapHeight);
 }
 
 function init() {
@@ -85,9 +115,12 @@ async function startGame() {
     renderer = sceneData.renderer;
     controls = sceneData.controls;
     pathfinder = sceneData.pathfinder;
+    window.pathfinder = pathfinder;
     terrainObstacles = sceneData.terrainObstacles;
     expansionBarrier = sceneData.chunkBarrier;
     gridHelper = sceneData.gridHelper;
+    mapWidth = sceneData.mapWidth;
+    mapHeight = sceneData.mapHeight;
     gameState.onFactoryBuilt = openMapChunk;
 
     initSpawner({ scene, units, buildings, selectables, collidableObjects, pathfinder, gameState, audioManager });
@@ -140,12 +173,12 @@ async function startGame() {
     initCameraController({ camera, controls, keyState });
     initMobileControls({ keyState, renderer, camera, scene });
     
-    const loopDeps = {
-        scene, camera, renderer, buildings, units, vespeneGeysers, gameState, pathfinder, 
+    loopDeps = {
+        scene, camera, renderer, buildings, units, vespeneGeysers, gameState, pathfinder,
         spawnUnit: spawnUnitCallback,
-        spawnBuilding, 
-        updateCamera, 
-        get isPaused() { return isPaused; } 
+        spawnBuilding,
+        updateCamera,
+        get isPaused() { return isPaused; }
     };
 
     initLoop(loopDeps);

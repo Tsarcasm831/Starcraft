@@ -7,11 +7,16 @@ import { SCVMark2 } from '../units/scv-mark-2.js';
 import { Bunker } from '../buildings/bunker.js';
 import { Dropship } from '../units/dropship.js';
 import { devLogger } from '../utils/dev-logger.js';
+import { getGroundMeshes } from '../utils/terrain.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 let camera, scene, allSelectables, onMoveSound, createMoveIndicator, pathfinder, updateStatusText;
+
+export function setPathfinder(newPathfinder) {
+    pathfinder = newPathfinder;
+}
 let allBuildings = [];
 let allMineralFields = [];
 let getSelectedObjects;
@@ -218,10 +223,9 @@ export function handleRightClick(event) {
         }
     }
     
-    const groundGroup = scene.getObjectByName('ground');
-    if (!groundGroup) return;
+    const groundMeshes = getGroundMeshes(scene);
+    if (groundMeshes.length === 0) return;
 
-    const groundMeshes = groundGroup.children.length > 0 ? groundGroup.children : [groundGroup];
     const groundIntersects = raycaster.intersectObjects(groundMeshes, true);
 
     if (groundIntersects.length > 0) {

@@ -17,6 +17,18 @@ let frustumLine;
 const spritePool = [];
 let activeSprites = [];
 
+export function setMapSize(newWidth, newHeight) {
+    mapWidth = newWidth;
+    mapHeight = newHeight;
+    if (minimapCamera) {
+        minimapCamera.left = -mapWidth / 2;
+        minimapCamera.right = mapWidth / 2;
+        minimapCamera.top = mapHeight / 2;
+        minimapCamera.bottom = -mapHeight / 2;
+        minimapCamera.updateProjectionMatrix();
+    }
+}
+
 export function init(deps) {
     mainCamera = deps.camera;
     mainControls = deps.controls;

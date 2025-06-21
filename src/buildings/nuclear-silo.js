@@ -83,11 +83,55 @@ export class NuclearSilo {
     
     executeCommand(commandName, gameState, statusCallback) {
         if (commandName === 'arm_nuke') {
-            statusCallback("Nuke arming not yet implemented.");
+            const command = this.commands.find(c => c && c.command === 'arm_nuke');
+            if (this.hasNuke) {
+                statusCallback('Silo already loaded.');
+                return;
+            }
+            if (this.isArming) {
+                statusCallback('Nuke is already being armed.');
+                return;
+            }
+            if (gameState.minerals < command.cost.minerals) {
+                statusCallback('Not enough minerals.');
+                return;
+            }
+            if (gameState.vespene < command.cost.vespene) {
+                statusCallback('Not enough vespene.');
+                return;
+            }
+            if (gameState.supplyUsed + command.cost.supply > gameState.supplyCap) {
+                statusCallback('Additional supply required.');
+                return;
+            }
+
+            gameState.minerals -= command.cost.minerals;
+            gameState.vespene -= command.cost.vespene;
+            this.isArming = true;
+            this.armingProgress = 0;
+            this.pendingSupplyCost = command.cost.supply;
+            statusCallback('Arming nuclear missile...');
         }
     }
 
-    update(delta) {
-        // Arming logic would go here
+    update(delta, gameState) {
+        if (this.isUnderConstruction) {
+            const buildProgress = Math.max(0.01, this.currentHealth / this.maxHealth);
+            this.mesh.scale.y = buildProgress;
+            return;
+        }
+
+        if (this.isArming) {
+            this.armingProgress += delta;
+            if (this.armingProgress >= this.armingTime) {
+                this.isArming = false;
+                this.hasNuke = true;
+                this.armingProgress = 0;
+                if (gameState && typeof this.pendingSupplyCost === 'number') {
+                    gameState.supplyUsed += this.pendingSupplyCost;
+                    this.pendingSupplyCost = 0;
+                }
+            }
+        }
     }
 }

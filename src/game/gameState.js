@@ -17,6 +17,8 @@ export const gameState = {
         empShockwave: false,
         wraithCloaking: false,
         dropThrusters: false,
+        yamatoGun: false,
+        behemothReactor: false,
     },
     academyBuilt: false,
     engineeringBayBuilt: false,

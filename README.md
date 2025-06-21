@@ -6,4 +6,5 @@
 - Documented in `AGENTS.md` that all contributions must update this changelog.
 - Explained in `AGENTS.md` how remote sound URLs in `preloader.js` are loaded and registered.
 - Control Tower can research flight upgrades.
+- Physics Lab enables Battlecruiser upgrades.
 

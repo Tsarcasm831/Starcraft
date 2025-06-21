@@ -7,6 +7,9 @@ export class AudioManager {
         this.backgroundTrackNames = [];
         this.scvConstructedSoundNames = [];
         this.scvMark2ConstructedSoundNames = [];
+        this.mineralsWarningSoundName = null;
+        this.gasWarningSoundName = null;
+        this.supplyWarningSoundName = null;
         this.backgroundGain = null;
         this.currentTrackIndex = 0;
         this.backgroundPlaying = false;
@@ -67,6 +70,23 @@ export class AudioManager {
         const index = Math.floor(Math.random() * names.length);
         const name = names[index];
         this.playSound(name);
+    }
+
+    async loadWarningSounds(urls) {
+        const promises = [];
+        if (urls.minerals) {
+            this.mineralsWarningSoundName = 'minerals_warning';
+            promises.push(assetManager.loadSound(urls.minerals, this.mineralsWarningSoundName));
+        }
+        if (urls.gas) {
+            this.gasWarningSoundName = 'gas_warning';
+            promises.push(assetManager.loadSound(urls.gas, this.gasWarningSoundName));
+        }
+        if (urls.supply) {
+            this.supplyWarningSoundName = 'supply_warning';
+            promises.push(assetManager.loadSound(urls.supply, this.supplyWarningSoundName));
+        }
+        await Promise.all(promises);
     }
 
     async loadBackgroundTracks(urls) {

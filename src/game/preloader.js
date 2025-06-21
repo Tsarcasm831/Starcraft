@@ -129,6 +129,13 @@ export async function preloadAssets(audioManager) {
         });
     });
 
+    const warningUrls = {
+        minerals: 'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/minerals_warning.wav',
+        gas: 'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/gas_warning.wav',
+        supply: 'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/supply_warning.wav'
+    };
+    tasks.push(() => audioManager.loadWarningSounds(warningUrls));
+
     const bgUrls = [
         'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Terran%20BGM.mp3',
         'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Terran%20BGM2.mp3',

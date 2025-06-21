@@ -10,13 +10,19 @@ export class Medic extends Infantry {
         this.maxHealth = 60;
         this.currentHealth = 60;
 
+        this.energy = 50;
+        this.maxEnergy = 200;
+        this.healRange = 1.5;
+        this.healTarget = null;
+        this.state = 'idle'; // idle, moving, movingToHeal, healing
+        this.healCooldown = 0;
+
         this.commands = [
             { command: 'move', hotkey: 'M', icon: 'assets/images/move_icon.png', name: 'Move' },
             { command: 'stop', hotkey: 'S', icon: 'assets/images/stop_icon.png', name: 'Stop' },
             { command: 'hold', hotkey: 'H', icon: 'assets/images/hold_position_icon.png', name: 'Hold Position' },
             { command: 'patrol', hotkey: 'P', icon: 'assets/images/patrol_icon.png', name: 'Patrol' },
-            // Heal command will go here eventually
-            { command: 'heal', hotkey: 'E', icon: 'assets/images/heal_icon.png', name: 'Heal' },
+            { command: 'heal', hotkey: 'E', icon: 'assets/images/heal_icon.png', name: 'Heal', cost: { energy: 1 } },
         ];
 
         this.mesh = this.createMesh();
@@ -93,10 +99,93 @@ export class Medic extends Infantry {
         return group;
     }
 
-    // A placeholder for the heal command
+    stopActions() {
+        if (this.state === 'movingToHeal' || this.state === 'healing') {
+            this.state = 'idle';
+            this.healTarget = null;
+        }
+    }
+
+    heal(target, pathfinder, targetPosition = null) {
+        this.stopActions();
+        if (!target) return;
+        this.state = 'movingToHeal';
+        this.healTarget = target;
+
+        let finalPos = targetPosition;
+        if (!finalPos && target.getCollider) {
+            const collider = target.getCollider();
+            const size = collider.getSize(new THREE.Vector3());
+            const pos = target.mesh.position;
+            const radius = Math.max(size.x, size.z) / 2 + 1.0;
+            finalPos = new THREE.Vector3(pos.x + radius, pos.y, pos.z);
+        }
+        if (!finalPos) finalPos = target.mesh.position.clone();
+
+        if (pathfinder) {
+            const path = pathfinder.findPath(this.mesh.position, finalPos);
+            this.setPath(path);
+        }
+    }
+
     executeCommand(commandName, gameState, statusCallback) {
         if (commandName === 'heal') {
-            statusCallback('Heal ability not yet implemented.');
+            const wounded = gameState.units
+                .filter(u => u instanceof Infantry && u.currentHealth < u.maxHealth && u !== this);
+            if (wounded.length === 0) {
+                statusCallback('No wounded units to heal.');
+                return;
+            }
+            wounded.sort((a, b) => a.mesh.position.distanceToSquared(this.mesh.position) - b.mesh.position.distanceToSquared(this.mesh.position));
+            const target = wounded[0];
+            const pathfinder = window.pathfinder;
+            this.heal(target, pathfinder);
+            statusCallback(`Healing ${target.name}.`);
         }
+    }
+
+    update(delta, pathfinder, gameState, buildings, scene) {
+        if (this.energy < this.maxEnergy) {
+            this.energy += 0.5625 * delta;
+            if (this.energy > this.maxEnergy) this.energy = this.maxEnergy;
+        }
+
+        if (this.state === 'movingToHeal') {
+            if (!this.healTarget || this.healTarget.currentHealth >= this.healTarget.maxHealth) {
+                this.state = 'idle';
+                this.healTarget = null;
+            } else {
+                this.updateMovement(delta, scene, () => {
+                    this.state = 'healing';
+                    this.mesh.lookAt(this.healTarget.mesh.position);
+                });
+                return;
+            }
+        }
+
+        if (this.state === 'healing') {
+            if (!this.healTarget || this.healTarget.currentHealth >= this.healTarget.maxHealth) {
+                this.state = 'idle';
+                this.healTarget = null;
+            } else if (this.energy <= 0) {
+                this.state = 'idle';
+                this.healTarget = null;
+            } else {
+                const healAmount = 10 * delta;
+                const energyCost = healAmount;
+                const actualHeal = Math.min(healAmount, this.healTarget.maxHealth - this.healTarget.currentHealth);
+                const actualCost = Math.min(this.energy, energyCost * (actualHeal / healAmount));
+                this.healTarget.currentHealth += actualHeal;
+                this.energy -= actualCost;
+                if (this.healTarget.currentHealth >= this.healTarget.maxHealth) {
+                    this.healTarget.currentHealth = this.healTarget.maxHealth;
+                    this.state = 'idle';
+                    this.healTarget = null;
+                }
+            }
+            return;
+        }
+
+        super.update(delta, pathfinder, gameState, buildings, scene);
     }
 }

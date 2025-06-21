@@ -4,6 +4,7 @@ import { VespeneGeyser } from '../resources/vespene-geyser.js';
 import { Refinery } from '../buildings/refinery.js';
 import { CommandCenter } from '../buildings/command-center.js';
 import { SCVMark2 } from '../units/scv-mark-2.js';
+import { SCV } from '../units/scv.js';
 import { Bunker } from '../buildings/bunker.js';
 import { Dropship } from '../units/dropship.js';
 import { devLogger } from '../utils/dev-logger.js';
@@ -136,7 +137,7 @@ export function handleRightClick(event) {
     if (clickedObject instanceof CommandCenter && clickedObject.state !== 'grounded') {
         // Flying CC move handled by fallback
     } else if (objectIntersects.length > 0) {
-        const builders = selectedObjects.filter(obj => obj instanceof SCVMark2);
+        const builders = selectedObjects.filter(obj => obj instanceof SCVMark2 || obj instanceof SCV);
         if (builders.length > 0 && clickedObject?.isUnderConstruction && clickedObject.currentHealth < clickedObject.maxHealth) {
             onMoveSound();
             createMoveIndicator(clickedObject.mesh.position);
@@ -153,6 +154,27 @@ export function handleRightClick(event) {
                     buildPosition.z + radius * Math.sin(angle)
                 );
                 builder.build(clickedObject, pathfinder, targetPos);
+            });
+            return;
+        }
+
+        const repairers = selectedObjects.filter(obj => obj instanceof SCVMark2 || obj instanceof SCV);
+        if (repairers.length > 0 && clickedObject?.currentHealth !== undefined && !clickedObject.isUnderConstruction && clickedObject.currentHealth < clickedObject.maxHealth) {
+            onMoveSound();
+            createMoveIndicator(clickedObject.mesh.position);
+            const collider = clickedObject.getCollider();
+            const size = collider.getSize(new THREE.Vector3());
+            const pos = clickedObject.mesh.position;
+            const radius = Math.max(size.x, size.z) / 2 + 1.5;
+
+            repairers.forEach((rep, i) => {
+                const angle = (i / repairers.length) * (Math.PI * 2);
+                const targetPos = new THREE.Vector3(
+                    pos.x + radius * Math.cos(angle),
+                    pos.y,
+                    pos.z + radius * Math.sin(angle)
+                );
+                rep.repair(clickedObject, pathfinder, targetPos);
             });
             return;
         }

@@ -13,14 +13,10 @@ export class SCV extends SCVBase {
         this.carryCapacity = 5;
         this.gatherTime = 2.0; // seconds to gather
 
-        this.commands = [
-            { command: 'move', hotkey: 'M', icon: 'assets/images/move_icon.png', name: 'Move' },
-            { command: 'stop', hotkey: 'S', icon: 'assets/images/stop_icon.png', name: 'Stop' },
-            { command: 'hold', hotkey: 'H', icon: 'assets/images/hold_position_icon.png', name: 'Hold Position' },
-            { command: 'patrol', hotkey: 'P', icon: 'assets/images/patrol_icon.png', name: 'Patrol' },
-            { command: 'gather', hotkey: 'G', icon: 'assets/images/gather_icon.png', name: 'Gather' },
-            // TODO: Repair, Build commands
-        ];
+        this.commandMode = 'basic'; // 'basic' or 'build'
+        this._commands = [];
+        this.buildingTarget = null;
+        this.repairTarget = null;
 
         this.mixer = null; // Animation mixer
 
@@ -42,6 +38,33 @@ export class SCV extends SCVBase {
 
         this.setupModel(this.mesh, position);
         this.speed = 3.5; // SCVs are a bit slower than marines
+        this.updateCommands({});
+    }
+
+    get commands() {
+        return this._commands;
+    }
+
+    updateCommands(gameState) {
+        const commands = new Array(12).fill(null);
+
+        if (this.commandMode === 'build') {
+            commands[0] = { command: 'build_command_center', hotkey: 'C', icon: 'assets/images/build_command_center_icon.png', name: 'Build Command Center', cost: { minerals: 400 }, buildTime: 75.6 };
+            commands[1] = { command: 'build_supply_depot', hotkey: 'S', icon: 'assets/images/build_supply_depot_icon.png', name: 'Build Supply Depot', cost: { minerals: 100 }, buildTime: 25.2 };
+            commands[2] = { command: 'build_refinery', hotkey: 'R', icon: 'assets/images/build_refinery_icon.png', name: 'Build Refinery', cost: { minerals: 100 }, buildTime: 25.2 };
+            commands[3] = { command: 'build_barracks', hotkey: 'B', icon: 'assets/images/build_barracks_icon.png', name: 'Build Barracks', cost: { minerals: 150 }, buildTime: 50.4 };
+            commands[11] = { command: 'cancel_build_menu', hotkey: 'Escape', icon: 'assets/images/stop_icon.png', name: 'Cancel' };
+        } else {
+            commands[0] = { command: 'move', hotkey: 'M', icon: 'assets/images/move_icon.png', name: 'Move' };
+            commands[1] = { command: 'stop', hotkey: 'S', icon: 'assets/images/stop_icon.png', name: 'Stop' };
+            commands[2] = { command: 'hold', hotkey: 'H', icon: 'assets/images/hold_position_icon.png', name: 'Hold Position' };
+            commands[3] = { command: 'patrol', hotkey: 'P', icon: 'assets/images/patrol_icon.png', name: 'Patrol' };
+            commands[4] = { command: 'gather', hotkey: 'G', icon: 'assets/images/gather_icon.png', name: 'Gather' };
+            commands[5] = { command: 'repair', hotkey: 'R', icon: 'assets/images/heal_icon.png', name: 'Repair' };
+            commands[6] = { command: 'open_build_menu', hotkey: 'B', icon: 'assets/images/build_basic_structures_icon.png', name: 'Build Structures' };
+        }
+
+        this._commands = commands;
     }
 
     createMeshFromGLB(asset) {
@@ -125,5 +148,122 @@ export class SCV extends SCVBase {
         group.scale.set(0.8, 0.8, 0.8);
         this.addCarryVisuals(group);
         return group;
+    }
+
+    build(buildingInstance, pathfinder, targetPosition = null) {
+        this.stopActions();
+        this.state = 'movingToBuild';
+        this.buildingTarget = buildingInstance;
+
+        let finalTargetPos = targetPosition;
+        if (!finalTargetPos) {
+            const buildingCollider = this.buildingTarget.getCollider();
+            const size = buildingCollider.getSize(new THREE.Vector3());
+            const buildPosition = this.buildingTarget.mesh.position;
+            const radius = Math.max(size.x, size.z) / 2 + 1.5;
+
+            finalTargetPos = new THREE.Vector3(
+                buildPosition.x + radius,
+                buildPosition.y,
+                buildPosition.z
+            );
+        }
+
+        const path = pathfinder.findPath(this.mesh.position, finalTargetPos);
+        this.setPath(path);
+    }
+
+    repair(target, pathfinder, targetPosition = null) {
+        this.stopActions();
+        this.state = 'movingToRepair';
+        this.repairTarget = target;
+
+        let finalTargetPos = targetPosition;
+        if (!finalTargetPos) {
+            const collider = this.repairTarget.getCollider();
+            const size = collider.getSize(new THREE.Vector3());
+            const pos = this.repairTarget.mesh.position;
+            const radius = Math.max(size.x, size.z) / 2 + 1.5;
+
+            finalTargetPos = new THREE.Vector3(
+                pos.x + radius,
+                pos.y,
+                pos.z
+            );
+        }
+
+        const path = pathfinder.findPath(this.mesh.position, finalTargetPos);
+        this.setPath(path);
+    }
+
+    executeCommand(commandName, gameState, statusCallback) {
+        if (commandName === 'repair') {
+            statusCallback('Right-click a damaged unit or building to repair.');
+        }
+    }
+
+    update(delta, pathfinder, gameState, allBuildings, scene) {
+        if (this.isGarrisoned) return;
+
+        this.updateCommands(gameState);
+
+        if (this.state === 'movingToBuild') {
+            if (!this.buildingTarget) {
+                this.state = 'idle';
+                return;
+            }
+            this.updateMovement(delta, scene, () => {
+                this.state = 'building';
+                this.mesh.lookAt(this.buildingTarget.mesh.position);
+            });
+            return;
+        }
+
+        if (this.state === 'building') {
+            if (!this.buildingTarget) {
+                this.state = 'idle';
+                return;
+            }
+            const buildRate = (this.buildingTarget.maxHealth / this.buildingTarget.buildTime) * delta;
+            this.buildingTarget.currentHealth += buildRate;
+            if (this.buildingTarget.currentHealth >= this.buildingTarget.maxHealth) {
+                this.buildingTarget.currentHealth = this.buildingTarget.maxHealth;
+                this.buildingTarget.onConstructionComplete(gameState);
+                this.state = 'idle';
+                this.buildingTarget = null;
+            }
+            return;
+        }
+
+        if (this.state === 'movingToRepair') {
+            if (!this.repairTarget || this.repairTarget.currentHealth >= this.repairTarget.maxHealth) {
+                this.state = 'idle';
+                this.repairTarget = null;
+                return;
+            }
+            this.updateMovement(delta, scene, () => {
+                this.state = 'repairing';
+                this.mesh.lookAt(this.repairTarget.mesh.position);
+            });
+            return;
+        }
+
+        if (this.state === 'repairing') {
+            if (!this.repairTarget || this.repairTarget.currentHealth >= this.repairTarget.maxHealth) {
+                this.state = 'idle';
+                this.repairTarget = null;
+                return;
+            }
+            const repairRate = 10 * delta;
+            this.repairTarget.currentHealth += repairRate;
+            if (this.repairTarget.currentHealth >= this.repairTarget.maxHealth) {
+                this.repairTarget.currentHealth = this.repairTarget.maxHealth;
+                this.state = 'idle';
+                this.repairTarget = null;
+            }
+            return;
+        }
+
+        super.update(delta, pathfinder, gameState, allBuildings, scene);
     }
 }

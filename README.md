@@ -10,4 +10,5 @@
 - Nuclear Silo can arm nuclear missiles over time.
 - Comsat Station's scanner sweep now consumes energy and reveals terrain.
 - Armory can research vehicle and ship weapon/armor upgrades.
+- SCV can now construct basic buildings and repair damaged allies.
 

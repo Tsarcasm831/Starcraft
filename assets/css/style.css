@@ -75,6 +75,13 @@ canvas {
     padding: 2px 4px;
 }
 
+#compass {
+    position: absolute;
+    left: 30px;
+    color: #fff;
+    font-size: clamp(12px, 1.5vh, 16px);
+}
+
 #bottom-bar {
     position: absolute;
     bottom: 0;

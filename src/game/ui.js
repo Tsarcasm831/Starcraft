@@ -2,6 +2,7 @@ import { ResourceDisplay } from './ui/ResourceDisplay.js';
 import { SelectionInfoDisplay } from './ui/SelectionInfoDisplay.js';
 import { CommandCard } from './ui/CommandCard.js';
 import { MessageDisplay } from './ui/MessageDisplay.js';
+import { Compass } from './ui/Compass.js';
 import { devLogger } from '../utils/dev-logger.js';
 
 // Create instances of the new UI components
@@ -9,6 +10,7 @@ const resourceDisplay = new ResourceDisplay();
 const selectionInfoDisplay = new SelectionInfoDisplay();
 const commandCard = new CommandCard();
 const messageDisplay = new MessageDisplay();
+const compass = new Compass();
 
 // UI State
 let startScreen;
@@ -31,6 +33,7 @@ let audioManagerRef;
 let gridHelperRef;
 let keyStateRef;
 let commandExecutorRef;
+let cameraGetter;
 
 function togglePause() {
     isPaused = !isPaused;
@@ -89,11 +92,12 @@ async function toggleChangelogModal() {
     }
 }
 
-export function initUI(commandExecutor, startGameCallback, audioManager, getGridHelper, getKeyState) {
+export function initUI(commandExecutor, startGameCallback, audioManager, getGridHelper, getKeyState, getCamera) {
     resourceDisplay.init();
     selectionInfoDisplay.init();
     commandCard.init(commandExecutor);
     messageDisplay.init();
+    compass.init(getCamera);
 
     // Store references
     onStartGame = startGameCallback;
@@ -101,6 +105,7 @@ export function initUI(commandExecutor, startGameCallback, audioManager, getGrid
     gridHelperRef = getGridHelper;
     keyStateRef = getKeyState;
     commandExecutorRef = commandExecutor;
+    cameraGetter = getCamera;
 
     // --- Find all UI elements ---
     startScreen = document.getElementById('start-screen');
@@ -233,4 +238,5 @@ export function updateUI(selectedObjects, gameState) {
 
     const firstObject = selectedObjects.length > 0 ? selectedObjects[0] : null;
     commandCard.update(firstObject, gameState);
+    compass.update();
 }

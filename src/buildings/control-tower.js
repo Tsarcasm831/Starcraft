@@ -12,7 +12,8 @@ export class ControlTower {
         this.parentBuilding = parent;
         this.isAddon = true;
 
-        this.commands = []; // Research commands
+        this.buildQueue = []; // For research progress
+        this.commands = []; // Research commands will be populated
 
         this.mesh = this.createMesh();
         this.mesh.position.copy(position);
@@ -60,16 +61,92 @@ export class ControlTower {
         this.selected = true; 
         if(this.parentBuilding && !this.parentBuilding.selected) this.parentBuilding.select();
     }
-    deselect(flag) { 
+    deselect(flag) {
         this.selected = false;
         if(this.parentBuilding && this.parentBuilding.selected && !flag) this.parentBuilding.deselect(true);
     }
+
+    updateCommands(gameState) {
+        if (this.isUnderConstruction || this.buildQueue.length > 0) {
+            this.commands = [];
+            return;
+        }
+
+        const newCommands = new Array(12).fill(null);
+
+        if (!gameState.upgrades.wraithCloaking) {
+            newCommands[0] = {
+                command: 'research_wraith_cloaking',
+                hotkey: 'C',
+                icon: 'assets/images/cloak_icon.png',
+                name: 'Research Wraith Cloaking',
+                cost: { minerals: 150, vespene: 150 },
+                researchTime: 80
+            };
+        }
+
+        if (!gameState.upgrades.dropThrusters) {
+            newCommands[1] = {
+                command: 'research_drop_thrusters',
+                hotkey: 'D',
+                icon: 'assets/images/train_dropship_icon.png',
+                name: 'Research Drop Thrusters',
+                cost: { minerals: 100, vespene: 100 },
+                researchTime: 60
+            };
+        }
+
+        this.commands = newCommands;
+    }
     
     executeCommand(commandName, gameState, statusCallback) {
-        // Research logic for flight upgrades will go here
+        const command = this.commands.find(c => c && c.command === commandName);
+        if (!command) return;
+
+        if (commandName.startsWith('research_')) {
+            if (this.buildQueue.length > 0) {
+                statusCallback("Already researching.");
+                return;
+            }
+            if (gameState.minerals < command.cost.minerals || (command.cost.vespene && gameState.vespene < command.cost.vespene)) {
+                statusCallback("Not enough resources.");
+                return;
+            }
+
+            gameState.minerals -= command.cost.minerals;
+            if (command.cost.vespene) gameState.vespene -= command.cost.vespene;
+
+            this.buildQueue.push({
+                type: command.name,
+                buildTime: command.researchTime,
+                progress: 0,
+                originalCommand: commandName,
+            });
+
+            statusCallback(`Researching ${command.name}...`);
+        }
     }
 
-    update(delta) {
+    update(delta, gameState) {
+        if (this.buildQueue.length > 0) {
+            const research = this.buildQueue[0];
+            research.progress += delta;
+
+            if (research.progress >= research.buildTime) {
+                const finished = this.buildQueue.shift();
+                if (finished.originalCommand.includes('wraith_cloaking')) {
+                    gameState.upgrades.wraithCloaking = true;
+                } else if (finished.originalCommand.includes('drop_thrusters')) {
+                    gameState.upgrades.dropThrusters = true;
+                }
+                this.updateCommands(gameState);
+            }
+        }
+
+        if (this.buildQueue.length === 0) {
+            this.updateCommands(gameState);
+        }
+
         if(this.dish) {
             this.dish.rotation.y += delta * 0.4;
         }

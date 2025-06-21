@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { assetManager } from '../utils/asset-manager.js';
+import { createYamatoBlast } from '../game/effects.js';
 
 export class Battlecruiser {
     constructor(position) {
@@ -133,7 +134,21 @@ export class Battlecruiser {
 
     executeCommand(commandName, gameState, statusCallback) {
         if (commandName === 'yamato_cannon') {
-            statusCallback("Yamato Cannon not yet implemented.");
+            if (!gameState.upgrades.yamatoGun) {
+                statusCallback('Yamato Cannon not researched.');
+                return;
+            }
+            if (this.energy < 150) {
+                statusCallback('Not enough energy.');
+                return;
+            }
+            this.energy -= 150;
+            const start = this.mesh.position.clone();
+            start.y += 2;
+            const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.mesh.quaternion).normalize();
+            const target = start.clone().add(forward.multiplyScalar(20));
+            createYamatoBlast(start, target);
+            statusCallback('Firing Yamato Cannon!');
         }
     }
 

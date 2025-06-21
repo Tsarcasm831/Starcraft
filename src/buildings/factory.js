@@ -175,6 +175,9 @@ export class Factory {
         this.isUnderConstruction = false;
         this.currentHealth = this.maxHealth;
         gameState.factoryBuilt = true;
+        if (typeof gameState.onFactoryBuilt === 'function') {
+            gameState.onFactoryBuilt();
+        }
 
         this.mesh.scale.y = 1.0;
         this.mesh.traverse(child => {

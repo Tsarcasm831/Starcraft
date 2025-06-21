@@ -28,4 +28,6 @@ export const gameState = {
     covertOpsBuilt: false,
     comsatStationBuilt: false,
     nuclearSiloBuilt: false,
+    onFactoryBuilt: null,
+    mapChunksUnlocked: 1,
 };

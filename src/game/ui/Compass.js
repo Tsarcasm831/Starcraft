@@ -25,11 +25,11 @@ export class Compass {
         if (deg >= -45 && deg < 45) {
             orientation = 'N';
         } else if (deg >= 45 && deg < 135) {
-            orientation = 'E';
+            orientation = 'W';
         } else if (deg < -135 || deg >= 135) {
             orientation = 'S';
         } else {
-            orientation = 'W';
+            orientation = 'E';
         }
 
         compassEl.textContent = orientation;

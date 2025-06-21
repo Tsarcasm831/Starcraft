@@ -117,7 +117,7 @@ function init() {
         updateStatusText,
     });
     
-    initUI(commandExecutor, startGame, audioManager, () => gridHelper, () => keyState);
+    initUI(commandExecutor, startGame, audioManager, () => gridHelper, () => keyState, () => camera);
 }
 
 async function startGame() {

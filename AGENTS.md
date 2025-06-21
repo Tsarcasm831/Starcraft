@@ -34,3 +34,8 @@ There is no automated test suite. After making changes:
 1. Run the local server (`python3 -m http.server 8000`).
 2. Open the game in a browser and ensure it loads correctly.
 3. Check the browser console for any JavaScript errors before submitting a pull request.
+
+## Changelog
+All updates to the code or assets must be recorded in the changelog. Append a
+bullet describing your change under the latest heading in `README.md` so players
+can easily track new features and fixes.

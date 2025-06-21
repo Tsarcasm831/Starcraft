@@ -17,7 +17,7 @@ import { initMobileControls } from './mobileControls.js';
 import { devLogger } from '../utils/dev-logger.js';
 import { setupInitialState } from './initial-state.js';
 
-let scene, camera, renderer, controls, pathfinder, terrainObstacles, gridHelper;
+let scene, camera, renderer, controls, pathfinder, terrainObstacles, gridHelper, expansionBarrier;
 let units = [];
 let buildings = [];
 let mineralFields = [];
@@ -28,6 +28,18 @@ const audioManager = new AudioManager();
 const keyState = {};
 let gameContainer;
 let devModeActive = false;
+
+function openMapChunk() {
+    if (!expansionBarrier) return;
+    scene.remove(expansionBarrier.mesh);
+    const idx = collidableObjects.indexOf(expansionBarrier);
+    if (idx !== -1) collidableObjects.splice(idx, 1);
+    const obsIdx = terrainObstacles.indexOf(expansionBarrier);
+    if (obsIdx !== -1) terrainObstacles.splice(obsIdx, 1);
+    pathfinder.updateObstacles(collidableObjects);
+    gameState.mapChunksUnlocked += 1;
+    expansionBarrier = null;
+}
 
 function init() {
     gameContainer = document.getElementById('game-container');
@@ -74,7 +86,9 @@ async function startGame() {
     controls = sceneData.controls;
     pathfinder = sceneData.pathfinder;
     terrainObstacles = sceneData.terrainObstacles;
+    expansionBarrier = sceneData.chunkBarrier;
     gridHelper = sceneData.gridHelper;
+    gameState.onFactoryBuilt = openMapChunk;
 
     initSpawner({ scene, units, buildings, selectables, collidableObjects, pathfinder, gameState, audioManager });
     initEffects(scene);

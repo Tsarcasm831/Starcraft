@@ -11,6 +11,12 @@ export class Ghost extends Infantry {
         this.currentHealth = 45;
         this.speed = 3.5; // Slightly slower than a marine
 
+        this.energy = 50;
+        this.maxEnergy = 200;
+
+        this.isCloaked = false;
+        this._buildings = null;
+
         this.commands = [
             { command: 'move', hotkey: 'M', icon: 'assets/images/move_icon.png', name: 'Move' },
             { command: 'stop', hotkey: 'S', icon: 'assets/images/stop_icon.png', name: 'Stop' },
@@ -102,18 +108,87 @@ export class Ghost extends Infantry {
         return group;
     }
 
-    // A placeholder for special commands
     executeCommand(commandName, gameState, statusCallback) {
         switch (commandName) {
             case 'cloak':
-                statusCallback('Cloak ability not yet implemented.');
+                if (!this.isCloaked) {
+                    if (this.energy < 25) {
+                        statusCallback('Not enough energy.');
+                        return;
+                    }
+                    this.energy -= 25;
+                    this.isCloaked = true;
+                    this.mesh.traverse(child => {
+                        if (child.material) {
+                            child.material.transparent = true;
+                            child.material.opacity = 0.35;
+                        }
+                    });
+                    statusCallback('Cloak engaged.');
+                } else {
+                    this.isCloaked = false;
+                    this.mesh.traverse(child => {
+                        if (child.material) {
+                            child.material.opacity = 1;
+                            child.material.transparent = false;
+                        }
+                    });
+                    statusCallback('Cloak disengaged.');
+                }
                 break;
             case 'lockdown':
-                statusCallback('Lockdown ability not yet implemented.');
+                if (this.energy < 100) {
+                    statusCallback('Not enough energy.');
+                    return;
+                }
+                this.energy -= 100;
+                statusCallback('Lockdown fired (no effect in demo).');
                 break;
             case 'nuke_strike':
-                statusCallback('Nuke Strike ability not yet implemented.');
+                if (!this._buildings) {
+                    statusCallback('No Nuclear Silo available.');
+                    return;
+                }
+                const silo = this._buildings.find(b => b.name === 'Nuclear Silo');
+                if (!silo) {
+                    statusCallback('No Nuclear Silo available.');
+                    return;
+                }
+                if (!silo.hasNuke) {
+                    statusCallback('Nuclear missile not ready.');
+                    return;
+                }
+                if (this.energy < 50) {
+                    statusCallback('Not enough energy.');
+                    return;
+                }
+                this.energy -= 50;
+                silo.hasNuke = false;
+                statusCallback('Nuclear launch initiated!');
                 break;
         }
+    }
+
+    update(delta, pathfinder, gameState, buildings, scene) {
+        this._buildings = buildings;
+
+        if (this.isCloaked) {
+            this.energy -= delta;
+            if (this.energy <= 0) {
+                this.energy = 0;
+                this.isCloaked = false;
+                this.mesh.traverse(child => {
+                    if (child.material) {
+                        child.material.opacity = 1;
+                        child.material.transparent = false;
+                    }
+                });
+            }
+        } else if (this.energy < this.maxEnergy) {
+            this.energy += 0.5625 * delta;
+            if (this.energy > this.maxEnergy) this.energy = this.maxEnergy;
+        }
+
+        super.update(delta, pathfinder, gameState, buildings, scene);
     }
 }

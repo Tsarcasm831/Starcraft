@@ -139,6 +139,8 @@ async function startGame() {
     const sceneData = setupScene(gameContainer);
     scene = sceneData.scene;
     camera = sceneData.camera;
+    window.gameScene = scene;
+    window.gameCamera = camera;
     renderer = sceneData.renderer;
     controls = sceneData.controls;
     pathfinder = sceneData.pathfinder;

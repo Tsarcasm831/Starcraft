@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { createScannerSweep } from '../game/effects.js';
+import { getGroundMeshes } from '../utils/terrain.js';
 
 export class ComsatStation {
     constructor(position, { isUnderConstruction = false, buildTime = 25.2, parent = null } = {}) {
@@ -87,8 +89,32 @@ export class ComsatStation {
     
     executeCommand(commandName, gameState, statusCallback) {
         if (commandName === 'scanner_sweep') {
-            statusCallback("Scanner Sweep not yet implemented.");
-            return true; // Command was handled
+            const cost = 50;
+            if (this.energy < cost) {
+                statusCallback('Not enough energy.');
+                return true;
+            }
+
+            const scene = window.gameScene;
+            const camera = window.gameCamera;
+            if (!scene || !camera) {
+                statusCallback('Scanner unavailable.');
+                return true;
+            }
+
+            const groundMeshes = getGroundMeshes(scene);
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            const intersects = raycaster.intersectObjects(groundMeshes, true);
+
+            if (intersects.length > 0) {
+                this.energy -= cost;
+                createScannerSweep(intersects[0].point);
+                statusCallback('Scanner Sweep activated.');
+            } else {
+                statusCallback('No valid target.');
+            }
+            return true;
         }
         return false; // Command was not handled
     }

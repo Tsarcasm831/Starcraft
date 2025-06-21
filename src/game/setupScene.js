@@ -28,7 +28,7 @@ export function setupScene(container) {
 
     const mapWidth = 128;
     const mapHeight = 128;
-    const { mesh: mapMesh, obstacles: terrainObstacles, chunkBarrier } = createMap(mapWidth, mapHeight);
+    const { mesh: mapMesh, obstacles: terrainObstacles } = createMap(mapWidth, mapHeight);
     scene.add(mapMesh);
 
     const gridHelper = new THREE.GridHelper(mapWidth, mapWidth, 0xaaaaaa, 0x666666);
@@ -51,5 +51,5 @@ export function setupScene(container) {
     directionalLight.shadow.mapSize.height = 2048;
     scene.add(directionalLight);
 
-    return { scene, camera, renderer, controls, pathfinder, terrainObstacles, mapWidth, mapHeight, gridHelper, chunkBarrier };
+    return { scene, camera, renderer, controls, pathfinder, terrainObstacles, mapWidth, mapHeight, gridHelper };
 }

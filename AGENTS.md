@@ -28,6 +28,7 @@ This repository contains a small Starcraft-inspired RTS prototype. This monolith
 ## Audio and images
 - Audio is loaded in `src/utils/audio.js` via the asset manager. Add new sound files to `assets/audio/` and register them in that file.
 - Images live under `assets/images/` and are referenced by HTML or JS modules.
+- Some sound effects are fetched from remote URLs defined in `src/game/preloader.js`.  Arrays such as `scvConstructUrls` and `bgUrls` list the external files.  Each URL is loaded with `assetManager.loadSound` and the resulting sound name is stored on `AudioManager` for playback.  Update these lists in `preloader.js` to change or add remote sounds.
 
 ## Testing changes
 There is no automated test suite. After making changes:

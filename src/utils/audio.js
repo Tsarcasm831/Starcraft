@@ -7,6 +7,9 @@ export class AudioManager {
         this.backgroundTrackNames = [];
         this.scvConstructedSoundNames = [];
         this.scvMark2ConstructedSoundNames = [];
+        this.firebatSoundNames = [];
+        this.marineSoundNames = [];
+        this.medicSoundNames = [];
         this.mineralsWarningSoundName = null;
         this.gasWarningSoundName = null;
         this.supplyWarningSoundName = null;

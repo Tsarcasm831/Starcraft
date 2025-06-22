@@ -19,4 +19,5 @@
 - In-game advertisement now shows a YouTube video instead of a Spotify track.
 - Background music pauses while the advertisement video plays.
 - Added a placeholder video panel beside the status messages for future cutscenes.
+- Fixed the video panel so it stays anchored to the status text box.
 

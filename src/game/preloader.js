@@ -3,6 +3,7 @@ import { assetManager } from '../utils/asset-manager.js';
 export async function preloadAssets(audioManager) {
     const loadingOverlay = document.getElementById('loading-overlay');
     const loadingText = document.getElementById('loading-text');
+    const progressBar = document.getElementById('loading-progress-bar');
     const tasks = [];
     tasks.push(() => assetManager.loadTexture('assets/images/starfield_texture.png', 'skybox'));
     tasks.push(() => assetManager.loadTexture('assets/images/terrain_texture.png', 'ground'));
@@ -206,9 +207,12 @@ export async function preloadAssets(audioManager) {
     let loaded = 0;
 
     const updateProgress = () => {
+        const pct = Math.round((loaded / tasks.length) * 100);
         if (loadingText) {
-            const pct = Math.round((loaded / tasks.length) * 100);
             loadingText.textContent = `Loading... ${pct}%`;
+        }
+        if (progressBar) {
+            progressBar.value = pct;
         }
     };
 

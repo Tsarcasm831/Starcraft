@@ -38,3 +38,4 @@
 - Documented SCV Mark 2 construction sound preloading and that file.garden links are fixed and functional.
 - SCV and SCV Mark 2 build commands now show the correct training icons.
 - Removed unused SCV Mark 2 model file `assets/models/scv2.glb`.
+- Clarified SCV Mark 2 model comments to no longer imply missing assets.

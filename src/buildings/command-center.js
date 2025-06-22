@@ -133,10 +133,10 @@ export class CommandCenter {
             const scvsInQueue = this.buildQueue.filter(item => item.type === 'SCV').length;
             const scvCountForCost = Math.max(0, gameState.unitCounts.scv + scvsInQueue - 4);
             const scvCost = Math.round(50 * Math.pow(1.4, scvCountForCost));
-            commandList[0] = { 
-                command: 'train_scv', 
-                hotkey: 'S', 
-                icon: 'assets/images/build_scv2_icon.png', 
+            commandList[0] = {
+                command: 'train_scv',
+                hotkey: 'S',
+                icon: 'assets/images/build_scv_icon.png',
                 name: 'Build SCV',
                 cost: { minerals: scvCost, supply: 1 },
                 buildTime: 17 // seconds
@@ -148,7 +148,7 @@ export class CommandCenter {
             commandList[1] = {
                 command: 'train_scv_mark_2',
                 hotkey: 'D',
-                icon: 'assets/images/build_scv_icon.png',
+                icon: 'assets/images/build_scv2_icon.png',
                 name: 'Build SCV Mark 2',
                 cost: { minerals: scvM2Cost, supply: 1 },
                 buildTime: 22

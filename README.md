@@ -30,6 +30,7 @@
 - Added remote Firebat, Marine and Medic sound effects to the preloader.
 - SCV Mark 2 loads remote animations for idle, walking and repair.
 - SCV Mark 2 now relies on the remote rigged idle model so its animations play correctly.
+- SCV Mark 2 animations load correctly using a local rigged model.
 - Assets and sounds now load in parallel for faster startup times.
 - Documented that `apt-utils` and `pygltflib` must be installed at startup.
 

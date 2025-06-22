@@ -71,7 +71,8 @@ function showSpotifyAd() {
     if (adTimeout) {
         clearTimeout(adTimeout);
     }
-    adTimeout = setTimeout(hideSpotifyAd, 15000);
+    // Display the ad for 30 seconds before hiding
+    adTimeout = setTimeout(hideSpotifyAd, 30000);
 }
 
 function hideSpotifyAd() {

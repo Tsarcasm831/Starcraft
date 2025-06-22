@@ -312,6 +312,17 @@ canvas {
     border: 1px solid #fff;
 }
 
+#video-panel {
+    width: 200px;
+    margin: 4px;
+    padding: 8px;
+    background: #000;
+    color: #a7d1ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 #status-text-panel-container {
     flex-grow: 1;
     display: flex;

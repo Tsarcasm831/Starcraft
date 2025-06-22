@@ -158,4 +158,22 @@ export class AudioManager {
 
         playNext();
     }
+
+    pauseBackgroundMusic() {
+        if (!this.backgroundPlaying) return;
+        this.backgroundPlaying = false;
+        if (this.backgroundSource) {
+            try {
+                this.backgroundSource.onended = null;
+                this.backgroundSource.stop();
+                this.backgroundSource.disconnect();
+            } catch (e) { /* ignore errors if already stopped */ }
+            this.backgroundSource = null;
+        }
+    }
+
+    resumeBackgroundMusic() {
+        if (this.backgroundPlaying) return;
+        this.playBackgroundMusic();
+    }
 }

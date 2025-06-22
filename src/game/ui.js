@@ -56,7 +56,7 @@ function toggleGrid() {
 
 let adTimeout = null;
 
-function showSpotifyAd() {
+function showVideoAd() {
     if (!isGameRunning) return;
 
     const placeholder = document.getElementById('spotify-player-placeholder');
@@ -64,21 +64,21 @@ function showSpotifyAd() {
 
     spotifyModal.classList.remove('hidden');
     placeholder.innerHTML =
-        '<iframe id="spotify-ad-iframe" ' +
-        'src="https://open.spotify.com/embed/track/6A9JER2SJiuZbAnYDZmIo2?si=3a3b921b296741a3&autoplay=1" ' +
-        'width="100%" height="80" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>';
+        '<iframe id="video-ad-iframe" ' +
+        'src="https://www.youtube.com/embed/mQgRLL3wod0?autoplay=1" ' +
+        'width="100%" height="200" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>';
 
     if (adTimeout) {
         clearTimeout(adTimeout);
     }
     // Display the ad for 30 seconds before hiding
-    adTimeout = setTimeout(hideSpotifyAd, 30000);
+    adTimeout = setTimeout(hideVideoAd, 30000);
 }
 
-function hideSpotifyAd() {
+function hideVideoAd() {
     const placeholder = document.getElementById('spotify-player-placeholder');
     if (placeholder) {
-        placeholder.innerHTML = '<p>Spotify Player Placeholder</p>';
+        placeholder.innerHTML = '<p>Video Player Placeholder</p>';
     }
     spotifyModal.classList.add('hidden');
     if (adTimeout) {
@@ -204,7 +204,7 @@ export function initUI(commandExecutor, startGameCallback, audioManager, getGrid
         sfxVolumeSlider.value = e.target.value;
     });
 
-    closeSpotifyModalButton.addEventListener('click', hideSpotifyAd);
+    closeSpotifyModalButton.addEventListener('click', hideVideoAd);
     closeDevLogModalButton.addEventListener('click', toggleDevLogModal);
     clearDevLogButton.addEventListener('click', () => devLogger.clearLogs());
     closeChangelogModalButton.addEventListener('click', toggleChangelogModal);
@@ -233,7 +233,7 @@ export function initUI(commandExecutor, startGameCallback, audioManager, getGrid
                 togglePause();
                 break;
             case 'KeyM':
-                showSpotifyAd();
+                showVideoAd();
                 break;
             case 'Backslash':
                 if (devLogger.isActive) {

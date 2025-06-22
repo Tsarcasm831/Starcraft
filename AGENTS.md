@@ -6,15 +6,8 @@ This repository contains a small Starcraft-inspired RTS prototype. This monolith
 - Everything under the repository root.
 
 ## Environment
-Always ensure the following packages are installed when the environment
-starts:
-
-```
-apt-get update -y && apt-get install -y apt-utils
-pip install pygltflib
-```
-These tools are required for certain asset workflows and should be
-preinstalled before running any project commands.
+All dependencies are included and no additional packages need to be
+installed manually.
 
 ## Running the project
 1. From the repository root start a local server:

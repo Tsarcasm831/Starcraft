@@ -33,7 +33,7 @@
 - SCV Mark 2 animations load correctly using a local rigged model.
 - Removed obsolete remote SCV2 model reference so the unit renders properly.
 - Assets and sounds now load in parallel for faster startup times.
-- Documented that `apt-utils` and `pygltflib` must be installed at startup.
+- Removed requirement to install `apt-utils` and `pygltflib`.
 - Loading overlay now shows a progress bar to track asset downloads.
 - Centered the SCV Mark 2 model so it appears correctly in-game.
 - Documented SCV Mark 2 construction sound preloading and that file.garden links are fixed and functional.

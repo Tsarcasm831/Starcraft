@@ -7,16 +7,17 @@ export async function preloadAssets(audioManager) {
     tasks.push(() => assetManager.loadTexture('assets/images/starfield_texture.png', 'skybox'));
     tasks.push(() => assetManager.loadTexture('assets/images/terrain_texture.png', 'ground'));
     tasks.push(() => assetManager.loadGLB('assets/models/scv.glb', 'scv'));
-    tasks.push(() => assetManager.loadGLB('assets/models/scv2.glb', 'scv2'));
+    // Use the rigged idle GLB as the base model for SCV Mark 2
+    tasks.push(() => assetManager.loadGLB('assets/models/animations/SCV/Animation_Idle.glb', 'scv2'));
 
-    // Remote animations for SCV Mark 2
-    const scv2AnimationUrls = {
-        mineRepair: 'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/Animation_MineRepair.glb',
-        idle: 'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/Animation_Idle.glb',
-        walking: 'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/Animation_Walking.glb'
+    // Local animations for SCV Mark 2
+    const scv2AnimationPaths = {
+        mineRepair: 'assets/models/animations/SCV/Animation_MineRepair.glb',
+        idle: 'assets/models/animations/SCV/Animation_Idle.glb',
+        walking: 'assets/models/animations/SCV/Animation_Walking.glb'
     };
-    Object.entries(scv2AnimationUrls).forEach(([key, url]) => {
-        tasks.push(() => assetManager.loadGLB(url, `scv2_${key}`));
+    Object.entries(scv2AnimationPaths).forEach(([key, path]) => {
+        tasks.push(() => assetManager.loadGLB(path, `scv2_${key}`));
     });
     tasks.push(() => assetManager.loadGLB('assets/models/vulture.glb', 'vulture'));
     tasks.push(() => assetManager.loadGLB('assets/models/goliath.glb', 'goliath'));

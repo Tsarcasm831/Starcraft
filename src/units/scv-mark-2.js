@@ -22,6 +22,7 @@ export class SCVMark2 extends SCVBase {
         this.currentAnimation = null;
 
         try {
+            // The rigged SCV2 model is stored with the idle animation clip
             const scvAsset = assetManager.get('scv2');
             this.mesh = this.createMeshFromGLB(scvAsset);
 

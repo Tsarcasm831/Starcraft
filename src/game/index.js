@@ -48,7 +48,8 @@ function openMapChunk() {
     newGround.rotation.x = -Math.PI / 2;
     newGround.receiveShadow = true;
     newGround.name = 'ground';
-    newGround.position.set(mapWidth, 0, 0);
+    const baseX = mapWidth * gameState.mapChunksUnlocked;
+    newGround.position.set(baseX, 0, 0);
     scene.add(newGround);
 
     const borderSize = 10;
@@ -76,7 +77,6 @@ function openMapChunk() {
         collidableObjects.push(obstacle);
     }
 
-    const baseX = mapWidth;
     const northZ = mapHeight / 2 - borderSize / 2;
     const southZ = -mapHeight / 2 + borderSize / 2;
     const eastX = baseX + mapWidth / 2 - borderSize / 2;

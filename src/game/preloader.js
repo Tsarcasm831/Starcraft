@@ -129,6 +129,54 @@ export async function preloadAssets(audioManager) {
         });
     });
 
+    const firebatSoundUrls = [
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Firebat/move2.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Firebat/move.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Firebat/on-click.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Firebat/spawn.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Firebat/attack-marshmallows.wav'
+    ];
+    firebatSoundUrls.forEach((url, i) => {
+        const name = `firebat_${i}`;
+        tasks.push(async () => {
+            await assetManager.loadSound(url, name);
+            audioManager.firebatSoundNames.push(name);
+        });
+    });
+
+    const marineSoundUrls = [
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Marine/move.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Marine/spawn.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Marine/on-kill.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Marine/idle1.wav'
+    ];
+    marineSoundUrls.forEach((url, i) => {
+        const name = `marine_${i}`;
+        tasks.push(async () => {
+            await assetManager.loadSound(url, name);
+            audioManager.marineSoundNames.push(name);
+        });
+    });
+
+    const medicSoundUrls = [
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Medic/ready1.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Medic/ready3.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Medic/ready2.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Medic/move1.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Medic/idle1.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Medic/heal2.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Medic/heal1.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Medic/banter2.wav',
+        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Medic/banter1.wav'
+    ];
+    medicSoundUrls.forEach((url, i) => {
+        const name = `medic_${i}`;
+        tasks.push(async () => {
+            await assetManager.loadSound(url, name);
+            audioManager.medicSoundNames.push(name);
+        });
+    });
+
     const warningUrls = {
         minerals: 'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/minerals_warning.wav',
         gas: 'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/gas_warning.wav',

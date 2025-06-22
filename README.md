@@ -27,4 +27,5 @@
 - Fixed a crash when SCVs attempted to repair mineral fields by excluding
   resources from repair commands.
 - Anchored the main menu promo images so they remain fixed when opening the options menu.
+- Added remote Firebat, Marine and Medic sound effects to the preloader.
 

@@ -17,4 +17,5 @@
 - Battlecruisers can fire the Yamato Cannon when researched, consuming energy and displaying a blast effect.
 - Spotify advertisement now plays for a full 30 seconds before closing.
 - In-game advertisement now shows a YouTube video instead of a Spotify track.
+- Background music pauses while the advertisement video plays.
 

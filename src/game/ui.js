@@ -62,6 +62,10 @@ function showVideoAd() {
     const placeholder = document.getElementById('spotify-player-placeholder');
     if (!placeholder) return;
 
+    if (audioManagerRef) {
+        audioManagerRef.pauseBackgroundMusic();
+    }
+
     spotifyModal.classList.remove('hidden');
     placeholder.innerHTML =
         '<iframe id="video-ad-iframe" ' +
@@ -81,6 +85,9 @@ function hideVideoAd() {
         placeholder.innerHTML = '<p>Video Player Placeholder</p>';
     }
     spotifyModal.classList.add('hidden');
+    if (audioManagerRef) {
+        audioManagerRef.resumeBackgroundMusic();
+    }
     if (adTimeout) {
         clearTimeout(adTimeout);
         adTimeout = null;

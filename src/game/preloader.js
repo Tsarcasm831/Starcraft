@@ -204,18 +204,26 @@ export async function preloadAssets(audioManager) {
 
     let loaded = 0;
 
-    for (const task of tasks) {
-        try {
-            await task();
-        } catch (e) {
-            console.warn('Asset failed to load', e);
-        }
-        loaded++;
+    const updateProgress = () => {
         if (loadingText) {
             const pct = Math.round((loaded / tasks.length) * 100);
             loadingText.textContent = `Loading... ${pct}%`;
         }
-    }
+    };
+
+    const promises = tasks.map(task =>
+        task()
+            .catch(e => {
+                console.warn('Asset failed to load', e);
+            })
+            .finally(() => {
+                loaded++;
+                updateProgress();
+            })
+    );
+
+    updateProgress();
+    await Promise.all(promises);
 
     if (loadingOverlay) loadingOverlay.classList.remove('visible');
 }

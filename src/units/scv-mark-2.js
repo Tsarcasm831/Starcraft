@@ -18,16 +18,33 @@ export class SCVMark2 extends SCVBase {
         this._commands = [];
 
         this.mixer = null;
+        this.animations = {};
+        this.currentAnimation = null;
 
         try {
             const scvAsset = assetManager.get('scv2');
             this.mesh = this.createMeshFromGLB(scvAsset);
 
-            if (scvAsset.animations && scvAsset.animations.length) {
-                this.mixer = new THREE.AnimationMixer(this.mesh);
-                const action = this.mixer.clipAction(scvAsset.animations[0]);
-                action.play();
+            this.mixer = new THREE.AnimationMixer(this.mesh);
+
+            const idleAsset = assetManager.get('scv2_idle');
+            const walkAsset = assetManager.get('scv2_walking');
+            const mineRepairAsset = assetManager.get('scv2_mineRepair');
+
+            if (idleAsset.animations && idleAsset.animations[0]) {
+                this.animations.idle = this.mixer.clipAction(idleAsset.animations[0]);
             }
+            if (walkAsset.animations && walkAsset.animations[0]) {
+                this.animations.walk = this.mixer.clipAction(walkAsset.animations[0]);
+            }
+            if (mineRepairAsset.animations && mineRepairAsset.animations[0]) {
+                this.animations.mineRepair = this.mixer.clipAction(mineRepairAsset.animations[0]);
+            }
+
+            if (Object.keys(this.animations).length === 0 && scvAsset.animations && scvAsset.animations[0]) {
+                this.animations.idle = this.mixer.clipAction(scvAsset.animations[0]);
+            }
+            this.playAnimation('idle');
         } catch (error) {
             this.mesh = this.createProceduralMesh();
         }
@@ -187,6 +204,40 @@ export class SCVMark2 extends SCVBase {
         return group;
     }
 
+    playAnimation(name) {
+        if (!this.mixer) return;
+        if (this.currentAnimation === name) return;
+        if (this.currentAnimation && this.animations[this.currentAnimation]) {
+            this.animations[this.currentAnimation].stop();
+        }
+        const action = this.animations[name];
+        if (action) {
+            action.reset();
+            action.play();
+            this.currentAnimation = name;
+        }
+    }
+
+    updateAnimationBasedOnState() {
+        let anim = 'idle';
+        switch (this.state) {
+            case 'moving':
+            case 'movingToBuild':
+            case 'movingToResource':
+            case 'movingToRepair':
+            case 'movingToGarrison':
+            case 'returning':
+                anim = 'walk';
+                break;
+            case 'gathering':
+            case 'building':
+            case 'repairing':
+                anim = 'mineRepair';
+                break;
+        }
+        this.playAnimation(anim);
+    }
+
 
     build(buildingInstance, pathfinder, targetPosition = null) {
         this.stopActions();
@@ -246,6 +297,7 @@ export class SCVMark2 extends SCVBase {
         }
 
         super.update(delta, pathfinder, gameState, allBuildings, scene);
+        this.updateAnimationBasedOnState();
     }
     
 }

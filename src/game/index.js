@@ -54,13 +54,62 @@ function openMapChunk() {
 
     const borderSize = 10;
     const plateauHeight = 2;
-    function addBorderPlateau(x, z, sizeX, sizeZ) {
+
+    function createRampGeometry(width, length, height) {
+        const geometry = new THREE.BufferGeometry();
+        const vertices = new Float32Array([
+            -width / 2, height, 0,
+             width / 2, height, 0,
+            -width / 2, 0, -length,
+             width / 2, 0, -length,
+        ]);
+        geometry.setIndex([0, 2, 1, 2, 3, 1]);
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geometry.computeVertexNormals();
+        return geometry;
+    }
+
+    function addBorderPlateau(x, z, sizeX, sizeZ, orientation, withRamp = false) {
         const plateauGeom = new THREE.BoxGeometry(sizeX, plateauHeight, sizeZ);
         const plateau = new THREE.Mesh(plateauGeom, material);
         plateau.position.set(x, plateauHeight / 2, z);
         plateau.castShadow = true;
         plateau.receiveShadow = true;
         scene.add(plateau);
+
+        if (withRamp) {
+            const rampLength = 6;
+            const rampGeom = createRampGeometry(
+                orientation === 'north' || orientation === 'south' ? sizeX : sizeZ,
+                rampLength,
+                plateauHeight
+            );
+            const ramp = new THREE.Mesh(rampGeom, material);
+            ramp.name = 'ground';
+            switch (orientation) {
+                case 'north':
+                    ramp.rotation.y = 0;
+                    ramp.position.set(x, 0, z - sizeZ / 2 - rampLength / 2);
+                    break;
+                case 'south':
+                    ramp.rotation.y = Math.PI;
+                    ramp.position.set(x, 0, z + sizeZ / 2 + rampLength / 2);
+                    break;
+                case 'east':
+                    ramp.rotation.y = -Math.PI / 2;
+                    ramp.position.set(x + sizeX / 2 + rampLength / 2, 0, z);
+                    break;
+                case 'west':
+                    ramp.rotation.y = Math.PI / 2;
+                    ramp.position.set(x - sizeX / 2 - rampLength / 2, 0, z);
+                    break;
+                default:
+                    break;
+            }
+            ramp.castShadow = true;
+            ramp.receiveShadow = true;
+            scene.add(ramp);
+        }
 
         const minX = x - sizeX / 2;
         const maxX = x + sizeX / 2;
@@ -81,9 +130,9 @@ function openMapChunk() {
     const southZ = -mapHeight / 2 + borderSize / 2;
     const eastX = baseX + mapWidth / 2 - borderSize / 2;
 
-    addBorderPlateau(baseX, northZ, mapWidth, borderSize);
-    addBorderPlateau(baseX, southZ, mapWidth, borderSize);
-    addBorderPlateau(eastX, 0, borderSize, mapHeight - 2 * borderSize);
+    addBorderPlateau(baseX, northZ, mapWidth, borderSize, 'north', true);
+    addBorderPlateau(baseX, southZ, mapWidth, borderSize, 'south', true);
+    addBorderPlateau(eastX, 0, borderSize, mapHeight - 2 * borderSize, 'east');
 
     gameState.mapChunksUnlocked += 1;
 

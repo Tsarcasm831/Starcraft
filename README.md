@@ -35,4 +35,5 @@
 - Assets and sounds now load in parallel for faster startup times.
 - Documented that `apt-utils` and `pygltflib` must be installed at startup.
 - Loading overlay now shows a progress bar to track asset downloads.
+- Centered the SCV Mark 2 model so it appears correctly in-game.
 

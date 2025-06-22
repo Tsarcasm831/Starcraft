@@ -143,7 +143,11 @@ export class SCVMark2 extends SCVBase {
         }
 
         const scaledBox = new THREE.Box3().setFromObject(model);
-        model.position.y = -scaledBox.min.y;
+        model.position.set(
+            -(scaledBox.min.x + scaledBox.max.x) / 2,
+            -scaledBox.min.y,
+            -(scaledBox.min.z + scaledBox.max.z) / 2
+        );
 
         model.traverse((child) => {
             if (child.isMesh) {

@@ -160,7 +160,13 @@ export function handleRightClick(event) {
         }
 
         const repairers = selectedObjects.filter(obj => obj instanceof SCVMark2 || obj instanceof SCV);
-        if (repairers.length > 0 && clickedObject?.currentHealth !== undefined && !clickedObject.isUnderConstruction && clickedObject.currentHealth < clickedObject.maxHealth) {
+        const canRepair = repairers.length > 0 &&
+            clickedObject?.currentHealth !== undefined &&
+            !clickedObject.isUnderConstruction &&
+            clickedObject.currentHealth < clickedObject.maxHealth &&
+            !(clickedObject instanceof MineralField) &&
+            !(clickedObject instanceof VespeneGeyser);
+        if (canRepair) {
             onMoveSound();
             createMoveIndicator(clickedObject.mesh.position);
             const collider = clickedObject.getCollider();

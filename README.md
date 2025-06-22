@@ -26,4 +26,5 @@
 - Plateau generation was moved to a reusable helper to avoid duplicate logic.
 - Fixed a crash when SCVs attempted to repair mineral fields by excluding
   resources from repair commands.
+- Anchored the main menu promo images so they remain fixed when opening the options menu.
 

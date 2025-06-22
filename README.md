@@ -20,4 +20,5 @@
 - Background music pauses while the advertisement video plays.
 - Added a placeholder video panel beside the status messages for future cutscenes.
 - Fixed the video panel so it stays anchored to the status text box.
+- Map expansion logic now positions new ground based on the number of unlocked chunks, keeping pathfinding and the minimap consistent.
 

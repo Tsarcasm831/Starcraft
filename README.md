@@ -28,10 +28,9 @@
   resources from repair commands.
 - Anchored the main menu promo images so they remain fixed when opening the options menu.
 - Added remote Firebat, Marine and Medic sound effects to the preloader.
-- SCV Mark 2 loads remote animations for idle, walking and repair.
-- SCV Mark 2 now relies on the remote rigged idle model so its animations play correctly.
-- SCV Mark 2 animations load correctly using a local rigged model.
-- Removed obsolete remote SCV2 model reference so the unit renders properly.
+- SCV Mark 2 preloads idle, walking and repair animations from local files.
+- SCV Mark 2 animations load correctly using the local rigged model.
+- Removed outdated references to remote SCV2 models.
 - Assets and sounds now load in parallel for faster startup times.
 - Removed requirement to install `apt-utils` and `pygltflib`.
 - Loading overlay now shows a progress bar to track asset downloads.

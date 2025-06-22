@@ -64,6 +64,11 @@
     text-shadow: 2px 2px 4px #000;
 }
 
+#loading-progress-bar {
+    width: 50%;
+    margin: 10px 0;
+}
+
 #loading-overlay.visible {
     display: flex;
 }

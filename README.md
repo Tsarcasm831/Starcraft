@@ -34,4 +34,5 @@
 - Removed obsolete remote SCV2 model reference so the unit renders properly.
 - Assets and sounds now load in parallel for faster startup times.
 - Documented that `apt-utils` and `pygltflib` must be installed at startup.
+- Loading overlay now shows a progress bar to track asset downloads.
 

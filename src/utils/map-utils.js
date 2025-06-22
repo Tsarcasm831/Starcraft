@@ -14,7 +14,7 @@ export function createRampGeometry(width, length, height) {
     return geometry;
 }
 
-export function createPlateau({ x, z, sizeX, sizeZ, height = 2, orientation = 'north', material, withRamp = false }) {
+export function createPlateau({ x, z, sizeX, sizeZ, height = 2, orientation = 'north', material, withRamp = false, isObstacle = true }) {
     const meshes = [];
     const plateauGeom = new THREE.BoxGeometry(sizeX, height, sizeZ);
     const plateau = new THREE.Mesh(plateauGeom, material);
@@ -61,11 +61,37 @@ export function createPlateau({ x, z, sizeX, sizeZ, height = 2, orientation = 'n
     const maxX = x + sizeX / 2;
     const minZ = z - sizeZ / 2;
     const maxZ = z + sizeZ / 2;
-    const collider = new THREE.Box3(
-        new THREE.Vector3(minX, 0, minZ),
-        new THREE.Vector3(maxX, height, maxZ)
-    );
 
-    return { meshes, collider };
+    const colliders = [];
+    if (isObstacle) {
+        colliders.push(new THREE.Box3(
+            new THREE.Vector3(minX, 0, minZ),
+            new THREE.Vector3(maxX, height, maxZ)
+        ));
+    } else {
+        const thickness = 0.5;
+        // North side
+        colliders.push(new THREE.Box3(
+            new THREE.Vector3(minX, 0, maxZ - thickness),
+            new THREE.Vector3(maxX, height, maxZ)
+        ));
+        // South side
+        colliders.push(new THREE.Box3(
+            new THREE.Vector3(minX, 0, minZ),
+            new THREE.Vector3(maxX, height, minZ + thickness)
+        ));
+        // East side
+        colliders.push(new THREE.Box3(
+            new THREE.Vector3(maxX - thickness, 0, minZ),
+            new THREE.Vector3(maxX, height, maxZ)
+        ));
+        // West side
+        colliders.push(new THREE.Box3(
+            new THREE.Vector3(minX, 0, minZ),
+            new THREE.Vector3(minX + thickness, height, maxZ)
+        ));
+    }
+
+    return { meshes, colliders };
 }
 

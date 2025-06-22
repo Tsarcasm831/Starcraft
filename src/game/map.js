@@ -70,8 +70,8 @@ export function createMap(width, height) {
     const borderSize = 10;
     const plateauHeight = 2;
 
-    function addBorderPlateau(x, z, sizeX, sizeZ, orientation, withRamp = false) {
-        const { meshes, collider } = createPlateau({
+    function addBorderPlateau(x, z, sizeX, sizeZ, orientation, withRamp = false, isObstacle = true) {
+        const { meshes, colliders } = createPlateau({
             x,
             z,
             sizeX,
@@ -79,10 +79,13 @@ export function createMap(width, height) {
             height: plateauHeight,
             orientation,
             material,
-            withRamp
+            withRamp,
+            isObstacle
         });
         meshes.forEach(m => group.add(m));
-        obstacles.push({ collider, getCollider() { return this.collider; } });
+        colliders.forEach(collider => {
+            obstacles.push({ collider, getCollider() { return this.collider; } });
+        });
     }
 
     const northZ = height / 2 - borderSize / 2;
@@ -90,8 +93,8 @@ export function createMap(width, height) {
     const westX = -width / 2 + borderSize / 2;
     const eastX = width / 2 - borderSize / 2;
 
-    addBorderPlateau(0, northZ, width, borderSize, 'north', true);
-    addBorderPlateau(0, southZ, width, borderSize, 'south', true);
+    addBorderPlateau(0, northZ, width, borderSize, 'north', true, false);
+    addBorderPlateau(0, southZ, width, borderSize, 'south', true, false);
     addBorderPlateau(westX, 0, borderSize, height - 2 * borderSize, 'west');
     // The eastern edge will be left open for future expansion
 

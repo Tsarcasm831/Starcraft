@@ -56,8 +56,8 @@ function openMapChunk() {
     const borderSize = 10;
     const plateauHeight = 2;
 
-    function addBorderPlateau(x, z, sizeX, sizeZ, orientation, withRamp = false) {
-        const { meshes, collider } = createPlateau({
+    function addBorderPlateau(x, z, sizeX, sizeZ, orientation, withRamp = false, isObstacle = true) {
+        const { meshes, colliders } = createPlateau({
             x,
             z,
             sizeX,
@@ -65,20 +65,23 @@ function openMapChunk() {
             height: plateauHeight,
             orientation,
             material,
-            withRamp
+            withRamp,
+            isObstacle
         });
         meshes.forEach(m => scene.add(m));
-        const obstacle = { collider, getCollider() { return this.collider; } };
-        terrainObstacles.push(obstacle);
-        collidableObjects.push(obstacle);
+        colliders.forEach(collider => {
+            const obstacle = { collider, getCollider() { return this.collider; } };
+            terrainObstacles.push(obstacle);
+            collidableObjects.push(obstacle);
+        });
     }
 
     const northZ = mapHeight / 2 - borderSize / 2;
     const southZ = -mapHeight / 2 + borderSize / 2;
     const eastX = baseX + mapWidth / 2 - borderSize / 2;
 
-    addBorderPlateau(baseX, northZ, mapWidth, borderSize, 'north', true);
-    addBorderPlateau(baseX, southZ, mapWidth, borderSize, 'south', true);
+    addBorderPlateau(baseX, northZ, mapWidth, borderSize, 'north', true, false);
+    addBorderPlateau(baseX, southZ, mapWidth, borderSize, 'south', true, false);
     addBorderPlateau(eastX, 0, borderSize, mapHeight - 2 * borderSize, 'east');
 
     gameState.mapChunksUnlocked += 1;

@@ -22,4 +22,5 @@
 - Fixed the video panel so it stays anchored to the status text box.
 - Map expansion logic now positions new ground based on the number of unlocked chunks, keeping pathfinding and the minimap consistent.
 - Border plateaus can now include optional ramps so elevations vary across new map chunks.
+- Plateau generation was moved to a reusable helper to avoid duplicate logic.
 

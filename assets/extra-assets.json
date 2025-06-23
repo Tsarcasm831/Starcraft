@@ -27,7 +27,11 @@
     "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/scv_ack1.mp3",
     "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/scv_ack2.mp3",
     "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/SCV_move.mp3",
-    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/SCV_move2.mp3"
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/SCV_move2.mp3",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Generic/genericbgm.mp3",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Generic/genericbgm2.mp3",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Generic/genericbgm3.mp3",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/terranbgm.mp3"
   ],
   "wavs": ["https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Firebat/move.wav"],
   "mp4s": ["https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/scan.mp4"]

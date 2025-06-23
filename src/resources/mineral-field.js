@@ -105,6 +105,9 @@ export class MineralField {
         // their origin at the center, leaving half of them below y=0.
         const adjustedBox = new THREE.Box3().setFromObject(model);
         model.position.y -= adjustedBox.min.y;
+        // Some mineral models still appear slightly buried after alignment,
+        // so lift them a bit more to ensure full visibility.
+        model.position.y += 0.1;
 
         model.traverse(child => {
             if (child.isMesh) {

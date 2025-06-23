@@ -48,6 +48,6 @@ There is no automated test suite. After making changes:
 3. Check the browser console for any JavaScript errors before submitting a pull request.
 
 ## Changelog
-All updates to the code or assets must be recorded in the changelog. Append a
-bullet describing your change under the latest heading in `README.md` so players
-can easily track new features and fixes.
+All updates to the code or assets must be recorded in `0changelog.md`. Append a
+bullet describing your change under the latest heading so players can easily
+track new features and fixes.

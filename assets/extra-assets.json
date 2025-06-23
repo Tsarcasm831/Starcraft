@@ -6,7 +6,10 @@
     "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Structures/science_facility.glb",
     "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Structures/minerals.glb",
     "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Structures/physics_lab.glb",
-    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Structures/control_tower.glb"
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Structures/control_tower.glb",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/Animation_MineRepair.glb",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/Animation_Idle.glb",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/Animation_Walking.glb"
   ],
   "mp3s": ["assets/audio/select.mp3"],
   "wavs": ["https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Firebat/move.wav"],

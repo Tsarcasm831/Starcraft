@@ -3,6 +3,7 @@
 ## Unreleased
 - Images on the main page now use lazy loading to improve initial load time.
 - Command Center uses the GLB model specified in `extra-assets.json` when available.
+- Extra SCV animations for mining, idling and walking are loaded from remote GLB files listed in `extra-assets.json`.
 
 ## v0.4.2
 - Plateaus with ramps no longer block pathfinding; `createPlateau` gained an `isObstacle` option.

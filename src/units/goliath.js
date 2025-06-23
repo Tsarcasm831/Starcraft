@@ -25,7 +25,12 @@ export class Goliath {
         this.baseY = position.y;
         
         try {
-            const asset = assetManager.get('goliath');
+            let asset;
+            try {
+                asset = assetManager.get('extra_goliath');
+            } catch (e) {
+                asset = assetManager.get('goliath');
+            }
             this.mesh = this.createMeshFromGLB(asset);
         } catch (error) {
             this.mesh = this.createProceduralMesh();

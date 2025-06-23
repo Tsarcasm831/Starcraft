@@ -24,7 +24,12 @@ export class Vulture {
         this.baseY = position.y + 0.3; // Hover height
 
         try {
-            const asset = assetManager.get('vulture');
+            let asset;
+            try {
+                asset = assetManager.get('extra_vulture');
+            } catch (e) {
+                asset = assetManager.get('vulture');
+            }
             this.mesh = this.createMeshFromGLB(asset);
         } catch (error) {
             console.warn("Could not load vulture model, using procedural fallback.", error);

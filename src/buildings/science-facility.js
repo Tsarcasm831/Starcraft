@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { AddonBehavior } from './addon-behavior.js';
+import { assetManager } from '../utils/asset-manager.js';
 
 export class ScienceFacility {
     constructor(position, { isUnderConstruction = false, buildTime = 60, onStateChange = () => {} } = {}) {
@@ -85,21 +86,53 @@ export class ScienceFacility {
     }
 
     createMesh() {
-        const group = new THREE.Group();
-        const mainMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.7, roughness: 0.6 });
-        const accentMaterial = new THREE.MeshStandardMaterial({ color: 0x7a8a9a, metalness: 0.8, roughness: 0.5 });
-        
-        const baseGeo = new THREE.BoxGeometry(8, 2, 8);
-        const base = new THREE.Mesh(baseGeo, accentMaterial);
-        base.position.y = 1;
-        group.add(base);
+        try {
+            const asset = assetManager.get('extra_science_facility');
+            return this.createMeshFromGLB(asset);
+        } catch (error) {
+            const group = new THREE.Group();
+            const mainMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.7, roughness: 0.6 });
+            const accentMaterial = new THREE.MeshStandardMaterial({ color: 0x7a8a9a, metalness: 0.8, roughness: 0.5 });
 
-        const mainDomeGeo = new THREE.SphereGeometry(3, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2);
-        const mainDome = new THREE.Mesh(mainDomeGeo, mainMaterial);
-        mainDome.position.y = 2;
-        group.add(mainDome);
+            const baseGeo = new THREE.BoxGeometry(8, 2, 8);
+            const base = new THREE.Mesh(baseGeo, accentMaterial);
+            base.position.y = 1;
+            group.add(base);
 
-        return group;
+            const mainDomeGeo = new THREE.SphereGeometry(3, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+            const mainDome = new THREE.Mesh(mainDomeGeo, mainMaterial);
+            mainDome.position.y = 2;
+            group.add(mainDome);
+
+            return group;
+        }
+    }
+
+    createMeshFromGLB(asset) {
+        const model = asset.scene.clone();
+
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const desired = new THREE.Vector3(8, 6, 8);
+        const scale = Math.min(
+            desired.x / size.x,
+            desired.y / size.y,
+            desired.z / size.z
+        );
+
+        if (scale > 0 && Number.isFinite(scale)) {
+            model.scale.set(scale, scale, scale);
+        }
+
+        model.traverse(child => {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                child.userData.owner = this;
+            }
+        });
+
+        return model;
     }
 
     onConstructionComplete(gameState) {

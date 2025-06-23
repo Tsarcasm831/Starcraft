@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { assetManager } from '../utils/asset-manager.js';
 
 export class VespeneGeyser {
     constructor(position) {
@@ -43,12 +44,16 @@ export class VespeneGeyser {
     }
 
     createMesh() {
-        const group = new THREE.Group();
-        const moundMaterial = new THREE.MeshStandardMaterial({
-            color: 0x60554a,
-            roughness: 0.8,
-            metalness: 0.1
-        });
+        try {
+            const asset = assetManager.get('extra_vespene_geyser');
+            return this.createMeshFromGLB(asset);
+        } catch (error) {
+            const group = new THREE.Group();
+            const moundMaterial = new THREE.MeshStandardMaterial({
+                color: 0x60554a,
+                roughness: 0.8,
+                metalness: 0.1
+            });
 
         // Create a mound shape
         const moundGeo = new THREE.CylinderGeometry(2, 3, 0.5, 12);
@@ -93,6 +98,36 @@ export class VespeneGeyser {
 
         return group;
     }
+
+    createMeshFromGLB(asset) {
+        const model = asset.scene.clone();
+
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const desired = new THREE.Vector3(4, 2, 4);
+        const scale = Math.min(
+            desired.x / size.x,
+            desired.y / size.y,
+            desired.z / size.z
+        );
+
+        if (scale > 0 && Number.isFinite(scale)) {
+            model.scale.set(scale, scale, scale);
+        }
+
+        model.traverse(child => {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                child.userData.owner = this;
+            }
+        });
+
+        this.gasParticles = model.children.filter(c => c.userData?.isGas);
+
+        return model;
+    }
+}
 
     update(delta) {
         if (this.isDepleted) return;

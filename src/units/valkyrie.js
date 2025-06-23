@@ -25,7 +25,12 @@ export class Valkyrie {
         this.baseY = this.hoverHeight;
         
         try {
-            const asset = assetManager.get('valkyrie');
+            let asset;
+            try {
+                asset = assetManager.get('extra_valkyrie');
+            } catch (e) {
+                asset = assetManager.get('valkyrie');
+            }
             this.mesh = this.createMeshFromGLB(asset);
         } catch (error) {
             console.warn("Could not load valkyrie model, using procedural fallback.", error);

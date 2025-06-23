@@ -179,7 +179,7 @@ async function toggleChangelogModal() {
     if (!changelogModal.classList.contains('hidden')) {
         if (changelogOutput.dataset.loaded !== 'true') {
             try {
-                const response = await fetch('README.md');
+                const response = await fetch('0changelog.md');
                 if (response.ok) {
                     const text = await response.text();
                     changelogOutput.textContent = text;
@@ -188,7 +188,7 @@ async function toggleChangelogModal() {
                     changelogOutput.textContent = 'Error loading changelog.';
                 }
             } catch (error) {
-                console.error('Failed to fetch README.md:', error);
+                console.error('Failed to fetch 0changelog.md:', error);
                 changelogOutput.textContent = 'Error loading changelog.';
             }
         }

@@ -15,7 +15,10 @@
     "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/valkyrie.glb",
     "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/wraith.glb",
     "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/dropship.glb",
-    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/science_vessel.glb"
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/science_vessel.glb",
+    "assets/models/animations/SCV/Animation_Idle.glb",
+    "assets/models/animations/SCV/Animation_Walking.glb",
+    "assets/models/animations/SCV/Animation_MineRepair.glb"
   ],
   "mp3s": [
     "assets/audio/select.mp3",

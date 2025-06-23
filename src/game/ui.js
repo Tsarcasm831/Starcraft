@@ -36,6 +36,9 @@ let keyStateRef;
 let commandExecutorRef;
 let cameraGetter;
 
+/** @tweakable enable closing the changelog modal by clicking its background */
+const closeChangelogOnClickOutside = true;
+
 /** @tweakable Adjust the video player settings */
 const videoPlayerSettings = {
     volume: 0, // Muted by default to allow autoplay
@@ -285,6 +288,11 @@ export function initUI(commandExecutor, startGameCallback, audioManager, getGrid
     closeDevLogModalButton.addEventListener('click', toggleDevLogModal);
     clearDevLogButton.addEventListener('click', () => devLogger.clearLogs());
     closeChangelogModalButton.addEventListener('click', toggleChangelogModal);
+    changelogModal.addEventListener('click', (event) => {
+        if (closeChangelogOnClickOutside && event.target === changelogModal) {
+            toggleChangelogModal();
+        }
+    });
 
     // --- Global Hotkeys ---
     window.addEventListener('keydown', (e) => {

@@ -4,7 +4,7 @@ import { SCVBase } from './scv-base.js';
 
 /* @tweakable SCV Mark 2 animation settings */
 const scv2AnimationConfig = {
-    crossfadeDuration: 0.25,
+    crossfadeDuration: 0.2,
     speedMultiplier: 1.0,
 };
 
@@ -28,7 +28,7 @@ export class SCVMark2 extends SCVBase {
         this.activeAnimation = null;
 
         try {
-            const scvAsset = assetManager.get('scv2');
+            const scvAsset = assetManager.get('extra_scv2');
             const { wrapper, model } = this.createMeshFromGLB(scvAsset);
             this.mesh = wrapper;
             this.model = model;
@@ -40,13 +40,13 @@ export class SCVMark2 extends SCVBase {
             const walkAsset = assetManager.get('extra_Animation_Walking');
             const mineRepairAsset = assetManager.get('extra_Animation_MineRepair');
 
-            if (idleAsset.animations && idleAsset.animations[0]) {
+            if (idleAsset && idleAsset.animations && idleAsset.animations[0]) {
                 this.animations.idle = this.mixer.clipAction(idleAsset.animations[0]);
             }
-            if (walkAsset.animations && walkAsset.animations[0]) {
+            if (walkAsset && walkAsset.animations && walkAsset.animations[0]) {
                 this.animations.walk = this.mixer.clipAction(walkAsset.animations[0]);
             }
-            if (mineRepairAsset.animations && mineRepairAsset.animations[0]) {
+            if (mineRepairAsset && mineRepairAsset.animations && mineRepairAsset.animations[0]) {
                 this.animations.mineRepair = this.mixer.clipAction(mineRepairAsset.animations[0]);
             }
             

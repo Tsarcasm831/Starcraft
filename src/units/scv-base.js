@@ -187,7 +187,7 @@ export class SCVBase {
                     const targetPos = this.gatherPosition || this.targetResource.mesh.position;
                     const newPath = pathfinder.findPath(this.mesh.position, targetPos);
                     this.setPath(newPath);
-                    if (this.path.length === 0) {
+                    if (!this.path || this.path.length === 0) {
                         this.state = 'idle';
                         return;
                     }
@@ -226,7 +226,7 @@ export class SCVBase {
                 if (!this.path || this.path.length === 0) {
                     const newPath = pathfinder.findPath(this.mesh.position, dropOffPos);
                     this.setPath(newPath);
-                    if (this.path.length === 0) {
+                    if (!this.path || this.path.length === 0) {
                         this.state = 'idle';
                         return;
                     }

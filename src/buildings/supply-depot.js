@@ -14,6 +14,7 @@ export class SupplyDepot {
         // State: 'raised', 'lowered', 'animating_up', 'animating_down'
         this.state = 'raised'; 
         this.animationProgress = 0;
+        /* @tweakable The time in seconds it takes for the depot to raise or lower */
         this.animationDuration = 1.0; // 1 second to raise/lower
 
         this.onStateChange = onStateChangeCallback;
@@ -183,7 +184,7 @@ export class SupplyDepot {
     select() { this.selected = true; this.selectionIndicator.visible = true; }
     deselect() { this.selected = false; this.selectionIndicator.visible = false; }
 
-    executeCommand(commandName, gameState) {
+    executeCommand(commandName, gameState, statusCallback) {
         if (commandName === 'lower_depot' && this.state === 'raised') {
             this.state = 'animating_down';
             this.animationProgress = 0;

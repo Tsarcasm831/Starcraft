@@ -101,6 +101,6 @@ function executeCommand(commandName) {
     if (typeof representativeObject.executeCommand === 'function') {
         // Pass the list of all units to the command executor for potential interaction checks
         const commandGameState = { ...gameState, units };
-        selected.forEach(s => s.executeCommand(commandName, gameState, updateStatusText));
+        selected.forEach(s => s.executeCommand(commandName, commandGameState, updateStatusText));
     }
 }

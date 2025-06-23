@@ -9,14 +9,7 @@ export async function preloadAssets(audioManager) {
     tasks.push(() => assetManager.loadTexture('assets/images/starfield_texture.png', 'skybox'));
     tasks.push(() => assetManager.loadTexture('assets/images/terrain_texture.png', 'ground'));
     tasks.push(() => assetManager.loadGLB('assets/models/scv.glb', 'scv'));
-    // SCV Mark 2 model moved under assets/Terran in the extra-assets archive
-    tasks.push(() =>
-        assetManager.loadGLB(
-            'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/scv2.glb',
-            'scv2'
-        )
-    );
-
+    // SCV Mark 2 model is now loaded via extra-assets.json
     tasks.push(() => assetManager.loadGLB('assets/models/vulture.glb', 'vulture'));
     tasks.push(() => assetManager.loadGLB('assets/models/goliath.glb', 'goliath'));
     tasks.push(() => assetManager.loadGLB('assets/models/wraith.glb', 'wraith'));
@@ -123,18 +116,6 @@ export async function preloadAssets(audioManager) {
         tasks.push(async () => {
             await assetManager.loadSound(url, name);
             audioManager.scvConstructedSoundNames.push(name);
-        });
-    });
-
-    const scvMark2ConstructUrls = [
-        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/22_aint_paid_enough.wav',
-        'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/01_scv_good_to.wav'
-    ];
-    scvMark2ConstructUrls.forEach((url, i) => {
-        const name = `scv_mark2_constructed_${i}`;
-        tasks.push(async () => {
-            await assetManager.loadSound(url, name);
-            audioManager.scvMark2ConstructedSoundNames.push(name);
         });
     });
 

@@ -214,7 +214,11 @@ export class SupplyDepot {
         }
 
         const raisedY = 1.2;
-        const loweredY = -1.0;
+        // When the depot lowers it should only move about one unit down from its
+        // fully raised position. The previous value made it sink much deeper
+        // because the GLB's origin is centered vertically. Moving just a single
+        // unit keeps the top near ground level.
+        const loweredY = raisedY - 1.0;
         const platformTopOffset = 1.1; // Top of the movable part's wall
 
         const updateUnitsOnTop = () => {

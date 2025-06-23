@@ -12,7 +12,13 @@
     "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/SCV2/Animation_Idle.glb",
     "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/SCV2/Animation_Walking.glb"
   ],
-  "mp3s": ["assets/audio/select.mp3"],
+  "mp3s": [
+    "assets/audio/select.mp3",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/scv_ack1.mp3",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/scv_ack2.mp3",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/SCV_move.mp3",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/SCV_move2.mp3"
+  ],
   "wavs": ["https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Firebat/move.wav"],
   "mp4s": ["https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/scan.mp4"]
 }

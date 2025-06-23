@@ -6,7 +6,6 @@ This project is a small browser-based real-time strategy game inspired by StarCr
 1. Ensure the required packages are installed:
    ```bash
    apt-get update -y && apt-get install -y apt-utils
-   pip install pygltflib
    ```
 2. Clone this repository and open a shell in the project directory.
 

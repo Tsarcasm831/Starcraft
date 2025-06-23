@@ -101,6 +101,11 @@ export class MineralField {
             model.scale.set(scale, scale, scale);
         }
 
+        // Align the model so its bottom touches the ground. Imported models have
+        // their origin at the center, leaving half of them below y=0.
+        const adjustedBox = new THREE.Box3().setFromObject(model);
+        model.position.y -= adjustedBox.min.y;
+
         model.traverse(child => {
             if (child.isMesh) {
                 child.castShadow = true;

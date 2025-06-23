@@ -23,11 +23,13 @@ export class SCV extends SCVBase {
         // Try to use GLB model, otherwise fallback to procedural
         try {
             const scvAsset = assetManager.get('scv');
-            this.mesh = this.createMeshFromGLB(scvAsset);
+            const { wrapper, model } = this.createMeshFromGLB(scvAsset);
+            this.mesh = wrapper;
+            this.model = model;
 
-            // Setup animations
+            // Setup animations on the inner model so rotation isn't overwritten
             if (scvAsset.animations && scvAsset.animations.length) {
-                this.mixer = new THREE.AnimationMixer(this.mesh);
+                this.mixer = new THREE.AnimationMixer(this.model);
                 // Just play the first animation clip found on a loop.
                 const action = this.mixer.clipAction(scvAsset.animations[0]);
                 action.play();
@@ -93,7 +95,11 @@ export class SCV extends SCVBase {
         });
         
         this.addCarryVisuals(model);
-        return model;
+
+        const wrapper = new THREE.Group();
+        wrapper.add(model);
+
+        return { wrapper, model };
     }
 
     createProceduralMesh() {

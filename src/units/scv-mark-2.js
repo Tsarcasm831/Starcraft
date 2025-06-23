@@ -29,9 +29,11 @@ export class SCVMark2 extends SCVBase {
 
         try {
             const scvAsset = assetManager.get('scv2');
-            this.mesh = this.createMeshFromGLB(scvAsset);
+            const { wrapper, model } = this.createMeshFromGLB(scvAsset);
+            this.mesh = wrapper;
+            this.model = model;
 
-            this.mixer = new THREE.AnimationMixer(this.mesh);
+            this.mixer = new THREE.AnimationMixer(this.model);
 
             // Separate animation files are loaded via the extra-assets manifest
             const idleAsset = assetManager.get('extra_Animation_Idle');
@@ -161,7 +163,11 @@ export class SCVMark2 extends SCVBase {
         });
         
         this.addCarryVisuals(model);
-        return model;
+
+        const wrapper = new THREE.Group();
+        wrapper.add(model);
+
+        return { wrapper, model };
     }
     
     createProceduralMesh() {

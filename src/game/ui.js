@@ -4,6 +4,7 @@ import { CommandCard } from './ui/CommandCard.js';
 import { MessageDisplay } from './ui/MessageDisplay.js';
 import { Compass } from './ui/Compass.js';
 import { devLogger } from '../utils/dev-logger.js';
+import { assetManager } from '../utils/asset-manager.js';
 
 // Create instances of the new UI components
 const resourceDisplay = new ResourceDisplay();
@@ -35,6 +36,13 @@ let keyStateRef;
 let commandExecutorRef;
 let cameraGetter;
 
+/** @tweakable Adjust the video player settings */
+const videoPlayerSettings = {
+    volume: 0, // Muted by default to allow autoplay
+    playbackRate: 1.0,
+    opacity: 0.8
+};
+
 function togglePause() {
     isPaused = !isPaused;
     commandCard.hideTooltip();
@@ -56,6 +64,37 @@ function toggleGrid() {
 
 let adTimeout = null;
 
+function setupVideoPanel() {
+    const videoPanel = document.getElementById('video-panel');
+    if (!videoPanel) return;
+
+    try {
+        const videoElement = assetManager.get('extra_scan'); // This is the preloaded <video> element
+        videoElement.loop = true;
+        videoElement.muted = true; // Essential for autoplay in most browsers
+        videoElement.volume = videoPlayerSettings.volume;
+        videoElement.playbackRate = videoPlayerSettings.playbackRate;
+
+        // Style the video to fit its container
+        videoElement.style.width = '100%';
+        videoElement.style.height = '100%';
+        videoElement.style.objectFit = 'cover';
+        videoElement.style.opacity = videoPlayerSettings.opacity;
+
+        videoPanel.innerHTML = ''; // Clear any placeholder text
+        videoPanel.appendChild(videoElement);
+
+        videoElement.play().catch(e => {
+            console.warn("Video autoplay was prevented. User interaction might be needed.", e);
+            // We can add a click handler to the panel to attempt to play again.
+            videoPanel.addEventListener('click', () => videoElement.play(), { once: true });
+        });
+    } catch (e) {
+        console.error("Could not find preloaded video asset 'extra_scan'.", e);
+        videoPanel.textContent = 'Video asset not found.';
+    }
+}
+
 function showVideoAd() {
     if (!isGameRunning) return;
 
@@ -66,11 +105,40 @@ function showVideoAd() {
         audioManagerRef.pauseBackgroundMusic();
     }
 
-    spotifyModal.classList.remove('hidden');
-    placeholder.innerHTML =
-        '<iframe id="video-ad-iframe" ' +
-        'src="https://www.youtube.com/embed/mQgRLL3wod0?autoplay=1" ' +
-        'width="100%" height="200" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>';
+    try {
+        const videoElement = document.createElement('video');
+        videoElement.src = assetManager.getAsset('extra_scan');
+        videoElement.volume = videoPlayerSettings.volume;
+        videoElement.playbackRate = videoPlayerSettings.playbackRate;
+        videoElement.style.opacity = videoPlayerSettings.opacity;
+        videoElement.style.width = '100%';
+        videoElement.style.height = '200px';
+        videoElement.style.display = 'block';
+        videoElement.style.margin = '0 auto';
+        videoElement.style.border = 'none';
+        videoElement.style.background = 'black';
+        videoElement.style.position = 'absolute';
+        videoElement.style.top = '0';
+        videoElement.style.left = '0';
+        videoElement.style.zIndex = '1000000000';
+        videoElement.style.pointerEvents = 'none';
+
+        const videoPanel = document.createElement('div');
+        videoPanel.style.position = 'absolute';
+        videoPanel.style.top = '0';
+        videoPanel.style.left = '0';
+        videoPanel.style.width = '100%';
+        videoPanel.style.height = '100%';
+        videoPanel.style.background = 'black';
+        videoPanel.style.zIndex = '1000000000';
+        videoPanel.style.pointerEvents = 'none';
+
+        videoPanel.appendChild(videoElement);
+
+        videoElement.play().catch(e => console.warn("Video autoplay was prevented:", e));
+    } catch (e) {
+        console.warn("Could not find preloaded video asset 'extra_scan'.", e);
+    }
 
     if (adTimeout) {
         clearTimeout(adTimeout);
@@ -239,9 +307,6 @@ export function initUI(commandExecutor, startGameCallback, audioManager, getGrid
             case 'Backquote':
                 togglePause();
                 break;
-            case 'KeyM':
-                showVideoAd();
-                break;
             case 'Backslash':
                 if (devLogger.isActive) {
                     toggleDevLogModal();
@@ -257,6 +322,9 @@ export function hideStartScreen() {
 
 export function setGameRunning(running) {
     isGameRunning = running;
+    if (running) {
+        setupVideoPanel(); // Set up the looping video when the game starts
+    }
 }
 
 export function updatePlacementText(message) {

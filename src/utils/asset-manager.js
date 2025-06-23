@@ -108,6 +108,7 @@ class AssetManager {
         return new Promise((resolve, reject) => {
             const video = document.createElement('video');
             video.preload = 'auto';
+            video.crossOrigin = 'anonymous'; // Add for potential cross-origin video sources
             video.src = url;
             video.onloadeddata = () => {
                 this.loadedAssets.set(assetName, video);
@@ -118,6 +119,7 @@ class AssetManager {
                 console.error(`Error loading video asset '${assetName}' from '${url}'.`, e);
                 reject(e);
             };
+            video.load(); // Start loading the video data
         });
     }
 

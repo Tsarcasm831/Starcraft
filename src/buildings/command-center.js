@@ -32,6 +32,8 @@ export class CommandCenter {
 
         this.mesh = this.createMesh();
         this.mesh.position.copy(position);
+        // Scale the entire structure down to half size
+        this.mesh.scale.set(0.5, 0.5, 0.5);
 
         this.mesh.traverse((child) => {
             if (child instanceof THREE.Mesh) {
@@ -42,7 +44,7 @@ export class CommandCenter {
         });
 
         if (this.isUnderConstruction) {
-            this.mesh.scale.y = 0.01;
+            this.mesh.scale.y *= 0.01;
             this.mesh.traverse(child => {
                 if (child.isMesh) {
                     child.material = child.material.clone();
@@ -62,9 +64,9 @@ export class CommandCenter {
         this.mesh.add(this.selectionIndicator);
         
         // Manually define collider box for simplicity and accuracy
-        const buildingWidth = 13;
-        const buildingDepth = 8;
-        const buildingHeight = 10;
+        const buildingWidth = 6.5;
+        const buildingDepth = 4;
+        const buildingHeight = 5;
         this.groundCollider = new THREE.Box3(
             new THREE.Vector3(-buildingWidth / 2, 0, -buildingDepth / 2),
             new THREE.Vector3(buildingWidth / 2, buildingHeight, buildingDepth / 2)
@@ -297,7 +299,7 @@ export class CommandCenter {
     onConstructionComplete(gameState) {
         this.isUnderConstruction = false;
         this.currentHealth = this.maxHealth;
-        this.mesh.scale.y = 1.0;
+        this.mesh.scale.y = 0.5;
         
         this.mesh.traverse(child => {
             if (child.isMesh && child.material.transparent === true) {
@@ -421,7 +423,7 @@ export class CommandCenter {
     update(delta, gameState, spawnUnitCallback, spawnBuildingCallback) {
         if (this.isUnderConstruction) {
             const buildProgress = Math.max(0.01, this.currentHealth / this.maxHealth);
-            this.mesh.scale.y = buildProgress;
+            this.mesh.scale.y = buildProgress * 0.5;
             return;
         }
 

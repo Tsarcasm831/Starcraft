@@ -33,11 +33,10 @@ export class SCVMark2 extends SCVBase {
 
             this.mixer = new THREE.AnimationMixer(this.mesh);
 
-            // Separate animation files are the primary source now
-            // The idle animation comes from the extra-assets manifest
+            // Separate animation files are loaded via the extra-assets manifest
             const idleAsset = assetManager.get('extra_Animation_Idle');
-            const walkAsset = assetManager.get('scv2_walking');
-            const mineRepairAsset = assetManager.get('scv2_mineRepair');
+            const walkAsset = assetManager.get('extra_Animation_Walking');
+            const mineRepairAsset = assetManager.get('extra_Animation_MineRepair');
 
             if (idleAsset.animations && idleAsset.animations[0]) {
                 this.animations.idle = this.mixer.clipAction(idleAsset.animations[0]);

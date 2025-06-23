@@ -5,6 +5,7 @@
 - Command Center uses the GLB model specified in `extra-assets.json` when available.
 - Extra SCV animations for mining, idling and walking are loaded from remote GLB files listed in `extra-assets.json`.
 - SCV Mark 2 idle animation now uses the `Animation_Idle.glb` asset from `extra-assets.json`.
+- SCV Mark 2 walking and mining animations now also load from `extra-assets.json`.
 
 ## v0.4.2
 - Plateaus with ramps no longer block pathfinding; `createPlateau` gained an `isObstacle` option.

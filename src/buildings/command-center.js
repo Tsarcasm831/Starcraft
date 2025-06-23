@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { assetManager } from '../utils/asset-manager.js';
 import { FlyingBuildingBehavior } from './flying-building-behavior.js';
 import { AddonBehavior } from './addon-behavior.js';
 
@@ -183,6 +184,16 @@ export class CommandCenter {
     }
 
     createMesh() {
+        try {
+            const asset = assetManager.get('extra_command_center');
+            return this.createMeshFromGLB(asset);
+        } catch (error) {
+            console.warn('Could not load command center model, using procedural fallback.', error);
+            return this.createProceduralMesh();
+        }
+    }
+
+    createProceduralMesh() {
         const group = new THREE.Group();
 
         const mainMaterial = new THREE.MeshStandardMaterial({ color: 0x8a9aaa, metalness: 0.7, roughness: 0.6 });
@@ -244,6 +255,36 @@ export class CommandCenter {
         group.add(light4);
 
         return group;
+    }
+
+    createMeshFromGLB(asset) {
+        const model = asset.scene.clone();
+
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const desired = new THREE.Vector3(13, 10, 8);
+        const scale = Math.min(
+            desired.x / size.x,
+            desired.y / size.y,
+            desired.z / size.z
+        );
+
+        if (scale > 0 && Number.isFinite(scale)) {
+            model.scale.set(scale, scale, scale);
+        }
+
+        const wrapper = new THREE.Group();
+        wrapper.add(model);
+
+        wrapper.traverse(child => {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                child.userData.owner = this;
+            }
+        });
+
+        return wrapper;
     }
 
     onConstructionComplete(gameState) {

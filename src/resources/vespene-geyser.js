@@ -55,48 +55,49 @@ export class VespeneGeyser {
                 metalness: 0.1
             });
 
-        // Create a mound shape
-        const moundGeo = new THREE.CylinderGeometry(2, 3, 0.5, 12);
-        const mound = new THREE.Mesh(moundGeo, moundMaterial);
-        mound.position.y = 0.25;
-        group.add(mound);
+            // Create a mound shape
+            const moundGeo = new THREE.CylinderGeometry(2, 3, 0.5, 12);
+            const mound = new THREE.Mesh(moundGeo, moundMaterial);
+            mound.position.y = 0.25;
+            group.add(mound);
 
-        // Create the geyser hole rim
-        const rimGeo = new THREE.TorusGeometry(0.8, 0.3, 8, 16);
-        const rim = new THREE.Mesh(rimGeo, moundMaterial);
-        rim.rotation.x = Math.PI / 2;
-        rim.position.y = 0.5;
-        rim.name = 'geyser_rim';
-        group.add(rim);
+            // Create the geyser hole rim
+            const rimGeo = new THREE.TorusGeometry(0.8, 0.3, 8, 16);
+            const rim = new THREE.Mesh(rimGeo, moundMaterial);
+            rim.rotation.x = Math.PI / 2;
+            rim.position.y = 0.5;
+            rim.name = 'geyser_rim';
+            group.add(rim);
 
-        // Create gas particles
-        const gasMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ff00,
-            transparent: true,
-            opacity: 0.3,
-            side: THREE.DoubleSide,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false,
-        });
+            // Create gas particles
+            const gasMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00ff00,
+                transparent: true,
+                opacity: 0.3,
+                side: THREE.DoubleSide,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+            });
 
-        for (let i = 0; i < 20; i++) {
-            const size = 0.2 + Math.random() * 0.5;
-            const particleGeo = new THREE.PlaneGeometry(size, size);
-            const particle = new THREE.Mesh(particleGeo, gasMaterial);
-            
-            particle.position.set(
-                (Math.random() - 0.5) * 1.5,
-                0.5 + Math.random() * 3, // Start at different heights
-                (Math.random() - 0.5) * 1.5
-            );
-            particle.rotation.y = Math.random() * Math.PI * 2;
-            
-            particle.userData.isGas = true;
-            particle.userData.velocity = 1 + Math.random() * 2; // Upward speed
-            group.add(particle);
+            for (let i = 0; i < 20; i++) {
+                const size = 0.2 + Math.random() * 0.5;
+                const particleGeo = new THREE.PlaneGeometry(size, size);
+                const particle = new THREE.Mesh(particleGeo, gasMaterial);
+                
+                particle.position.set(
+                    (Math.random() - 0.5) * 1.5,
+                    0.5 + Math.random() * 3, // Start at different heights
+                    (Math.random() - 0.5) * 1.5
+                );
+                particle.rotation.y = Math.random() * Math.PI * 2;
+                
+                particle.userData.isGas = true;
+                particle.userData.velocity = 1 + Math.random() * 2; // Upward speed
+                group.add(particle);
+            }
+
+            return group;
         }
-
-        return group;
     }
 
     createMeshFromGLB(asset) {
@@ -127,7 +128,6 @@ export class VespeneGeyser {
 
         return model;
     }
-}
 
     update(delta) {
         if (this.isDepleted) return;

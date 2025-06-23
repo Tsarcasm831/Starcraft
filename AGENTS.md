@@ -6,8 +6,15 @@ This repository contains a small Starcraft-inspired RTS prototype. This monolith
 - Everything under the repository root.
 
 ## Environment
-All dependencies are included and no additional packages need to be
-installed manually.
+Always ensure the following packages are installed when the environment
+starts:
+
+```
+apt-get update -y && apt-get install -y apt-utils
+pip install pygltflib
+```
+These tools are required for certain asset workflows and should be
+preinstalled before running any project commands.
 
 ## Running the project
 1. From the repository root start a local server:
@@ -33,7 +40,6 @@ installed manually.
 - Audio is loaded in `src/utils/audio.js` via the asset manager. Add new sound files to `assets/audio/` and register them in that file.
 - Images live under `assets/images/` and are referenced by HTML or JS modules.
 - Some sound effects are fetched from remote URLs defined in `src/game/preloader.js`.  Arrays such as `scvConstructUrls` and `bgUrls` list the external files.  Each URL is loaded with `assetManager.loadSound` and the resulting sound name is stored on `AudioManager` for playback.  Update these lists in `preloader.js` to change or add remote sounds.
-- The SCV Mark 2's construction sounds are hosted on `file.garden` (e.g. `22_aint_paid_enough.wav`). `preloadAssets` loads them into `audioManager.scvMark2ConstructedSoundNames`, and `spawnUnit` plays one at random when the unit spawns. These URLs are fixed in the code and cannot be manipulated by the client, but they function normally.
 
 ## Testing changes
 There is no automated test suite. After making changes:

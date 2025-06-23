@@ -2,6 +2,12 @@ import * as THREE from 'three';
 import { assetManager } from '../utils/asset-manager.js';
 import { SCVBase } from './scv-base.js';
 
+/* @tweakable SCV Mark 2 animation settings */
+const scv2AnimationConfig = {
+    crossfadeDuration: 0.25,
+    speedMultiplier: 1.0,
+};
+
 export class SCVMark2 extends SCVBase {
     constructor(position) {
         super(position);
@@ -19,16 +25,15 @@ export class SCVMark2 extends SCVBase {
 
         this.mixer = null;
         this.animations = {};
-        this.currentAnimation = null;
+        this.activeAnimation = null;
 
         try {
-            // SCV2 loads its fully rigged model with the idle animation
-            // Additional animations are supplied by separate clips
             const scvAsset = assetManager.get('scv2');
             this.mesh = this.createMeshFromGLB(scvAsset);
 
             this.mixer = new THREE.AnimationMixer(this.mesh);
 
+            // Separate animation files are the primary source now
             const idleAsset = assetManager.get('scv2_idle');
             const walkAsset = assetManager.get('scv2_walking');
             const mineRepairAsset = assetManager.get('scv2_mineRepair');
@@ -42,17 +47,16 @@ export class SCVMark2 extends SCVBase {
             if (mineRepairAsset.animations && mineRepairAsset.animations[0]) {
                 this.animations.mineRepair = this.mixer.clipAction(mineRepairAsset.animations[0]);
             }
-
-            if (Object.keys(this.animations).length === 0 && scvAsset.animations && scvAsset.animations[0]) {
-                this.animations.idle = this.mixer.clipAction(scvAsset.animations[0]);
-            }
-            this.playAnimation('idle');
+            
+            this.switchAnimation('idle');
         } catch (error) {
+            console.error("Failed to initialize SCV Mark 2 with animations:", error);
             this.mesh = this.createProceduralMesh();
         }
 
         this.setupModel(this.mesh, position);
         this.speed = 4.0;
+        this.updateCommands({});
     }
     
     get commands() {
@@ -121,7 +125,7 @@ export class SCVMark2 extends SCVBase {
             commands[2] = { command: 'hold', hotkey: 'H', icon: 'assets/images/hold_position_icon.png', name: 'Hold Position' };
             commands[3] = { command: 'patrol', hotkey: 'P', icon: 'assets/images/patrol_icon.png', name: 'Patrol' };
             commands[4] = { command: 'gather', hotkey: 'G', icon: 'assets/images/gather_icon.png', name: 'Gather' };
-            // null at 5
+            commands[5] = { command: 'repair', hotkey: 'R', icon: 'assets/images/heal_icon.png', name: 'Repair' };
             commands[6] = { command: 'open_build_menu', hotkey: 'B', icon: 'assets/images/build_basic_structures_icon.png', name: 'Build Basic Structures' };
             commands[7] = { command: 'open_advanced_build_menu', hotkey: 'V', icon: 'assets/images/build_advanced_structures_icon.png', name: 'Build Advanced Structures' };
         }
@@ -210,17 +214,20 @@ export class SCVMark2 extends SCVBase {
         return group;
     }
 
-    playAnimation(name) {
-        if (!this.mixer) return;
-        if (this.currentAnimation === name) return;
-        if (this.currentAnimation && this.animations[this.currentAnimation]) {
-            this.animations[this.currentAnimation].stop();
-        }
-        const action = this.animations[name];
-        if (action) {
-            action.reset();
-            action.play();
-            this.currentAnimation = name;
+    switchAnimation(name) {
+        if (!this.mixer || !this.animations[name]) return;
+
+        const nextAction = this.animations[name];
+        const currentAction = this.activeAnimation;
+
+        if (currentAction !== nextAction) {
+            nextAction.reset();
+            nextAction.timeScale = scv2AnimationConfig.speedMultiplier;
+            nextAction.play();
+            if (currentAction) {
+                currentAction.crossFadeTo(nextAction, scv2AnimationConfig.crossfadeDuration, true);
+            }
+            this.activeAnimation = nextAction;
         }
     }
 
@@ -241,7 +248,7 @@ export class SCVMark2 extends SCVBase {
                 anim = 'mineRepair';
                 break;
         }
-        this.playAnimation(anim);
+        this.switchAnimation(anim);
     }
 
 
@@ -272,37 +279,37 @@ export class SCVMark2 extends SCVBase {
     update(delta, pathfinder, gameState, allBuildings, scene) {
         if (this.isGarrisoned) return;
 
+        if (this.mixer) {
+            this.mixer.update(delta);
+        }
+
         this.updateCommands(gameState);
 
         if (this.state === 'movingToBuild') {
             if (!this.buildingTarget) {
                 this.state = 'idle';
-                return;
             }
             this.updateMovement(delta, scene, () => {
                 this.state = 'building';
-                this.mesh.lookAt(this.buildingTarget.mesh.position);
+                if(this.buildingTarget) this.mesh.lookAt(this.buildingTarget.mesh.position);
             });
-            return;
-        }
-
-        if (this.state === 'building') {
+        } else if (this.state === 'building') {
             if (!this.buildingTarget) {
                 this.state = 'idle';
-                return;
+            } else {
+                const buildRate = (this.buildingTarget.maxHealth / this.buildingTarget.buildTime) * delta;
+                this.buildingTarget.currentHealth += buildRate;
+                if (this.buildingTarget.currentHealth >= this.buildingTarget.maxHealth) {
+                    this.buildingTarget.currentHealth = this.buildingTarget.maxHealth;
+                    this.buildingTarget.onConstructionComplete(gameState);
+                    this.state = 'idle';
+                    this.buildingTarget = null;
+                }
             }
-            const buildRate = (this.buildingTarget.maxHealth / this.buildingTarget.buildTime) * delta;
-            this.buildingTarget.currentHealth += buildRate;
-            if (this.buildingTarget.currentHealth >= this.buildingTarget.maxHealth) {
-                this.buildingTarget.currentHealth = this.buildingTarget.maxHealth;
-                this.buildingTarget.onConstructionComplete(gameState);
-                this.state = 'idle';
-                this.buildingTarget = null;
-            }
-            return;
+        } else {
+            super.update(delta, pathfinder, gameState, allBuildings, scene);
         }
 
-        super.update(delta, pathfinder, gameState, allBuildings, scene);
         this.updateAnimationBasedOnState();
     }
     

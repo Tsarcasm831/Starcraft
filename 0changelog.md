@@ -6,6 +6,7 @@
 - Extra SCV animations for mining, idling and walking are loaded from remote GLB files listed in `extra-assets.json`.
 - SCV Mark 2 idle animation now uses the `Animation_Idle.glb` asset from `extra-assets.json`.
 - SCV Mark 2 walking and mining animations now also load from `extra-assets.json`.
+- SCV units keep their facing direction when idle instead of snapping north.
 
 ## v0.4.2
 - Plateaus with ramps no longer block pathfinding; `createPlateau` gained an `isObstacle` option.

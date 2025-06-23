@@ -9,7 +9,13 @@ export async function preloadAssets(audioManager) {
     tasks.push(() => assetManager.loadTexture('assets/images/starfield_texture.png', 'skybox'));
     tasks.push(() => assetManager.loadTexture('assets/images/terrain_texture.png', 'ground'));
     tasks.push(() => assetManager.loadGLB('assets/models/scv.glb', 'scv'));
-    tasks.push(() => assetManager.loadGLB('https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/scv2.glb', 'scv2'));
+    // SCV Mark 2 model moved under assets/Terran in the extra-assets archive
+    tasks.push(() =>
+        assetManager.loadGLB(
+            'https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/scv2.glb',
+            'scv2'
+        )
+    );
 
     tasks.push(() => assetManager.loadGLB('assets/models/vulture.glb', 'vulture'));
     tasks.push(() => assetManager.loadGLB('assets/models/goliath.glb', 'goliath'));

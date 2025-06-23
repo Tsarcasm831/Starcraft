@@ -9,6 +9,7 @@
 - SCV units keep their facing direction when idle instead of snapping north.
 - Supply Depot uses the GLB model specified in `extra-assets.json` when available.
 - Lowered Supply Depots now sit only one unit below the raised height instead of sinking too deep.
+- SCV Mark 2 model now loads from the updated URL in `extra-assets.json`.
 
 ## v0.4.2
 - Plateaus with ramps no longer block pathfinding; `createPlateau` gained an `isObstacle` option.

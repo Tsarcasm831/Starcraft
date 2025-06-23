@@ -1,4 +1,5 @@
 import { assetManager } from '../utils/asset-manager.js';
+import { addExtraPreloadTasks } from './preloader_downloader.js';
 
 export async function preloadAssets(audioManager) {
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -202,6 +203,9 @@ export async function preloadAssets(audioManager) {
     ];
     // This part now uses the AudioManager method
     tasks.push(() => audioManager.loadBackgroundTracks(bgUrls));
+
+    // Load any extra assets defined in assets/extra-assets.json
+    await addExtraPreloadTasks(tasks);
 
     let loaded = 0;
 

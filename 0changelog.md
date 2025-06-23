@@ -11,6 +11,7 @@
 - Lowered Supply Depots now sit only one unit below the raised height instead of sinking too deep.
 - SCV Mark 2 model now loads from the updated URL in `extra-assets.json`.
 - Minerals, Vespene Geysers, Vultures, Wraiths, Valkyries, Goliaths, Battlecruisers, Science Vessels and Science Facilities now use GLB models from `extra-assets.json` when available.
+- Command Center, Supply Depot, Science Facility and mineral field models now align with the ground instead of appearing half buried.
 
 ## v0.4.2
 - Plateaus with ramps no longer block pathfinding; `createPlateau` gained an `isObstacle` option.

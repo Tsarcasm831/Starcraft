@@ -136,6 +136,12 @@ export class SupplyDepot {
             model.scale.set(scale, scale, scale);
         }
 
+        // Shift model so its base rests on the ground. Imported models may have
+        // an origin at the center causing them to appear half buried. Offset
+        // by the bounding box minimum after scaling.
+        const adjustedBox = new THREE.Box3().setFromObject(model);
+        model.position.y -= adjustedBox.min.y;
+
         const wrapper = new THREE.Group();
         this.movablePart = wrapper; // entire model moves when raising/lowering
         wrapper.add(model);

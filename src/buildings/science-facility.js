@@ -124,6 +124,11 @@ export class ScienceFacility {
             model.scale.set(scale, scale, scale);
         }
 
+        // Shift the model so its lowest point aligns with the ground. Without
+        // this, models whose pivot is centered appear half buried.
+        const adjustedBox = new THREE.Box3().setFromObject(model);
+        model.position.y -= adjustedBox.min.y;
+
         model.traverse(child => {
             if (child.isMesh) {
                 child.castShadow = true;

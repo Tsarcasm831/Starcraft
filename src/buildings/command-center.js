@@ -273,6 +273,13 @@ export class CommandCenter {
             model.scale.set(scale, scale, scale);
         }
 
+        // Shift the model up so its bottom sits on the ground. Some imported
+        // GLB files have their origin at the center which makes them sink half
+        // way below y=0. After scaling we translate the model so the bounding
+        // box minimum is at 0.
+        const adjustedBox = new THREE.Box3().setFromObject(model);
+        model.position.y -= adjustedBox.min.y;
+
         const wrapper = new THREE.Group();
         wrapper.add(model);
 

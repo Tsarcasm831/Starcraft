@@ -47,7 +47,10 @@ There is no automated test suite. After making changes:
 2. Open the game in a browser and ensure it loads correctly.
 3. Check the browser console for any JavaScript errors before submitting a pull request.
 
-## Changelog
-All updates to the code or assets must be recorded in `0changelog.md`. Append a
-bullet describing your change under the latest heading so players can easily
-track new features and fixes.
+## Documentation
+- The file `0changelog.md` acts as both the changelog and in-game manual. When
+  you contribute a feature or bug fix, add a bullet under the latest
+  `Unreleased` heading in that file describing the change.
+- `README.md` contains installation and usage instructions. If your change
+  alters how the project is set up or run, update the README accordingly but do
+  not append changelog notes there.

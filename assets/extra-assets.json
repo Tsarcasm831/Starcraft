@@ -1,0 +1,6 @@
+{
+  "glbs": ["assets/models/vulture.glb"],
+  "mp3s": ["assets/audio/select.mp3"],
+  "wavs": ["https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Firebat/move.wav"],
+  "mp4s": ["https://raw.githubusercontent.com/mediaelement/mediaelement-files/master/big_buck_bunny.mp4"]
+}

@@ -101,6 +101,26 @@ class AssetManager {
         }
     }
 
+    async loadVideo(url, assetName) {
+        if (this.loadedAssets.has(assetName)) {
+            return this.loadedAssets.get(assetName);
+        }
+        return new Promise((resolve, reject) => {
+            const video = document.createElement('video');
+            video.preload = 'auto';
+            video.src = url;
+            video.onloadeddata = () => {
+                this.loadedAssets.set(assetName, video);
+                console.log(`Loaded Video: ${assetName} from ${url}`);
+                resolve(video);
+            };
+            video.onerror = e => {
+                console.error(`Error loading video asset '${assetName}' from '${url}'.`, e);
+                reject(e);
+            };
+        });
+    }
+
     get(assetName) {
         const asset = this.loadedAssets.get(assetName);
         if (!asset) {

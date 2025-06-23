@@ -40,3 +40,4 @@
 - Removed unused SCV Mark 2 model file `assets/models/scv2.glb`.
 - Clarified SCV Mark 2 model comments to no longer imply missing assets.
 - SCV2 idle animation is now loaded from a remote URL.
+- Preloader can now load additional assets from extra-assets.json.

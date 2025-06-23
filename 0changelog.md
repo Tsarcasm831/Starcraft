@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+## v0.4.2
 - Plateaus with ramps no longer block pathfinding; `createPlateau` gained an `isObstacle` option.
 - Added a changelog modal to view project updates and manual information directly in-game. The changelog content is loaded from this file.
 - Documented in `AGENTS.md` that all contributions must update this changelog.
@@ -41,5 +42,4 @@
 - Clarified SCV Mark 2 model comments to no longer imply missing assets.
 - SCV2 idle animation is now loaded from a remote URL.
 - Preloader can now load additional assets from extra-assets.json.
-
 - Changelog modal now fetches content from `0changelog.md`

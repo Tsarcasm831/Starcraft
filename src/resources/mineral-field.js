@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { assetManager } from '../utils/asset-manager.js';
 
 export class MineralField {
     constructor(position) {
@@ -41,41 +42,76 @@ export class MineralField {
     }
 
     createMesh() {
-        const group = new THREE.Group();
-        const mineralMaterial = new THREE.MeshStandardMaterial({
-            color: 0x4169e1, // Royal Blue
-            metalness: 0.2,
-            roughness: 0.3,
-            emissive: 0x2030a0,
-            emissiveIntensity: 0.4
-        });
+        try {
+            const asset = assetManager.get('extra_minerals');
+            return this.createMeshFromGLB(asset);
+        } catch (error) {
+            // Procedural fallback
+            const group = new THREE.Group();
+            const mineralMaterial = new THREE.MeshStandardMaterial({
+                color: 0x4169e1, // Royal Blue
+                metalness: 0.2,
+                roughness: 0.3,
+                emissive: 0x2030a0,
+                emissiveIntensity: 0.4
+            });
 
-        const numCrystals = 5 + Math.floor(Math.random() * 4); // 5 to 8 crystals
-        this.crystals = [];
+            const numCrystals = 5 + Math.floor(Math.random() * 4); // 5 to 8 crystals
+            this.crystals = [];
 
-        for (let i = 0; i < numCrystals; i++) {
-            const height = 1 + Math.random() * 1.5;
-            const radius = 0.2 + Math.random() * 0.4;
-            const geometry = new THREE.CylinderGeometry(radius / 2, radius, height, 6);
-            const crystal = new THREE.Mesh(geometry, mineralMaterial);
+            for (let i = 0; i < numCrystals; i++) {
+                const height = 1 + Math.random() * 1.5;
+                const radius = 0.2 + Math.random() * 0.4;
+                const geometry = new THREE.CylinderGeometry(radius / 2, radius, height, 6);
+                const crystal = new THREE.Mesh(geometry, mineralMaterial);
 
-            crystal.position.set(
-                (Math.random() - 0.5) * 1.5,
-                height / 2,
-                (Math.random() - 0.5) * 1.5
-            );
+                crystal.position.set(
+                    (Math.random() - 0.5) * 1.5,
+                    height / 2,
+                    (Math.random() - 0.5) * 1.5
+                );
 
-            crystal.rotation.set(
-                (Math.random() - 0.5) * Math.PI * 0.2,
-                Math.random() * Math.PI * 2,
-                (Math.random() - 0.5) * Math.PI * 0.2
-            );
+                crystal.rotation.set(
+                    (Math.random() - 0.5) * Math.PI * 0.2,
+                    Math.random() * Math.PI * 2,
+                    (Math.random() - 0.5) * Math.PI * 0.2
+                );
 
-            group.add(crystal);
-            this.crystals.push(crystal);
+                group.add(crystal);
+                this.crystals.push(crystal);
+            }
+
+            return group;
+        }
+    }
+
+    createMeshFromGLB(asset) {
+        const model = asset.scene.clone();
+
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const desired = new THREE.Vector3(3, 2.5, 3);
+        const scale = Math.min(
+            desired.x / size.x,
+            desired.y / size.y,
+            desired.z / size.z
+        );
+
+        if (scale > 0 && Number.isFinite(scale)) {
+            model.scale.set(scale, scale, scale);
         }
 
-        return group;
+        model.traverse(child => {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                child.userData.owner = this;
+            }
+        });
+
+        this.crystals = model.children;
+
+        return model;
     }
 
     addMiner(scv) {

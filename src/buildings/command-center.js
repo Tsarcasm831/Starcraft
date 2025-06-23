@@ -138,7 +138,7 @@ export class CommandCenter {
             const scvCost = Math.round(50 * Math.pow(1.4, scvCountForCost));
             commandList[0] = {
                 command: 'train_scv',
-                hotkey: 'S',
+                hotkey: 'F',
                 icon: 'assets/images/build_scv_icon.png',
                 name: 'Build SCV',
                 cost: { minerals: scvCost, supply: 1 },
@@ -150,7 +150,7 @@ export class CommandCenter {
             const scvM2Cost = Math.round(75 * Math.pow(1.4, scvM2CountForCost));
             commandList[1] = {
                 command: 'train_scv_mark_2',
-                hotkey: 'D',
+                hotkey: 'G',
                 icon: 'assets/images/build_scv2_icon.png',
                 name: 'Build SCV Mark 2',
                 cost: { minerals: scvM2Cost, supply: 1 },

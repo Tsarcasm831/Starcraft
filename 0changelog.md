@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Images on the main page now use lazy loading to improve initial load time.
 
 ## v0.4.2
 - Plateaus with ramps no longer block pathfinding; `createPlateau` gained an `isObstacle` option.

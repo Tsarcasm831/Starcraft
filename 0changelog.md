@@ -4,6 +4,7 @@
 - Images on the main page now use lazy loading to improve initial load time.
 - Command Center uses the GLB model specified in `extra-assets.json` when available.
 - Extra SCV animations for mining, idling and walking are loaded from remote GLB files listed in `extra-assets.json`.
+- Command Center build hotkeys changed from S/D to F/G to avoid conflicts with WASD.
 - SCV Mark 2 idle animation now uses the `Animation_Idle.glb` asset from `extra-assets.json`.
 - SCV Mark 2 walking and mining animations now also load from `extra-assets.json`.
 - SCV units keep their facing direction when idle instead of snapping north.

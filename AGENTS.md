@@ -11,7 +11,6 @@ starts:
 
 ```
 apt-get update -y && apt-get install -y apt-utils
-pip install pygltflib
 ```
 These tools are required for certain asset workflows and should be
 preinstalled before running any project commands.

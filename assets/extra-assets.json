@@ -1,15 +1,16 @@
 {
   "glbs": [
     "assets/models/vulture.glb", 
-    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Structures/command_center.glb", 
-    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Structures/supply_depot.glb",
-    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Structures/science_facility.glb",
-    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Structures/minerals.glb",
-    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Structures/physics_lab.glb",
-    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Structures/control_tower.glb",
-    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/Animation_MineRepair.glb",
-    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/Animation_Idle.glb",
-    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/SCV/Animation_Walking.glb"
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/Structures/command_center.glb", 
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/Structures/supply_depot.glb",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/Structures/science_facility.glb",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/Structures/minerals.glb",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/Structures/physics_lab.glb",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/Structures/control_tower.glb",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/SCV2/scv2.glb",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/SCV2/Animation_MineRepair.glb",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/SCV2/Animation_Idle.glb",
+    "https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/assets/Terran/SCV2/Animation_Walking.glb"
   ],
   "mp3s": ["assets/audio/select.mp3"],
   "wavs": ["https://file.garden/Zy7B0LkdIVpGyzA1/StarCraft/sounds/Terran/Units/Firebat/move.wav"],

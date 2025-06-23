@@ -10,6 +10,7 @@
 - SCV units keep their facing direction when idle instead of snapping north.
 - Supply Depot uses the GLB model specified in `extra-assets.json` when available.
 - Lowered Supply Depots now sit only one unit below the raised height instead of sinking too deep.
+- Fix issue where lowering a Supply Depot reset its position before moving; the depot now sinks smoothly from its raised state.
 - SCV Mark 2 model now loads from the updated URL in `extra-assets.json`.
 - Minerals, Vespene Geysers, Vultures, Wraiths, Valkyries, Goliaths, Battlecruisers, Science Vessels and Science Facilities now use GLB models from `extra-assets.json` when available.
 - Command Center, Supply Depot, Science Facility and mineral field models now align with the ground instead of appearing half buried.

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { assetManager } from '../utils/asset-manager.js';
 
 export class SupplyDepot {
     constructor(position, onStateChangeCallback, { isUnderConstruction = false, buildTime = 30 } = {}) {
@@ -58,6 +59,16 @@ export class SupplyDepot {
     }
 
     createMesh() {
+        try {
+            const asset = assetManager.get('extra_supply_depot');
+            return this.createMeshFromGLB(asset);
+        } catch (error) {
+            console.warn('Could not load supply depot model, using procedural fallback.', error);
+            return this.createProceduralMesh();
+        }
+    }
+
+    createProceduralMesh() {
         const group = new THREE.Group();
         const depotMaterial = new THREE.MeshStandardMaterial({ color: 0x7a8a9a, metalness: 0.8, roughness: 0.5 });
         const darkMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
@@ -106,6 +117,38 @@ export class SupplyDepot {
         }
 
         return group;
+    }
+
+    createMeshFromGLB(asset) {
+        const model = asset.scene.clone();
+
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const desired = new THREE.Vector3(4, 2.3, 4);
+        const scale = Math.min(
+            desired.x / size.x,
+            desired.y / size.y,
+            desired.z / size.z
+        );
+
+        if (scale > 0 && Number.isFinite(scale)) {
+            model.scale.set(scale, scale, scale);
+        }
+
+        const wrapper = new THREE.Group();
+        this.movablePart = wrapper; // entire model moves when raising/lowering
+        wrapper.add(model);
+        this.movablePart.position.y = 1.2; // Raised position like procedural version
+
+        wrapper.traverse(child => {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                child.userData.owner = this;
+            }
+        });
+
+        return wrapper;
     }
 
     getCollider() {

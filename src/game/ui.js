@@ -174,12 +174,14 @@ function toggleDevLogModal() {
     }
 }
 
+const CHANGELOG_FILE = '0changelog.md';
+
 async function toggleChangelogModal() {
     changelogModal.classList.toggle('hidden');
     if (!changelogModal.classList.contains('hidden')) {
         if (changelogOutput.dataset.loaded !== 'true') {
             try {
-                const response = await fetch('0changelog.md');
+                const response = await fetch(CHANGELOG_FILE);
                 if (response.ok) {
                     const text = await response.text();
                     changelogOutput.textContent = text;
@@ -188,7 +190,7 @@ async function toggleChangelogModal() {
                     changelogOutput.textContent = 'Error loading changelog.';
                 }
             } catch (error) {
-                console.error('Failed to fetch 0changelog.md:', error);
+                console.error(`Failed to fetch ${CHANGELOG_FILE}:`, error);
                 changelogOutput.textContent = 'Error loading changelog.';
             }
         }

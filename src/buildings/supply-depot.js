@@ -142,18 +142,12 @@ export class SupplyDepot {
         const adjustedBox = new THREE.Box3().setFromObject(model);
         model.position.y -= adjustedBox.min.y;
 
-        // Root group representing the building's base position in the world.
-        const root = new THREE.Group();
-
-        // Wrapper that actually moves when raising/lowering.
         const wrapper = new THREE.Group();
+        this.movablePart = wrapper; // entire model moves when raising/lowering
         wrapper.add(model);
-        wrapper.position.y = 1.2; // Raised position like procedural version
+        this.movablePart.position.y = 1.2; // Raised position like procedural version
 
-        this.movablePart = wrapper;
-        root.add(wrapper);
-
-        root.traverse(child => {
+        wrapper.traverse(child => {
             if (child.isMesh) {
                 child.castShadow = true;
                 child.receiveShadow = true;
@@ -161,7 +155,7 @@ export class SupplyDepot {
             }
         });
 
-        return root;
+        return wrapper;
     }
 
     getCollider() {

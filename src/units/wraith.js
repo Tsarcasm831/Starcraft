@@ -27,12 +27,7 @@ export class Wraith {
         this.baseY = this.hoverHeight;
         
         try {
-            let asset;
-            try {
-                asset = assetManager.get('extra_wraith');
-            } catch (e) {
-                asset = assetManager.get('wraith');
-            }
+            const asset = assetManager.get('wraith');
             this.mesh = this.createMeshFromGLB(asset);
         } catch (error) {
             console.warn("Could not load wraith model, using procedural fallback.", error);

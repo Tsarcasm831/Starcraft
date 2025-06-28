@@ -30,12 +30,7 @@ export class Battlecruiser {
         this.baseY = this.hoverHeight;
 
         try {
-            let asset;
-            try {
-                asset = assetManager.get('extra_battlecruiser');
-            } catch (e) {
-                asset = assetManager.get('battlecruiser');
-            }
+            const asset = assetManager.get('battlecruiser');
             this.mesh = this.createMeshFromGLB(asset);
         } catch (error) {
             console.warn("Could not load battlecruiser model, using procedural fallback.", error);

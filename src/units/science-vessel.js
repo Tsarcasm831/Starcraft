@@ -34,12 +34,7 @@ export class ScienceVessel {
         this.baseY = this.hoverHeight;
 
         try {
-            let asset;
-            try {
-                asset = assetManager.get('extra_science_vessel');
-            } catch (e) {
-                asset = assetManager.get('science_vessel');
-            }
+            const asset = assetManager.get('science_vessel');
             this.mesh = this.createMeshFromGLB(asset);
         } catch (error) {
             console.warn("Could not load science vessel model, using procedural fallback.", error);

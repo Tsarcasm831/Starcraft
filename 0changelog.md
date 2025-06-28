@@ -5,18 +5,14 @@
 - Command Center uses the GLB model specified in `extra-assets.json` when available.
 - Extra SCV animations for mining, idling and walking are loaded from remote GLB files listed in `extra-assets.json`.
 - Command Center build hotkeys changed from S/D to F/G to avoid conflicts with WASD.
-- Added `scripts/glb_analyzer.py` for summarizing GLB contents from the command line.
-- Added `scripts/glb_skele_rigger.py` to rig GLB models with a simple skeleton.
 - SCV Mark 2 idle animation now uses the `Animation_Idle.glb` asset from `extra-assets.json`.
 - SCV Mark 2 walking and mining animations now also load from `extra-assets.json`.
 - SCV units keep their facing direction when idle instead of snapping north.
 - Supply Depot uses the GLB model specified in `extra-assets.json` when available.
 - Lowered Supply Depots now sit only one unit below the raised height instead of sinking too deep.
-- Fix issue where lowering a Supply Depot reset its position before moving; the depot now sinks smoothly from its raised state.
 - SCV Mark 2 model now loads from the updated URL in `extra-assets.json`.
 - Minerals, Vespene Geysers, Vultures, Wraiths, Valkyries, Goliaths, Battlecruisers, Science Vessels and Science Facilities now use GLB models from `extra-assets.json` when available.
 - Command Center, Supply Depot, Science Facility and mineral field models now align with the ground instead of appearing half buried.
-- Mineral field model is lifted slightly to prevent crystals from clipping into the ground.
 
 ## v0.4.2
 - Plateaus with ramps no longer block pathfinding; `createPlateau` gained an `isObstacle` option.

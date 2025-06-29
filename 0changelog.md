@@ -55,3 +55,4 @@
 - SCV2 idle animation is now loaded from a remote URL.
 - Preloader can now load additional assets from extra-assets.json.
 - Changelog modal now fetches content from `0changelog.md`
+- Added a separate `manual.md` describing gameplay.

@@ -2,6 +2,7 @@
 
 This file contains recent changes. For older entries, see the `Archive` tab.
 
+[TS] 063025-2139 | [MOD] docs | [ACT] ^ENH | [TGT] agent-units.md | [VAL] expanded unit guide with detailed steps | [REF] agent-units.md:1-81
 [TS] 063025-2135 | [MOD] units | [ACT] ^FIX | [TGT] battlecruiser,wraith,dropship orientation | [VAL] rotated models 180deg to face forward | [REF] src/units/battlecruiser.js:77,118 src/units/wraith.js:76,118 src/units/dropship.js:88,141
 
 [TS] 063025-1903 | [MOD] docs | [ACT] ^DOC | [TGT] README.md | [VAL] note '/' key opens promo video | [REF] README.md:25-27

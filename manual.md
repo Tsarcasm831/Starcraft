@@ -67,3 +67,5 @@ Your base is the heart of your operation.
 ## 4. Hotkeys
 Many actions have hotkeys for faster execution. Hover your mouse over a command button in the bottom-right panel to see its name, cost, and hotkey. Learning hotkeys is crucial for efficient play.
 
+Press the **/** key at any time to watch the promotional video.
+

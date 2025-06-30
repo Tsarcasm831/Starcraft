@@ -4,7 +4,7 @@ let statusTextPanel, placementTextPanel, globalMessageContainer;
 let audioManagerRef;
 
 /** @tweakable How many status messages must be shown before an "ad" plays. Set to 0 to disable. */
-const adFrequency = 5;
+const adFrequency = 0;
 let statusMessageCount = 0;
 
 /** @tweakable Adjust the video player settings */

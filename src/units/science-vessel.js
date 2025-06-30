@@ -2,6 +2,13 @@ import * as THREE from 'three';
 import { assetManager } from '../utils/asset-manager.js';
 import { createDefensiveMatrix, createEMPShockwave, createIrradiate } from '../game/effects.js';
 
+/** @tweakable Hotkeys for Science Vessel abilities */
+const scienceVesselHotkeys = {
+    defensiveMatrix: 'F',
+    empShockwave: 'E',
+    irradiate: 'R',
+};
+
 export class ScienceVessel {
     constructor(position) {
         this.name = 'Science Vessel';
@@ -26,9 +33,9 @@ export class ScienceVessel {
             { command: 'patrol', hotkey: 'P', icon: 'assets/images/patrol_icon.png', name: 'Patrol' },
             null,
             null,
-            { command: 'defensive_matrix', hotkey: 'D', icon: 'assets/images/defensive_matrix_icon.png', name: 'Defensive Matrix', cost: { energy: 100 } },
-            { command: 'emp_shockwave', hotkey: 'E', icon: 'assets/images/emp_shockwave_icon.png', name: 'EMP Shockwave', cost: { energy: 100 } },
-            { command: 'irradiate', hotkey: 'R', icon: 'assets/images/irradiate_icon.png', name: 'Irradiate', cost: { energy: 75 } },
+            { command: 'defensive_matrix', hotkey: scienceVesselHotkeys.defensiveMatrix, icon: 'assets/images/defensive_matrix_icon.png', name: 'Defensive Matrix', cost: { energy: 100 } },
+            { command: 'emp_shockwave', hotkey: scienceVesselHotkeys.empShockwave, icon: 'assets/images/emp_shockwave_icon.png', name: 'EMP Shockwave', cost: { energy: 100 } },
+            { command: 'irradiate', hotkey: scienceVesselHotkeys.irradiate, icon: 'assets/images/irradiate_icon.png', name: 'Irradiate', cost: { energy: 75 } },
         ];
 
         this.baseY = this.hoverHeight;

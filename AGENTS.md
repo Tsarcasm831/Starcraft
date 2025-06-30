@@ -1,55 +1,68 @@
-# AGENTS
+# AGENTS: Contributor and Development Guide
 
-This repository contains a small Starcraft-inspired RTS prototype. This monolithic AGENTS file applies to the entire project tree.
+This document provides a comprehensive guide for agents and developers contributing to this StarCraft-inspired RTS prototype. It outlines the project structure, development workflow, architectural patterns, and best practices to ensure consistent and high-quality contributions. This monolithic AGENTS file applies to the entire project tree.
 
-## Scope
-- Everything under the repository root.
+## 1. Core Principles
 
-## Environment
-Always ensure the following packages are installed when the environment
-starts:
+This project is maintained by a distributed team of AI and human developers. To ensure seamless collaboration, all contributors must adhere to the following principles:
 
-```
-apt-get update -y && apt-get install -y apt-utils
-```
-These tools are required for certain asset workflows and should be
-preinstalled before running any project commands.
+### The Golden Rule: Log Everything
 
-## Running the project
-1. From the repository root start a local server:
-   ```bash
-   python3 -m http.server 8000
-   ```
-2. Visit `http://localhost:8000/index.html` in a modern browser.
-3. Verify the game loads without errors in the console.
+**Every action must be logged.** Before committing any changes, you must document your work in `changelog.md`. This is not optional; it is the most critical step in the development process. The log provides the ground truth for project status, enables synchronization between agents, and allows for automated auditing.
 
-## Directory structure
-- `src/` – JavaScript source files divided into subfolders (`game`, `units`, `buildings`, `resources`, `utils`).
-- `assets/` – audio, images and CSS used by the game.
-- `index.html` – entry point that loads Three.js from the network and initializes the game.
+*   **Format**: All log entries **must** use the **Agent Shorthand Change Log (ASCL)** format. Review `ascl.md` for the full specification.
+*   **Timestamp**: The `[TS]` tag in your log entry **must** reflect the current time of the change in `MMDDYY-HHMM` format. This is non-negotiable for synchronization.
+*   **Scope**: Log every change, no matter how small. This includes code refactoring, asset creation, documentation updates, and bug fixes.
+*   **Immutability**: Once an entry is logged, it should not be altered.
 
-## Adding features
-- New units must go under `src/units` and export a class.
-- New buildings go under `src/buildings`.
-- Additional game logic belongs in `src/game` or `src/utils` as appropriate.
-- Assets for new features belong in `assets/` using lowercase dashed file names.
-- Keep code style consistent with existing files (ES6 modules, semicolons, 4 spaces for indentation).
+Failure to log changes will result in desynchronization and project instability.
 
-## Audio and images
-- Audio is loaded in `src/utils/audio.js` via the asset manager. Add new sound files to `assets/audio/` and register them in that file.
-- Images live under `assets/images/` and are referenced by HTML or JS modules.
-- Some sound effects are fetched from remote URLs defined in `src/game/preloader.js`.  Arrays such as `scvConstructUrls` and `bgUrls` list the external files.  Each URL is loaded with `assetManager.loadSound` and the resulting sound name is stored on `AudioManager` for playback.  Update these lists in `preloader.js` to change or add remote sounds.
+### Adhere to Existing Patterns
 
-## Testing changes
-There is no automated test suite. After making changes:
-1. Run the local server (`python3 -m http.server 8000`).
-2. Open the game in a browser and ensure it loads correctly.
-3. Check the browser console for any JavaScript errors before submitting a pull request.
+When adding new features (units, buildings, abilities), follow the architectural patterns established in the existing codebase. This ensures consistency and maintainability. For example, new units should extend a base class like `Infantry` or create a new base class if a new category of unit is being introduced.
 
-## Documentation
-- The file `0changelog.md` acts as both the changelog and in-game manual. When
-  you contribute a feature or bug fix, add a bullet under the latest
-  `Unreleased` heading in that file describing the change.
-- `README.md` contains installation and usage instructions. If your change
-  alters how the project is set up or run, update the README accordingly but do
-  not append changelog notes there.
+## 2. Project Overview
+
+This project is a browser-based real-time strategy (RTS) game built with modern web technologies.
+
+*   **Core Technology**: Three.js for 3D rendering and WebGL.
+*   **Language**: Modern JavaScript (ES Modules).
+*   **Architecture**: A custom, lightweight entity-behavior model.
+*   **Goal**: To create a functional and extensible RTS experience that runs directly in the browser with no build step required.
+
+## 3. Getting Started
+
+### Prerequisites
+- A modern web browser (Chrome, Firefox).
+- A local web server.
+
+### Running the Project
+1.  From the repository root, start a local HTTP server. A simple Python server is sufficient:
+    ```bash
+    python3 -m http.server 8000
+    ```
+2.  Open your browser and navigate to `http://localhost:8000/`. The `index.html` file is the entry point.
+
+## 4. Project Structure
+
+The codebase is organized to separate concerns and make it easy to locate and add new features.
+
+## 5. Contribution and Logging
+
+To maintain a clear and automated track of all changes, every contribution must be accompanied by a log entry. This is a critical step for project synchronization and history tracking.
+
+*   **Changelog File**: All changes, regardless of size, must be logged in `changelog.md`.
+*   **Log Format**: The log entries must adhere to the **Agent Shorthand Change Log (ASCL)** format. Please review the specification in `ascl.md` before committing any changes to understand the required syntax.
+*   **Workflow**:
+    1.  Make your code changes.
+    2.  Read `ascl.md` to understand the required logging syntax.
+    3.  Add a new entry to the top of `changelog.md` describing your change.
+    4.  Commit your code and the updated changelog.
+
+## 6. How to Add New Units and Buildings
+
+For detailed, step-by-step instructions on how to create and integrate new units into the game, please refer to the dedicated guide:
+
+*   **[Agent's Guide to Creating Units](./agent-units.md)**
+
+This guide covers everything from creating data and class files to integrating assets and updating game logic. Following it ensures consistency and stability.

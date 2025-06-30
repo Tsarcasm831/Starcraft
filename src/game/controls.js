@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { getPlacementMode, attemptPlacement, cancelPlacementMode, updateGhostBuilding } from './placement.js';
 import { handleSingleSelection, handleBoxSelection, getSelectedObjects, initSelection } from './selection.js';
 import { handleRightClick, initRightClickHandler } from './rightClickHandler.js';
+import { audioManager } from '../utils/audio.js';
 
 const mouse = new THREE.Vector2();
 
@@ -124,3 +125,4 @@ function getMousePosOnCanvas(event) {
     const y = event.clientY - rect.top;
     return { x, y, width: rect.width, height: rect.height };
 }
+

@@ -3,8 +3,8 @@ import { SelectionInfoDisplay } from './ui/SelectionInfoDisplay.js';
 import { CommandCard } from './ui/CommandCard.js';
 import { MessageDisplay } from './ui/MessageDisplay.js';
 import { Compass } from './ui/Compass.js';
-import { devLogger } from '../utils/dev-logger.js';
-import { assetManager } from '../utils/asset-manager.js';
+import { MenuManager } from './ui/MenuManager.js';
+import { ModalManager } from './ui/ModalManager.js';
 
 // Create instances of the new UI components
 const resourceDisplay = new ResourceDisplay();
@@ -12,32 +12,56 @@ const selectionInfoDisplay = new SelectionInfoDisplay();
 const commandCard = new CommandCard();
 const messageDisplay = new MessageDisplay();
 const compass = new Compass();
-
-// UI State
-let startScreen;
-let mobileControlsCheckbox;
-let devModeCheckbox;
-let mainMenu, optionsMenu, optionsButton, backButton;
-let bgmVolumeSlider, sfxVolumeSlider;
-let ingameOptionsOverlay, resumeButton, quitButton, toggleGridButton;
-let ingameBgmVolumeSlider, ingameSfxVolumeSlider;
-let spotifyModal, closeSpotifyModalButton;
-let devLogModal, closeDevLogModalButton, clearDevLogButton;
-let changelogModal, changelogButton, closeChangelogModalButton, changelogOutput;
-
-export let isPaused = false;
-export let isGameRunning = false;
+const menuManager = new MenuManager();
+const modalManager = new ModalManager();
 
 // Callbacks to game logic
-let onStartGame;
-let audioManagerRef;
-let gridHelperRef;
-let keyStateRef;
 let commandExecutorRef;
-let cameraGetter;
+
+/** @tweakable The filename for the manual document. */
+const MANUAL_FILE = 'manual.md';
+
+/** @tweakable The maximum number of lines to display from the manual. 0 for no limit. */
+const maxManualLines = 0;
+
+/** @tweakable enable closing the manual modal by clicking its background */
+const closeManualOnClickOutside = true;
+
+/** @tweakable The filename for the main (recent) changelog document. */
+const CHANGELOG_FILE = 'changelog.md';
+
+/** @tweakable The filename for the archived (old) changelog document. */
+const OLD_CHANGELOG_FILE = 'changelog.old.md';
+
+/** @tweakable The maximum number of lines to display from the changelog. 0 for no limit. */
+const maxChangelogLines = 50;
 
 /** @tweakable enable closing the changelog modal by clicking its background */
 const closeChangelogOnClickOutside = true;
+
+/** @tweakable The cutoff date for archiving changelog entries, in MMDDYY format. Entries on or before this date are considered old. */
+const changelogArchiveCutoffDate = '062824';
+
+/** 
+ * @tweakable Configuration for formatting ASCL timestamps in the changelog modal.
+ * @property {boolean} enabled - Whether to apply custom styling to timestamps.
+ * @property {RegExp} regex - The regular expression used to find timestamps. The first capture group should be the timestamp itself.
+ * @property {string} color - The color to apply to the timestamp text.
+ * @property {string} prefix - Text to add before the timestamp.
+ * @property {string} suffix - Text to add after the timestamp.
+ */
+const changelogTimestampConfig = {
+    enabled: true,
+    /** @tweakable The regular expression for finding and styling timestamps in the changelog. The first capture group should contain the date and time. */
+    regex: /\[TS:? ?(\d{6}-\d{4})]/g,
+    color: '#88aaff',
+    prefix: '[',
+    suffix: ']'
+};
+
+/** @tweakable How many status messages must be shown before an "ad" plays. Set to 0 to disable. */
+const adFrequency = 5;
+let statusMessageCount = 0;
 
 /** @tweakable Adjust the video player settings */
 const videoPlayerSettings = {
@@ -47,15 +71,15 @@ const videoPlayerSettings = {
 };
 
 function togglePause() {
-    isPaused = !isPaused;
+    menuManager.isPaused = !menuManager.isPaused;
     commandCard.hideTooltip();
-    if (isPaused) {
-        ingameOptionsOverlay.classList.remove('hidden');
+    if (menuManager.isPaused) {
+        menuManager.ingameOptionsOverlay.classList.remove('hidden');
         // Sync sliders with current volumes
-        ingameBgmVolumeSlider.value = audioManagerRef.bgmVolume;
-        ingameSfxVolumeSlider.value = audioManagerRef.sfxVolume;
+        menuManager.ingameBgmVolumeSlider.value = audioManager.bgmVolume;
+        menuManager.ingameSfxVolumeSlider.value = audioManager.sfxVolume;
     } else {
-        ingameOptionsOverlay.classList.add('hidden');
+        menuManager.ingameOptionsOverlay.classList.add('hidden');
     }
 }
 
@@ -72,7 +96,7 @@ function setupVideoPanel() {
     if (!videoPanel) return;
 
     try {
-        const videoElement = assetManager.get('extra_scan'); // This is the preloaded <video> element
+        const videoElement = assetManager.get('ad_video'); // This is the preloaded <video> element
         videoElement.loop = true;
         videoElement.muted = true; // Essential for autoplay in most browsers
         videoElement.volume = videoPlayerSettings.volume;
@@ -93,80 +117,64 @@ function setupVideoPanel() {
             videoPanel.addEventListener('click', () => videoElement.play(), { once: true });
         });
     } catch (e) {
-        console.error("Could not find preloaded video asset 'extra_scan'.", e);
+        console.error("Could not find preloaded video asset 'ad_video'.", e);
         videoPanel.textContent = 'Video asset not found.';
     }
 }
 
 function showVideoAd() {
-    if (!isGameRunning) return;
+    if (!menuManager.isGameRunning) return;
 
-    const placeholder = document.getElementById('spotify-player-placeholder');
-    if (!placeholder) return;
-
-    if (audioManagerRef) {
-        audioManagerRef.pauseBackgroundMusic();
+    if (audioManager) {
+        audioManager.pauseBackgroundMusic();
     }
+    
+    const videoPanel = document.getElementById('video-panel');
+    if (!videoPanel) return;
 
     try {
-        const videoElement = document.createElement('video');
-        videoElement.src = assetManager.getAsset('extra_scan');
-        videoElement.volume = videoPlayerSettings.volume;
-        videoElement.playbackRate = videoPlayerSettings.playbackRate;
-        videoElement.style.opacity = videoPlayerSettings.opacity;
-        videoElement.style.width = '100%';
-        videoElement.style.height = '200px';
-        videoElement.style.display = 'block';
-        videoElement.style.margin = '0 auto';
-        videoElement.style.border = 'none';
-        videoElement.style.background = 'black';
-        videoElement.style.position = 'absolute';
-        videoElement.style.top = '0';
-        videoElement.style.left = '0';
-        videoElement.style.zIndex = '1000000000';
-        videoElement.style.pointerEvents = 'none';
+        const adPlayer = assetManager.get('ad_video').cloneNode(true);
+        adPlayer.loop = false;
+        adPlayer.muted = false;
+        adPlayer.volume = videoPlayerSettings.volume > 0 ? videoPlayerSettings.volume : 0.5; // Unmute for ad
+        
+        const originalContent = videoPanel.innerHTML;
+        videoPanel.innerHTML = '';
+        videoPanel.appendChild(adPlayer);
+        
+        adPlayer.play().catch(e => {
+            console.warn("Ad video playback prevented:", e);
+            // Restore original video if ad fails to play
+            videoPanel.innerHTML = originalContent;
+            if(audioManager) audioManager.resumeBackgroundMusic();
+        });
 
-        const videoPanel = document.createElement('div');
-        videoPanel.style.position = 'absolute';
-        videoPanel.style.top = '0';
-        videoPanel.style.left = '0';
-        videoPanel.style.width = '100%';
-        videoPanel.style.height = '100%';
-        videoPanel.style.background = 'black';
-        videoPanel.style.zIndex = '1000000000';
-        videoPanel.style.pointerEvents = 'none';
+        adPlayer.onended = () => {
+            videoPanel.innerHTML = originalContent;
+            const originalVideo = videoPanel.querySelector('video');
+            if (originalVideo) {
+                originalVideo.play().catch(e => console.warn("Could not resume panel video", e));
+            }
+            if (audioManager) {
+                audioManager.resumeBackgroundMusic();
+            }
+        };
 
-        videoPanel.appendChild(videoElement);
-
-        videoElement.play().catch(e => console.warn("Video autoplay was prevented:", e));
     } catch (e) {
-        console.warn("Could not find preloaded video asset 'extra_scan'.", e);
+        console.error("Could not find ad video asset 'ad_video'.", e);
+        if (audioManager) {
+            audioManager.resumeBackgroundMusic();
+        }
     }
-
-    if (adTimeout) {
-        clearTimeout(adTimeout);
-    }
-    // Display the ad for 30 seconds before hiding
-    adTimeout = setTimeout(hideVideoAd, 30000);
 }
 
 function hideVideoAd() {
-    const placeholder = document.getElementById('spotify-player-placeholder');
-    if (placeholder) {
-        placeholder.innerHTML = '<p>Video Player Placeholder</p>';
-    }
-    spotifyModal.classList.add('hidden');
-    if (audioManagerRef) {
-        audioManagerRef.resumeBackgroundMusic();
-    }
-    if (adTimeout) {
-        clearTimeout(adTimeout);
-        adTimeout = null;
-    }
+    // This function is now obsolete as the ad plays in-panel.
+    // Kept for legacy event listeners, but does nothing.
 }
 
 function toggleDevLogModal() {
-    if (!isGameRunning || !devLogger.isActive) return;
+    if (!menuManager.isGameRunning || !devLogger.isActive) return;
     devLogModal.classList.toggle('hidden');
     // Populate the log when it's opened
     if (!devLogModal.classList.contains('hidden')) {
@@ -177,24 +185,72 @@ function toggleDevLogModal() {
     }
 }
 
-const CHANGELOG_FILE = '0changelog.md';
-
 async function toggleChangelogModal() {
     changelogModal.classList.toggle('hidden');
     if (!changelogModal.classList.contains('hidden')) {
         if (changelogOutput.dataset.loaded !== 'true') {
+            changelogOutput.textContent = 'Loading...';
             try {
-                const response = await fetch(CHANGELOG_FILE);
+                // Fetch both changelogs concurrently
+                const [recentResponse, oldResponse] = await Promise.all([
+                    fetch(CHANGELOG_FILE).catch(e => { console.warn(`Could not load ${CHANGELOG_FILE}`, e); return null; }),
+                    fetch(OLD_CHANGELOG_FILE).catch(e => { console.warn(`Could not load ${OLD_CHANGELOG_FILE}`, e); return null; })
+                ]);
+
+                let recentText = recentResponse && recentResponse.ok ? await recentResponse.text() : `Error loading ${CHANGELOG_FILE}.`;
+                let oldText = oldResponse && oldResponse.ok ? await oldResponse.text() : ``; // Don't show error if old log is missing
+
+                let fullText = recentText;
+                if (oldText) {
+                    fullText += `\n\n<hr>\n\n${oldText}`;
+                }
+
+                if (maxChangelogLines > 0) {
+                    const lines = fullText.split('\n');
+                    if (lines.length > maxChangelogLines) {
+                        fullText = lines.slice(0, maxChangelogLines).join('\n') + `\n\n... (and more)`;
+                    }
+                }
+                
+                let processedText = fullText.replace(/<hr>/g, '<hr style="border-top: 1px solid #555c6e; margin: 20px 0;">');
+
+                if (changelogTimestampConfig.enabled) {
+                    const replacement = `<span style="color:${changelogTimestampConfig.color}">${changelogTimestampConfig.prefix}$1${changelogTimestampConfig.suffix}</span>`;
+                    processedText = processedText.replace(changelogTimestampConfig.regex, replacement);
+                }
+
+                changelogOutput.innerHTML = processedText; // Use innerHTML to render the spans and hr
+                changelogOutput.dataset.loaded = 'true';
+            } catch (error) {
+                console.error('Failed to fetch changelogs:', error);
+                changelogOutput.textContent = 'Error loading changelogs.';
+            }
+        }
+    }
+}
+
+async function toggleManualModal() {
+    manualModal.classList.toggle('hidden');
+    if (!manualModal.classList.contains('hidden')) {
+        if (manualOutput.dataset.loaded !== 'true') {
+            try {
+                const response = await fetch(MANUAL_FILE);
                 if (response.ok) {
-                    const text = await response.text();
-                    changelogOutput.textContent = text;
-                    changelogOutput.dataset.loaded = 'true';
+                    let text = await response.text();
+                    if (maxManualLines > 0) {
+                        const lines = text.split('\n');
+                        if (lines.length > maxManualLines) {
+                            text = lines.slice(0, maxManualLines).join('\n') + `\n\n... (and more)`;
+                        }
+                    }
+                    manualOutput.textContent = text;
+                    manualOutput.dataset.loaded = 'true';
                 } else {
-                    changelogOutput.textContent = 'Error loading changelog.';
+                    manualOutput.textContent = 'Error loading manual.';
                 }
             } catch (error) {
-                console.error(`Failed to fetch ${CHANGELOG_FILE}:`, error);
-                changelogOutput.textContent = 'Error loading changelog.';
+                console.error(`Failed to fetch ${MANUAL_FILE}:`, error);
+                manualOutput.textContent = 'Error loading manual.';
             }
         }
     }
@@ -204,99 +260,21 @@ export function initUI(commandExecutor, startGameCallback, audioManager, getGrid
     resourceDisplay.init();
     selectionInfoDisplay.init();
     commandCard.init(commandExecutor);
-    messageDisplay.init();
+    messageDisplay.init(audioManager);
     compass.init(getCamera);
+    menuManager.init({
+        onStartGame: startGameCallback,
+        audioManager: audioManager,
+        getGridHelper: getGridHelper,
+    });
+    modalManager.init(menuManager);
 
     // Store references
-    onStartGame = startGameCallback;
-    audioManagerRef = audioManager;
-    gridHelperRef = getGridHelper;
-    keyStateRef = getKeyState;
     commandExecutorRef = commandExecutor;
-    cameraGetter = getCamera;
-
-    // --- Find all UI elements ---
-    startScreen = document.getElementById('start-screen');
-    mobileControlsCheckbox = document.getElementById('enable-mobile-controls-checkbox');
-    devModeCheckbox = document.getElementById('enable-dev-mode-checkbox');
-    mainMenu = document.getElementById('main-menu');
-    optionsMenu = document.getElementById('options-menu');
-    optionsButton = document.getElementById('options-button');
-    backButton = document.getElementById('back-button');
-    bgmVolumeSlider = document.getElementById('bgm-volume-slider');
-    sfxVolumeSlider = document.getElementById('sfx-volume-slider');
-
-    ingameOptionsOverlay = document.getElementById('ingame-options-overlay');
-    resumeButton = document.getElementById('resume-button');
-    quitButton = document.getElementById('quit-button');
-    toggleGridButton = document.getElementById('toggle-grid-button');
-    ingameBgmVolumeSlider = document.getElementById('ingame-bgm-volume-slider');
-    ingameSfxVolumeSlider = document.getElementById('ingame-sfx-volume-slider');
-
-    spotifyModal = document.getElementById('spotify-modal');
-    closeSpotifyModalButton = document.getElementById('close-spotify-modal');
-    
-    devLogModal = document.getElementById('dev-log-modal');
-    closeDevLogModalButton = document.getElementById('close-dev-log-modal');
-    clearDevLogButton = document.getElementById('clear-dev-log-button');
-
-    changelogModal = document.getElementById('changelog-modal');
-    changelogButton = document.getElementById('changelog-button');
-    closeChangelogModalButton = document.getElementById('close-changelog-modal');
-    changelogOutput = document.getElementById('changelog-output');
-
-    // --- Attach Event Listeners ---
-    const startButton = startScreen.querySelector('#start-button');
-    if (startButton) {
-        startButton.addEventListener('click', onStartGame, { once: true });
-    }
-    window.addEventListener('keydown', (e) => {
-        if (startScreen && !startScreen.classList.contains('hidden')) {
-            onStartGame();
-        }
-    }, { once: true });
-
-    optionsButton.addEventListener('click', () => {
-        mainMenu.classList.add('hidden');
-        optionsMenu.classList.remove('hidden');
-    });
-
-    changelogButton.addEventListener('click', toggleChangelogModal);
-
-    backButton.addEventListener('click', () => {
-        optionsMenu.classList.add('hidden');
-        mainMenu.classList.remove('hidden');
-    });
-
-    bgmVolumeSlider.addEventListener('input', (e) => audioManagerRef.setBgmVolume(e.target.value));
-    sfxVolumeSlider.addEventListener('input', (e) => audioManagerRef.setSfxVolume(e.target.value));
-
-    resumeButton.addEventListener('click', togglePause);
-    quitButton.addEventListener('click', () => window.location.reload());
-    toggleGridButton.addEventListener('click', toggleGrid);
-    
-    ingameBgmVolumeSlider.addEventListener('input', (e) => {
-        audioManagerRef.setBgmVolume(e.target.value);
-        bgmVolumeSlider.value = e.target.value;
-    });
-    ingameSfxVolumeSlider.addEventListener('input', (e) => {
-        audioManagerRef.setSfxVolume(e.target.value);
-        sfxVolumeSlider.value = e.target.value;
-    });
-
-    closeSpotifyModalButton.addEventListener('click', hideVideoAd);
-    closeDevLogModalButton.addEventListener('click', toggleDevLogModal);
-    clearDevLogButton.addEventListener('click', () => devLogger.clearLogs());
-    closeChangelogModalButton.addEventListener('click', toggleChangelogModal);
-    changelogModal.addEventListener('click', (event) => {
-        if (closeChangelogOnClickOutside && event.target === changelogModal) {
-            toggleChangelogModal();
-        }
-    });
 
     // --- Global Hotkeys ---
     window.addEventListener('keydown', (e) => {
-        if (!isGameRunning || isPaused) return;
+        if (!menuManager.isGameRunning || menuManager.isPaused) return;
 
         // Find the command associated with the hotkey for the current selection
         const firstSelected = commandCard.currentCommandObject;
@@ -309,31 +287,16 @@ export function initUI(commandExecutor, startGameCallback, audioManager, getGrid
             }
         }
     });
-
-    window.addEventListener('keyup', (e) => {
-        if (!isGameRunning) return;
-        
-        switch (e.code) {
-            case 'Backquote':
-                togglePause();
-                break;
-            case 'Backslash':
-                if (devLogger.isActive) {
-                    toggleDevLogModal();
-                }
-                break;
-        }
-    });
 }
 
 export function hideStartScreen() {
-    if (startScreen) startScreen.classList.add('hidden');
+    menuManager.hideStartScreen();
 }
 
 export function setGameRunning(running) {
-    isGameRunning = running;
+    menuManager.setGameRunning(running);
     if (running) {
-        setupVideoPanel(); // Set up the looping video when the game starts
+        messageDisplay.setupVideoPanel(); // Set up the looping video when the game starts
     }
 }
 
@@ -342,16 +305,6 @@ export function updatePlacementText(message) {
 }
 
 export function updateStatusText(message) {
-    const lower = message.toLowerCase();
-    if (audioManagerRef) {
-        if (lower.includes('not enough minerals') && audioManagerRef.mineralsWarningSoundName) {
-            audioManagerRef.playSound(audioManagerRef.mineralsWarningSoundName);
-        } else if (lower.includes('not enough vespene') && audioManagerRef.gasWarningSoundName) {
-            audioManagerRef.playSound(audioManagerRef.gasWarningSoundName);
-        } else if (lower.includes('additional supply required') && audioManagerRef.supplyWarningSoundName) {
-            audioManagerRef.playSound(audioManagerRef.supplyWarningSoundName);
-        }
-    }
     messageDisplay.updateStatusText(message);
 }
 
@@ -363,3 +316,7 @@ export function updateUI(selectedObjects, gameState) {
     commandCard.update(firstObject, gameState);
     compass.update();
 }
+
+// Export state getters from MenuManager for other modules to use
+export const isPaused = () => menuManager.isPaused;
+export const isGameRunning = () => menuManager.isGameRunning;

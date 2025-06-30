@@ -7,9 +7,9 @@ import { initEffects, createMoveIndicator } from './effects.js';
 import { initLoop } from './loop.js';
 import { gameState } from './gameState.js';
 import { setupControls, getSelectedObjects } from './controls.js';
-import { AudioManager } from '../utils/audio.js';
+import { audioManager } from '../utils/audio.js';
 import { assetManager } from '../utils/asset-manager.js';
-import { initUI, updateStatusText, updatePlacementText, hideStartScreen, setGameRunning, isPaused, isGameRunning } from './ui.js';
+import { initUI, updateStatusText, updatePlacementText, hideStartScreen, setGameRunning, isPaused } from './ui.js';
 import { init as initMinimap, setMapSize as setMinimapSize } from './minimap.js';
 import { preloadAssets } from './preloader.js';
 import { initCameraController, updateCamera } from './cameraController.js';
@@ -29,7 +29,6 @@ let mineralFields = [];
 let vespeneGeysers = [];
 let selectables = [];
 let collidableObjects = [];
-const audioManager = new AudioManager();
 const keyState = {};
 let gameContainer;
 let devModeActive = false;
@@ -205,7 +204,7 @@ async function startGame() {
         spawnUnit: spawnUnitCallback,
         spawnBuilding,
         updateCamera,
-        get isPaused() { return isPaused; }
+        isPaused, // Pass the function directly, not a getter
     };
 
     initLoop(loopDeps);
@@ -214,7 +213,7 @@ async function startGame() {
     audioManager.playBackgroundMusic();
 
     units.forEach(unit => {
-        if ((unit.isFlying || unit.name === 'Vulture') && unit.selectionIndicator) {
+        if ((unit.isFlying || unit.name === 'Vulture' || unit.name === 'Probe') && unit.selectionIndicator) {
             scene.add(unit.selectionIndicator);
         }
     });
@@ -234,7 +233,7 @@ async function startGame() {
 
 function spawnUnitCallback(unitType, position) {
     const unit = spawnUnit(unitType, position);
-    if (unit && (unit.isFlying || unit.name === 'Vulture') && unit.selectionIndicator) {
+    if (unit && (unit.isFlying || unit.name === 'Vulture' || unit.name === 'Probe') && unit.selectionIndicator) {
         scene.add(unit.selectionIndicator);
     }
     return unit;

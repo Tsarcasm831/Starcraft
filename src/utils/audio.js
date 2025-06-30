@@ -46,6 +46,7 @@ export class AudioManager {
         try {
             audioBuffer = assetManager.get(name);
         } catch (error) {
+            console.warn(`Could not play sound, asset not found: ${name}`, error);
             return; // Asset not found or not pre-loaded
         }
 
@@ -64,6 +65,23 @@ export class AudioManager {
         source.start(0);
     }
     
+    playUnitSound(units, actionType, probability = 1.0) {
+        if (!units || units.length === 0) return false;
+        if (Math.random() > probability) return false;
+
+        // Pick a random unit from the selection to make a sound
+        const unit = units[Math.floor(Math.random() * units.length)];
+        
+        if (unit.sounds && unit.sounds[actionType] && unit.sounds[actionType].length > 0) {
+            const soundNames = unit.sounds[actionType];
+            const soundName = soundNames[Math.floor(Math.random() * soundNames.length)];
+            this.playSound(soundName);
+            return true;
+        }
+
+        return false;
+    }
+
     resumeContext() {
         assetManager.resumeAudioContext();
     }
@@ -180,3 +198,5 @@ export class AudioManager {
         this.playBackgroundMusic();
     }
 }
+
+export const audioManager = new AudioManager();

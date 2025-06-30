@@ -20,8 +20,26 @@ export async function preloadAssets(audioManager) {
     tasks.push(() => assetManager.loadGLB('assets/models/science_facility.glb', 'science_facility'));
     tasks.push(() => assetManager.loadGLB('assets/models/control_tower.glb', 'control_tower'));
     tasks.push(() => assetManager.loadGLB('assets/models/physics_lab.glb', 'physics_lab'));
+    tasks.push(() => assetManager.loadGLB('assets/models/protoss/zealot.glb', 'protoss_zealot'));
+    tasks.push(() => assetManager.loadGLB('assets/models/protoss/probe.glb', 'protoss_probe'));
+    tasks.push(() => assetManager.loadGLB('assets/models/protoss/adept.glb', 'protoss_adept'));
+    tasks.push(() => assetManager.loadGLB('assets/models/protoss/stalker.glb', 'protoss_stalker'));
+    tasks.push(() => assetManager.loadGLB('assets/models/protoss/dragoon.glb', 'protoss_dragoon'));
     tasks.push(() => assetManager.loadSound('assets/audio/select.mp3', 'select'));
     tasks.push(() => assetManager.loadSound('assets/audio/move.mp3', 'move'));
+
+    // Preload unit data files
+    const unitDataPaths = [
+        'assets/data/protoss/zealot.json',
+        'assets/data/protoss/probe.json',
+        'assets/data/protoss/adept.json',
+        'assets/data/protoss/stalker.json',
+        'assets/data/protoss/dragoon.json',
+    ];
+    unitDataPaths.forEach(path => {
+        const name = `unit_${path.split('/').pop().replace('.json', '')}`;
+        tasks.push(() => assetManager.loadJSON(path, name));
+    });
 
     // Preload command card icons
     const iconPaths = [
@@ -84,6 +102,11 @@ export async function preloadAssets(audioManager) {
         'assets/images/lockdown_icon.png',
         'assets/images/nuke_strike_icon.png',
         'assets/images/train_ghost_icon.png',
+        'assets/images/protoss/train_zealot_icon.png',
+        'assets/images/protoss/train_probe_icon.png',
+        'assets/images/protoss/train_adept_icon.png',
+        'assets/images/protoss/train_stalker_icon.png',
+        'assets/images/protoss/train_dragoon_icon.png',
     ];
 
     iconPaths.forEach(path => {
@@ -101,6 +124,11 @@ export async function preloadAssets(audioManager) {
         'assets/images/science_facility_portrait.png',
         'assets/images/control_tower_portrait.png',
         'assets/images/physics_lab_portrait.png',
+        'assets/images/protoss/zealot_portrait.png',
+        'assets/images/protoss/probe_portrait.png',
+        'assets/images/protoss/adept_portrait.png',
+        'assets/images/protoss/stalker_portrait.png',
+        'assets/images/protoss/dragoon_portrait.png',
     ];
     portraitPaths.forEach(path => {
         const name = path.split('/').pop().replace('.png', '');

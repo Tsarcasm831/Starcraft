@@ -106,6 +106,10 @@ export class MineralField {
         const adjustedBox = new THREE.Box3().setFromObject(model);
         model.position.y -= adjustedBox.min.y;
 
+        /** @tweakable An additional vertical offset for the mineral field model to fine-tune its position on the ground. */
+        const modelYOffset = 0.0;
+        model.position.y += modelYOffset;
+
         model.traverse(child => {
             if (child.isMesh) {
                 child.castShadow = true;

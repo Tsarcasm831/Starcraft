@@ -13,7 +13,10 @@ export async function addExtraPreloadTasks(tasks) {
             if (!Array.isArray(urls)) return;
             urls.forEach(url => {
                 const base = url.split('/').pop().split('?')[0];
-                const name = `extra_${base.replace('.' + ext, '')}`;
+                let name = `extra_${base.replace('.' + ext, '')}`;
+                if (base === 'scan.mp4') {
+                   name = 'ad_video'; // Special case for our ad video
+                }
                 tasks.push(() => loader.call(assetManager, url, name));
             });
         };
@@ -26,3 +29,4 @@ export async function addExtraPreloadTasks(tasks) {
         console.warn('Failed to load extra asset manifest', e);
     }
 }
+

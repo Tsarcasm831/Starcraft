@@ -1,6 +1,12 @@
 import * as THREE from 'three';
 import { FlyingBuildingBehavior } from './flying-building-behavior.js';
 
+/** @tweakable Hotkeys for Engineering Bay upgrades */
+const engineeringBayHotkeys = {
+    upgradeWeapons: 'E',
+    upgradeArmor: 'R',
+};
+
 export class EngineeringBay {
     constructor(position, { isUnderConstruction = false, buildTime = 37.8, onStateChange = () => {} } = {}) {
         this.name = 'Engineering Bay';
@@ -111,7 +117,7 @@ export class EngineeringBay {
             if (weaponLevel < 3) {
                 newCommands[0] = {
                     command: `research_infantry_weapons_${weaponLevel + 1}`,
-                    hotkey: 'W',
+                    hotkey: engineeringBayHotkeys.upgradeWeapons,
                     icon: 'assets/images/upgrade_infantry_weapons_icon.png',
                     name: `Upgrade Infantry Weapons (Lvl ${weaponLevel + 1})`,
                     cost: { minerals: 100 * (weaponLevel + 1), vespene: 100 * (weaponLevel + 1) },
@@ -122,7 +128,7 @@ export class EngineeringBay {
             if (armorLevel < 3) {
                 newCommands[1] = {
                     command: `research_infantry_armor_${armorLevel + 1}`,
-                    hotkey: 'A',
+                    hotkey: engineeringBayHotkeys.upgradeArmor,
                     icon: 'assets/images/upgrade_infantry_armor_icon.png',
                     name: `Upgrade Infantry Armor (Lvl ${armorLevel + 1})`,
                     cost: { minerals: 100 * (armorLevel + 1), vespene: 100 * (armorLevel + 1) },

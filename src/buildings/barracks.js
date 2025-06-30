@@ -138,7 +138,7 @@ export class Barracks {
         if (this.state === 'grounded') {
             newCommands[0] = {
                 command: 'train_marine',
-                hotkey: 'A',
+                hotkey: 'M',
                 icon: 'assets/images/train_marine_icon.png',
                 name: 'Train Marine',
                 cost: { minerals: 50, supply: 1 },

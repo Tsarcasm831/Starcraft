@@ -8,6 +8,9 @@ import { devLogger } from '../utils/dev-logger.js';
 const clock = new THREE.Clock();
 let deps;
 
+/** @tweakable The maximum delta time allowed per frame. Helps prevent physics glitches on lag spikes. */
+const maxDeltaTime = 0.05;
+
 export function initLoop(_deps) {
     deps = _deps;
     animate();
@@ -16,12 +19,12 @@ export function initLoop(_deps) {
 function animate() {
     requestAnimationFrame(animate);
 
-    const { isPaused } = deps;
+    const isPaused = deps.isPaused();
     if (isPaused) {
         return; // Skip game logic updates if paused
     }
 
-    const delta = clock.getDelta();
+    const delta = Math.min(clock.getDelta(), maxDeltaTime);
     devLogger.log('Loop', `Frame delta: ${delta.toFixed(4)}s`);
     const { scene, camera, renderer, buildings, units, vespeneGeysers, gameState, pathfinder, spawnUnit, spawnBuilding, updateCamera } = deps;
 

@@ -2,6 +2,11 @@ import * as THREE from 'three';
 import { AddonBehavior } from './addon-behavior.js';
 import { assetManager } from '../utils/asset-manager.js';
 
+/** @tweakable Hotkeys for Science Facility research commands */
+const scienceFacilityHotkeys = {
+    researchEmpShockwave: 'E',
+};
+
 export class ScienceFacility {
     constructor(position, { isUnderConstruction = false, buildTime = 60, onStateChange = () => {} } = {}) {
         this.name = 'Science Facility';
@@ -67,7 +72,7 @@ export class ScienceFacility {
              // Example research, can be expanded
              commandList[0] = {
                  command: 'research_emp_shockwave',
-                 hotkey: 'E',
+                 hotkey: scienceFacilityHotkeys.researchEmpShockwave,
                  icon: 'assets/images/emp_shockwave_icon.png',
                  name: 'Research EMP Shockwave',
                  cost: { minerals: 150, vespene: 150 },
@@ -124,10 +129,14 @@ export class ScienceFacility {
             model.scale.set(scale, scale, scale);
         }
 
+        /** @tweakable additional vertical offset for the science facility model */
+        const modelYOffset = 0;
+
         // Shift the model so its lowest point aligns with the ground. Without
         // this, models whose pivot is centered appear half buried.
         const adjustedBox = new THREE.Box3().setFromObject(model);
         model.position.y -= adjustedBox.min.y;
+        model.position.y += modelYOffset;
 
         model.traverse(child => {
             if (child.isMesh) {

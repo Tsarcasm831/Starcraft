@@ -5,6 +5,7 @@ import { ScienceVessel } from '../../units/science-vessel.js';
 
 let unitPortraitPanel, portraitImg, unitCountOverlay, healthBarFill, unitHealthText, unitName;
 let energyBarContainer, energyBarFill, unitEnergyText;
+let shieldBarContainer, shieldBarFill, unitShieldText;
 
 export class SelectionInfoDisplay {
     init() {
@@ -17,6 +18,9 @@ export class SelectionInfoDisplay {
         energyBarContainer = document.querySelector('.energy-bar-container');
         energyBarFill = document.getElementById('energy-bar-fill');
         unitEnergyText = document.getElementById('unit-energy-text');
+        shieldBarContainer = document.querySelector('.shield-bar-container');
+        shieldBarFill = document.getElementById('shield-bar-fill');
+        unitShieldText = document.getElementById('unit-shield-text');
     }
 
     update(selectedObjects) {
@@ -70,6 +74,16 @@ export class SelectionInfoDisplay {
         } else {
             statusBarContainer.style.display = 'none';
             unitHealthText.textContent = '';
+        }
+
+        // Shield Bar for units that have shields (e.g. Protoss)
+        if (firstObject.maxShields > 0) {
+            const shieldPercent = (firstObject.currentShields / firstObject.maxShields) * 100;
+            shieldBarContainer.style.display = 'block';
+            shieldBarFill.style.width = `${shieldPercent}%`;
+            unitShieldText.textContent = `${Math.floor(firstObject.currentShields)} / ${firstObject.maxShields}`;
+        } else {
+            shieldBarContainer.style.display = 'none';
         }
 
         // Energy Bar display for units that have it (e.g. Comsat, Medic)

@@ -2,13 +2,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StarCraft Clone v0.406</title>
+    <title>StarCraft Clone v0.4.17</title>
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/overlay.css">
     <link rel="stylesheet" href="assets/css/menu.css">
     <link rel="stylesheet" href="assets/css/modals.css">
     <style>
-        #start-button:active, #options-button:active, #back-button:active, #changelog-button:active {
+        #start-button:active, #options-button:active, #back-button:active, #changelog-button:active, #manual-button:active {
             transform: scale(0.98);
         }
 
@@ -45,6 +45,7 @@
             <div id="main-menu">
                 <div id="start-button">Click to Start</div>
                 <div id="options-button">Options</div>
+                <div id="manual-button">Manual</div>
                 <div id="changelog-button">Changelog</div>
             </div>
         </div>
@@ -66,6 +67,7 @@
                 <label for="sfx-volume-slider">SFX Volume</label>
                 <input type="range" id="sfx-volume-slider" min="0" max="1" step="0.01" value="1.0">
             </div>
+            <div id="archive-changelog-button">Archive Old Logs</div>
             <div id="back-button">Back</div>
         </div>
     </div>
@@ -107,7 +109,10 @@
                     <div id="unit-count-overlay"></div>
                 </div>
                 <div id="unit-status">
-                    <!-- Shield bar can be added here if needed -->
+                     <div class="status-bar-container shield-bar-container" style="display: none;">
+                        <div class="status-bar shield-bar"><div id="shield-bar-fill"></div></div>
+                        <div id="unit-shield-text"></div>
+                    </div>
                     <div class="status-bar-container">
                         <div class="status-bar health-bar"><div id="health-bar-fill"></div></div>
                         <div id="unit-health-text"></div>
@@ -160,17 +165,6 @@
         </div>
     </div>
 
-    <div id="spotify-modal" class="hidden">
-        <div class="spotify-modal-content">
-            <button id="close-spotify-modal" class="close-button">&times;</button>
-            <h2>Advertisement Break</h2>
-            <p>Enjoy this short video while the game resumes shortly.</p>
-            <div id="spotify-player-placeholder">
-                <p>Video Player Placeholder</p>
-            </div>
-        </div>
-    </div>
-
     <div id="dev-log-modal" class="hidden">
         <div class="dev-log-content">
             <button id="close-dev-log-modal" class="close-button">&times;</button>
@@ -182,6 +176,25 @@
 
     <div id="grid-labels-container"></div>
 
+    <div id="manual-modal" class="hidden">
+        <div class="manual-content">
+            <button id="close-manual-modal" class="close-button">&times;</button>
+            <div class="manual-tabs">
+                <button id="manual-tab-button" class="manual-tab active">Manual</button>
+                <button id="assets-tab-button" class="manual-tab">Assets</button>
+            </div>
+            <div id="manual-tab-content" class="manual-tab-pane active">
+                <pre id="manual-output">Loading...</pre>
+            </div>
+            <div id="assets-tab-content" class="manual-tab-pane">
+                 <div id="asset-list-container">
+                    <h3 id="asset-list-title">Generated Assets</h3>
+                    <div id="asset-list">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="changelog-modal" class="hidden">
         <div class="changelog-content">
             <button id="close-changelog-modal" class="close-button">&times;</button>
@@ -190,7 +203,6 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.1/nipplejs.min.js"></script>
     <script type="importmap">
     {
         "imports": {

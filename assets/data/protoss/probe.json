@@ -1,0 +1,11 @@
+{
+    "stats": {
+        "health": 20,
+        "shields": 20,
+        "armor": 0,
+        "speed": 4.5,
+        "gatherTime": 2.0,
+        "carryCapacity": 8
+    }
+}
+

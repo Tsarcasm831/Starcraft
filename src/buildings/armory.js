@@ -1,5 +1,14 @@
 import * as THREE from 'three';
 
+/** @tweakable Hotkeys for Armory research commands */
+const armoryHotkeys = {
+    researchCharonBoosters: 'C',
+    researchVehicleWeapons: 'V',
+    researchVehicleArmor: 'E',
+    researchShipWeapons: 'I',
+    researchShipArmor: 'R',
+};
+
 export class Armory {
     constructor(position, { isUnderConstruction = false, buildTime = 50.4 } = {}) {
         this.name = 'Armory';
@@ -95,7 +104,7 @@ export class Armory {
         if (!gameState.upgrades.charonBoosters) {
             newCommands[0] = {
                 command: 'research_charon_boosters',
-                hotkey: 'C',
+                hotkey: armoryHotkeys.researchCharonBoosters,
                 icon: 'assets/images/charon_boosters_icon.png',
                 name: 'Charon Boosters',
                 cost: { minerals: 100, vespene: 100 },
@@ -111,7 +120,7 @@ export class Armory {
         if (vehicleWeaponLevel < 3) {
             newCommands[1] = {
                 command: `research_vehicle_weapons_${vehicleWeaponLevel + 1}`,
-                hotkey: 'V',
+                hotkey: armoryHotkeys.researchVehicleWeapons,
                 icon: 'assets/images/upgrade_infantry_weapons_icon.png',
                 name: `Upgrade Vehicle Weapons (Lvl ${vehicleWeaponLevel + 1})`,
                 cost: { minerals: 100 * (vehicleWeaponLevel + 1), vespene: 100 * (vehicleWeaponLevel + 1) },
@@ -122,7 +131,7 @@ export class Armory {
         if (vehicleArmorLevel < 3) {
             newCommands[2] = {
                 command: `research_vehicle_armor_${vehicleArmorLevel + 1}`,
-                hotkey: 'A',
+                hotkey: armoryHotkeys.researchVehicleArmor,
                 icon: 'assets/images/upgrade_infantry_armor_icon.png',
                 name: `Upgrade Vehicle Armor (Lvl ${vehicleArmorLevel + 1})`,
                 cost: { minerals: 100 * (vehicleArmorLevel + 1), vespene: 100 * (vehicleArmorLevel + 1) },
@@ -133,7 +142,7 @@ export class Armory {
         if (shipWeaponLevel < 3) {
             newCommands[3] = {
                 command: `research_ship_weapons_${shipWeaponLevel + 1}`,
-                hotkey: 'S',
+                hotkey: armoryHotkeys.researchShipWeapons,
                 icon: 'assets/images/upgrade_infantry_weapons_icon.png',
                 name: `Upgrade Ship Weapons (Lvl ${shipWeaponLevel + 1})`,
                 cost: { minerals: 100 * (shipWeaponLevel + 1), vespene: 100 * (shipWeaponLevel + 1) },
@@ -144,7 +153,7 @@ export class Armory {
         if (shipArmorLevel < 3) {
             newCommands[4] = {
                 command: `research_ship_armor_${shipArmorLevel + 1}`,
-                hotkey: 'R',
+                hotkey: armoryHotkeys.researchShipArmor,
                 icon: 'assets/images/upgrade_infantry_armor_icon.png',
                 name: `Upgrade Ship Armor (Lvl ${shipArmorLevel + 1})`,
                 cost: { minerals: 100 * (shipArmorLevel + 1), vespene: 100 * (shipArmorLevel + 1) },

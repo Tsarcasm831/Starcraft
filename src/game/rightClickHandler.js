@@ -10,6 +10,7 @@ import { Dropship } from '../units/dropship.js';
 import { Infantry } from '../units/infantry.js';
 import { devLogger } from '../utils/dev-logger.js';
 import { getGroundMeshes } from '../utils/terrain.js';
+import { audioManager } from '../utils/audio.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -64,11 +65,18 @@ function assignGatherersToResource(gatherers, resource) {
     });
 }
 
+/** @tweakable The chance (0 to 1) that a unit will play a sound when given a move command. */
+const unitMoveAckProbability = 0.8;
+
 function handleMoveCommand(unitsToMove, targetPosition) {
     if (!unitsToMove || unitsToMove.length === 0 || !targetPosition) return;
     
     devLogger.log('RightClickHandler', `Issuing move command to ${unitsToMove.length} units to ${targetPosition.x.toFixed(1)}, ${targetPosition.z.toFixed(1)}.`);
-    onMoveSound();
+    
+    const playedUnitSound = audioManager.playUnitSound(unitsToMove, 'move', unitMoveAckProbability);
+    if (!playedUnitSound) {
+        onMoveSound();
+    }
     
     createMoveIndicator(targetPosition);
     

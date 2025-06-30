@@ -30,6 +30,11 @@ import { getTerrainHeight } from '../utils/terrain.js';
 import { Valkyrie } from '../units/valkyrie.js';
 import { Battlecruiser } from '../units/battlecruiser.js';
 import { PhysicsLab } from '../buildings/physics-lab.js';
+import { Zealot } from '../protoss/zealot.js';
+import { Probe } from '../protoss/probe.js';
+import { Adept } from '../protoss/adept.js';
+import { Stalker } from '../protoss/stalker.js';
+import { Dragoon } from '../protoss/dragoon.js';
 
 let deps;
 
@@ -124,6 +129,26 @@ export function spawnUnit(unitType, position) {
         case 'Ghost':
             unit = new Ghost(spawnPos);
             gameState.supplyUsed += 1;
+            break;
+        case 'Zealot':
+            unit = new Zealot(spawnPos);
+            gameState.supplyUsed += 2;
+            break;
+        case 'Probe':
+            unit = new Probe(spawnPos);
+            gameState.supplyUsed += 1;
+            break;
+        case 'Adept':
+            unit = new Adept(spawnPos);
+            gameState.supplyUsed += 2;
+            break;
+        case 'Stalker':
+            unit = new Stalker(spawnPos);
+            gameState.supplyUsed += 2;
+            break;
+        case 'Dragoon':
+            unit = new Dragoon(spawnPos);
+            gameState.supplyUsed += 2;
             break;
         case 'Wraith':
             unit = new Wraith(spawnPos);

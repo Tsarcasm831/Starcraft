@@ -29,6 +29,12 @@ import { ControlTower } from '../buildings/control-tower.js';
 import { Valkyrie } from '../units/valkyrie.js';
 import { Battlecruiser } from '../units/battlecruiser.js';
 import { PhysicsLab } from '../buildings/physics-lab.js';
+import { Zealot } from '../protoss/zealot.js';
+import { Probe } from '../protoss/probe.js';
+import { Adept } from '../protoss/adept.js';
+import { Stalker } from '../protoss/stalker.js';
+import { Dragoon } from '../protoss/dragoon.js';
+import { audioManager } from '../utils/audio.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -37,6 +43,9 @@ let selectedObjects = [];
 let onSelectSound;
 let allSelectables = [];
 let rendererDomElement, camera;
+
+/** @tweakable The chance (0 to 1) that a unit will play a sound when selected. */
+const unitSelectAckProbability = 1.0;
 
 export function initSelection(deps) {
     onSelectSound = deps.onSelectSound;
@@ -57,8 +66,12 @@ function changeSelection(newSelection) {
              obj.select();
         }
     });
-    if (selectedObjects.length > 0 && onSelectSound) {
-        onSelectSound();
+
+    if (selectedObjects.length > 0) {
+        const playedUnitSound = audioManager.playUnitSound(selectedObjects, 'select', unitSelectAckProbability);
+        if (!playedUnitSound && onSelectSound) {
+            onSelectSound();
+        }
     }
 }
 
@@ -124,6 +137,11 @@ export function handleBoxSelection(selectionBox) {
                 selectable instanceof ScienceVessel ||
                 selectable instanceof Valkyrie ||
                 selectable instanceof Battlecruiser ||
+                selectable instanceof Zealot ||
+                selectable instanceof Probe ||
+                selectable instanceof Adept ||
+                selectable instanceof Stalker ||
+                selectable instanceof Dragoon ||
                 selectable instanceof CommandCenter ||
                 selectable instanceof SupplyDepot ||
                 selectable instanceof Refinery ||

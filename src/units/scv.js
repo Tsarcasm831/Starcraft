@@ -2,6 +2,23 @@ import * as THREE from 'three';
 import { assetManager } from '../utils/asset-manager.js';
 import { SCVBase } from './scv-base.js';
 
+/** @tweakable Hotkeys for SCV commands. Change these values to customize keybinds. */
+const scvHotkeys = {
+    move: 'M',
+    stop: 'T', // Changed from S
+    hold: 'H',
+    patrol: 'P',
+    gather: 'G',
+    repair: 'R',
+    openBuildMenu: 'B',
+    cancelBuildMenu: 'Escape',
+    // Build menu hotkeys
+    buildCommandCenter: 'C',
+    buildSupplyDepot: 'U',
+    buildRefinery: 'R',
+    buildBarracks: 'B',
+};
+
 export class SCV extends SCVBase {
     constructor(position) {
         super(position);
@@ -17,6 +34,11 @@ export class SCV extends SCVBase {
         this._commands = [];
         this.buildingTarget = null;
         this.repairTarget = null;
+        
+        this.sounds = {
+            select: ['extra_scv_ack1', 'extra_scv_ack2'],
+            move: ['extra_SCV_move', 'extra_SCV_move2']
+        };
 
         this.mixer = null; // Animation mixer
 
@@ -51,19 +73,19 @@ export class SCV extends SCVBase {
         const commands = new Array(12).fill(null);
 
         if (this.commandMode === 'build') {
-            commands[0] = { command: 'build_command_center', hotkey: 'C', icon: 'assets/images/build_command_center_icon.png', name: 'Build Command Center', cost: { minerals: 400 }, buildTime: 75.6 };
-            commands[1] = { command: 'build_supply_depot', hotkey: 'S', icon: 'assets/images/build_supply_depot_icon.png', name: 'Build Supply Depot', cost: { minerals: 100 }, buildTime: 25.2 };
-            commands[2] = { command: 'build_refinery', hotkey: 'R', icon: 'assets/images/build_refinery_icon.png', name: 'Build Refinery', cost: { minerals: 100 }, buildTime: 25.2 };
-            commands[3] = { command: 'build_barracks', hotkey: 'B', icon: 'assets/images/build_barracks_icon.png', name: 'Build Barracks', cost: { minerals: 150 }, buildTime: 50.4 };
-            commands[11] = { command: 'cancel_build_menu', hotkey: 'Escape', icon: 'assets/images/stop_icon.png', name: 'Cancel' };
+            commands[0] = { command: 'build_command_center', hotkey: scvHotkeys.buildCommandCenter, icon: 'assets/images/build_command_center_icon.png', name: 'Build Command Center', cost: { minerals: 400 }, buildTime: 75.6 };
+            commands[1] = { command: 'build_supply_depot', hotkey: scvHotkeys.buildSupplyDepot, icon: 'assets/images/build_supply_depot_icon.png', name: 'Build Supply Depot', cost: { minerals: 100 }, buildTime: 25.2 };
+            commands[2] = { command: 'build_refinery', hotkey: scvHotkeys.buildRefinery, icon: 'assets/images/build_refinery_icon.png', name: 'Build Refinery', cost: { minerals: 100 }, buildTime: 25.2 };
+            commands[3] = { command: 'build_barracks', hotkey: scvHotkeys.buildBarracks, icon: 'assets/images/build_barracks_icon.png', name: 'Build Barracks', cost: { minerals: 150 }, buildTime: 50.4 };
+            commands[11] = { command: 'cancel_build_menu', hotkey: scvHotkeys.cancelBuildMenu, icon: 'assets/images/stop_icon.png', name: 'Cancel' };
         } else {
-            commands[0] = { command: 'move', hotkey: 'M', icon: 'assets/images/move_icon.png', name: 'Move' };
-            commands[1] = { command: 'stop', hotkey: 'S', icon: 'assets/images/stop_icon.png', name: 'Stop' };
-            commands[2] = { command: 'hold', hotkey: 'H', icon: 'assets/images/hold_position_icon.png', name: 'Hold Position' };
-            commands[3] = { command: 'patrol', hotkey: 'P', icon: 'assets/images/patrol_icon.png', name: 'Patrol' };
-            commands[4] = { command: 'gather', hotkey: 'G', icon: 'assets/images/gather_icon.png', name: 'Gather' };
-            commands[5] = { command: 'repair', hotkey: 'R', icon: 'assets/images/heal_icon.png', name: 'Repair' };
-            commands[6] = { command: 'open_build_menu', hotkey: 'B', icon: 'assets/images/build_basic_structures_icon.png', name: 'Build Structures' };
+            commands[0] = { command: 'move', hotkey: scvHotkeys.move, icon: 'assets/images/move_icon.png', name: 'Move' };
+            commands[1] = { command: 'stop', hotkey: scvHotkeys.stop, icon: 'assets/images/stop_icon.png', name: 'Stop' };
+            commands[2] = { command: 'hold', hotkey: scvHotkeys.hold, icon: 'assets/images/hold_position_icon.png', name: 'Hold Position' };
+            commands[3] = { command: 'patrol', hotkey: scvHotkeys.patrol, icon: 'assets/images/patrol_icon.png', name: 'Patrol' };
+            commands[4] = { command: 'gather', hotkey: scvHotkeys.gather, icon: 'assets/images/gather_icon.png', name: 'Gather' };
+            commands[5] = { command: 'repair', hotkey: scvHotkeys.repair, icon: 'assets/images/heal_icon.png', name: 'Repair' };
+            commands[6] = { command: 'open_build_menu', hotkey: scvHotkeys.openBuildMenu, icon: 'assets/images/build_basic_structures_icon.png', name: 'Build Structures' };
         }
 
         this._commands = commands;

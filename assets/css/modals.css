@@ -123,6 +123,30 @@
     background: #5a6a7a;
 }
 
+#archive-changelog-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background: #4a5a6a;
+    border: 1px solid #7a8a9a;
+    border-radius: 5px;
+    cursor: pointer;
+    text-shadow: 1px 1px 2px #000;
+    min-width: 200px;
+    text-align: center;
+    transition: background-color 0.2s, transform 0.1s;
+    margin-top: 10px;
+}
+
+#archive-changelog-button:hover {
+    background: #5a6a7a;
+}
+
+#archive-changelog-button:active {
+    transform: scale(0.98);
+}
+
+#manual-modal,
 #changelog-modal {
     position: fixed;
     top: 0;
@@ -137,6 +161,45 @@
     color: #eee;
 }
 
+.manual-tabs {
+    display: flex;
+    border-bottom: 1px solid #555c6e;
+    margin-bottom: 15px;
+}
+
+.manual-tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    color: #a7d1ff;
+    font-size: 16px;
+    border-bottom: 3px solid transparent;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.manual-tab:hover {
+    background-color: rgba(138, 207, 255, 0.1);
+}
+
+.manual-tab.active {
+    color: #fff;
+    font-weight: bold;
+    border-bottom-color: #a7d1ff;
+}
+
+.manual-tab-pane {
+    display: none;
+    flex-grow: 1;
+    overflow: hidden; /* Needed for child with overflow-y:scroll */
+    flex-direction: column; /* For children to fill height */
+}
+
+.manual-tab-pane.active {
+    display: flex;
+}
+
+.manual-content,
 .changelog-content {
     background-color: #1a1a22;
     padding: 20px;
@@ -151,12 +214,22 @@
     flex-direction: column;
 }
 
+#manual-content-container {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.manual-content h2,
 .changelog-content h2 {
     margin-top: 0;
+    margin-bottom: 15px;
     color: #a7d1ff;
     text-align: center;
 }
 
+#manual-output,
 #changelog-output {
     background-color: #0a0a0e;
     flex-grow: 1;
@@ -167,5 +240,64 @@
     white-space: pre-wrap;
     word-break: break-all;
     border: 1px solid #333;
+    /* @tweakable Adjust the line spacing in the changelog modal */
     line-height: 1.5;
+    flex-grow: 1;
+    min-height: 0; /* Fix for flexbox scroll */
+}
+
+#asset-list-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#asset-list-container h3 {
+    margin: 0 0 10px 0;
+    color: #a7d1ff;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+#asset-list {
+    background-color: #0a0a0e;
+    padding: 10px;
+    font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+    font-size: 12px;
+    border: 1px solid #333;
+    max-height: none;
+    overflow-y: scroll;
+    flex-grow: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-content: flex-start;
+}
+
+.asset-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+    text-align: center;
+    background-color: #1f1f28;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #333;
+}
+
+.asset-item img {
+    width: 64px;
+    height: 64px;
+    background-color: #0a0a0e;
+    border-radius: 3px;
+}
+
+.asset-item .asset-name {
+    margin-top: 5px;
+    font-size: 10px;
+    color: #a7d1ff;
+    word-break: break-all;
+    height: 2.5em; /* Reserve space for 2 lines of text */
+    overflow: hidden;
 }

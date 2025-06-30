@@ -8,6 +8,34 @@ const scv2AnimationConfig = {
     speedMultiplier: 1.0,
 };
 
+/** @tweakable Hotkeys for SCV Mark 2 commands. Change these values to customize keybinds. */
+const scv2Hotkeys = {
+    // Basic
+    move: 'M',
+    stop: 'T', // Changed from S
+    hold: 'H',
+    patrol: 'P',
+    gather: 'G',
+    repair: 'R',
+    openBuildMenu: 'B',
+    openAdvancedBuildMenu: 'V',
+    cancelBuildMenu: 'Escape',
+    // Basic Build
+    buildCommandCenter: 'C',
+    buildSupplyDepot: 'U', // Changed from S
+    buildRefinery: 'R',
+    buildBarracks: 'B',
+    buildEngBay: 'E',
+    buildAcademy: 'Y', // Changed from A
+    buildBunker: 'K',
+    buildMissileTurret: 'T',
+    // Advanced Build
+    buildFactory: 'F',
+    buildStarport: 'P', // Changed from S
+    buildArmory: 'R', // Changed from A
+    buildScienceFacility: 'C',
+};
+
 export class SCVMark2 extends SCVBase {
     constructor(position) {
         super(position);
@@ -69,21 +97,21 @@ export class SCVMark2 extends SCVBase {
         const commands = new Array(12).fill(null);
 
         if (this.commandMode === 'build') {
-            commands[0] = { command: 'build_command_center', hotkey: 'C', icon: 'assets/images/build_command_center_icon.png', name: 'Build Command Center', cost: { minerals: 400 }, buildTime: 75.6 };
-            commands[1] = { command: 'build_supply_depot', hotkey: 'S', icon: 'assets/images/build_supply_depot_icon.png', name: 'Build Supply Depot', cost: { minerals: 100 }, buildTime: 25.2 };
-            commands[2] = { command: 'build_refinery', hotkey: 'R', icon: 'assets/images/build_refinery_icon.png', name: 'Build Refinery', cost: { minerals: 100 }, buildTime: 25.2 };
-            commands[3] = { command: 'build_barracks', hotkey: 'B', icon: 'assets/images/build_barracks_icon.png', name: 'Build Barracks', cost: { minerals: 150 }, buildTime: 50.4 };
-            commands[4] = { command: 'build_engineering_bay', hotkey: 'E', icon: 'assets/images/build_engineering_bay_icon.png', name: 'Build Engineering Bay', cost: { minerals: 125 }, buildTime: 37.8 };
-            commands[5] = { command: 'build_academy', hotkey: 'A', icon: 'assets/images/build_academy_icon.png', name: 'Build Academy', cost: { minerals: 150 }, buildTime: 50.4, prereq: 'barracksBuilt' };
-            commands[6] = { command: 'build_bunker', hotkey: 'K', icon: 'assets/images/build_bunker_icon.png', name: 'Build Bunker', cost: { minerals: 100 }, buildTime: 18.9 };
+            commands[0] = { command: 'build_command_center', hotkey: scv2Hotkeys.buildCommandCenter, icon: 'assets/images/build_command_center_icon.png', name: 'Build Command Center', cost: { minerals: 400 }, buildTime: 75.6 };
+            commands[1] = { command: 'build_supply_depot', hotkey: scv2Hotkeys.buildSupplyDepot, icon: 'assets/images/build_supply_depot_icon.png', name: 'Build Supply Depot', cost: { minerals: 100 }, buildTime: 25.2 };
+            commands[2] = { command: 'build_refinery', hotkey: scv2Hotkeys.buildRefinery, icon: 'assets/images/build_refinery_icon.png', name: 'Build Refinery', cost: { minerals: 100 }, buildTime: 25.2 };
+            commands[3] = { command: 'build_barracks', hotkey: scv2Hotkeys.buildBarracks, icon: 'assets/images/build_barracks_icon.png', name: 'Build Barracks', cost: { minerals: 150 }, buildTime: 50.4 };
+            commands[4] = { command: 'build_engineering_bay', hotkey: scv2Hotkeys.buildEngBay, icon: 'assets/images/build_engineering_bay_icon.png', name: 'Build Engineering Bay', cost: { minerals: 125 }, buildTime: 37.8 };
+            commands[5] = { command: 'build_academy', hotkey: scv2Hotkeys.buildAcademy, icon: 'assets/images/build_academy_icon.png', name: 'Build Academy', cost: { minerals: 150 }, buildTime: 50.4, prereq: 'barracksBuilt' };
+            commands[6] = { command: 'build_bunker', hotkey: scv2Hotkeys.buildBunker, icon: 'assets/images/build_bunker_icon.png', name: 'Build Bunker', cost: { minerals: 100 }, buildTime: 18.9 };
             
-            commands[7] = { command: 'build_missile_turret', hotkey: 'T', icon: 'assets/images/build_missile_turret_icon.png', name: 'Build Missile Turret', cost: { minerals: 75 }, buildTime: 18.9, prereq: 'engineeringBayBuilt' };
+            commands[7] = { command: 'build_missile_turret', hotkey: scv2Hotkeys.buildMissileTurret, icon: 'assets/images/build_missile_turret_icon.png', name: 'Build Missile Turret', cost: { minerals: 75 }, buildTime: 18.9, prereq: 'engineeringBayBuilt' };
 
-            commands[11] = { command: 'cancel_build_menu', hotkey: 'Escape', icon: 'assets/images/stop_icon.png', name: 'Cancel' };
+            commands[11] = { command: 'cancel_build_menu', hotkey: scv2Hotkeys.cancelBuildMenu, icon: 'assets/images/stop_icon.png', name: 'Cancel' };
         } else if (this.commandMode === 'build_advanced') {
             commands[0] = {
                 command: 'build_factory',
-                hotkey: 'F',
+                hotkey: scv2Hotkeys.buildFactory,
                 icon: 'assets/images/build_factory_icon.png',
                 name: 'Build Factory',
                 cost: { minerals: 200, vespene: 100 },
@@ -92,7 +120,7 @@ export class SCVMark2 extends SCVBase {
             };
             commands[1] = {
                 command: 'build_starport',
-                hotkey: 'S',
+                hotkey: scv2Hotkeys.buildStarport,
                 icon: 'assets/images/build_starport_icon.png',
                 name: 'Build Starport',
                 cost: { minerals: 150, vespene: 100 },
@@ -101,7 +129,7 @@ export class SCVMark2 extends SCVBase {
             };
             commands[2] = {
                 command: 'build_armory',
-                hotkey: 'A',
+                hotkey: scv2Hotkeys.buildArmory,
                 icon: 'assets/images/build_armory_icon.png',
                 name: 'Build Armory',
                 cost: { minerals: 100, vespene: 50 },
@@ -110,7 +138,7 @@ export class SCVMark2 extends SCVBase {
             };
             commands[3] = {
                 command: 'build_science_facility',
-                hotkey: 'C',
+                hotkey: scv2Hotkeys.buildScienceFacility,
                 icon: 'assets/images/build_science_facility_icon.png',
                 name: 'Build Science Facility',
                 cost: { minerals: 100, vespene: 150 },
@@ -120,16 +148,16 @@ export class SCVMark2 extends SCVBase {
 
             // Here you could add Science Facility, etc.
             
-            commands[11] = { command: 'cancel_build_menu', hotkey: 'Escape', icon: 'assets/images/stop_icon.png', name: 'Cancel' };
+            commands[11] = { command: 'cancel_build_menu', hotkey: scv2Hotkeys.cancelBuildMenu, icon: 'assets/images/stop_icon.png', name: 'Cancel' };
         } else { // 'basic' mode
-            commands[0] = { command: 'move', hotkey: 'M', icon: 'assets/images/move_icon.png', name: 'Move' };
-            commands[1] = { command: 'stop', hotkey: 'S', icon: 'assets/images/stop_icon.png', name: 'Stop' };
-            commands[2] = { command: 'hold', hotkey: 'H', icon: 'assets/images/hold_position_icon.png', name: 'Hold Position' };
-            commands[3] = { command: 'patrol', hotkey: 'P', icon: 'assets/images/patrol_icon.png', name: 'Patrol' };
-            commands[4] = { command: 'gather', hotkey: 'G', icon: 'assets/images/gather_icon.png', name: 'Gather' };
-            commands[5] = { command: 'repair', hotkey: 'R', icon: 'assets/images/heal_icon.png', name: 'Repair' };
-            commands[6] = { command: 'open_build_menu', hotkey: 'B', icon: 'assets/images/build_basic_structures_icon.png', name: 'Build Basic Structures' };
-            commands[7] = { command: 'open_advanced_build_menu', hotkey: 'V', icon: 'assets/images/build_advanced_structures_icon.png', name: 'Build Advanced Structures' };
+            commands[0] = { command: 'move', hotkey: scv2Hotkeys.move, icon: 'assets/images/move_icon.png', name: 'Move' };
+            commands[1] = { command: 'stop', hotkey: scv2Hotkeys.stop, icon: 'assets/images/stop_icon.png', name: 'Stop' };
+            commands[2] = { command: 'hold', hotkey: scv2Hotkeys.hold, icon: 'assets/images/hold_position_icon.png', name: 'Hold Position' };
+            commands[3] = { command: 'patrol', hotkey: scv2Hotkeys.patrol, icon: 'assets/images/patrol_icon.png', name: 'Patrol' };
+            commands[4] = { command: 'gather', hotkey: scv2Hotkeys.gather, icon: 'assets/images/gather_icon.png', name: 'Gather' };
+            commands[5] = { command: 'repair', hotkey: scv2Hotkeys.repair, icon: 'assets/images/heal_icon.png', name: 'Repair' };
+            commands[6] = { command: 'open_build_menu', hotkey: scv2Hotkeys.openBuildMenu, icon: 'assets/images/build_basic_structures_icon.png', name: 'Build Basic Structures' };
+            commands[7] = { command: 'open_advanced_build_menu', hotkey: scv2Hotkeys.openAdvancedBuildMenu, icon: 'assets/images/build_advanced_structures_icon.png', name: 'Build Advanced Structures' };
         }
 
         this._commands = commands;

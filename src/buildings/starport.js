@@ -2,6 +2,15 @@ import * as THREE from 'three';
 import { FlyingBuildingBehavior } from './flying-building-behavior.js';
 import { AddonBehavior } from './addon-behavior.js';
 
+/** @tweakable Hotkeys for Starport unit training commands */
+const starportHotkeys = {
+    trainWraith: 'R',
+    trainDropship: 'T',
+    trainScienceVessel: 'V',
+    trainValkyrie: 'Y',
+    trainBattlecruiser: 'B',
+};
+
 export class Starport {
     constructor(position, { isUnderConstruction = false, buildTime = 50.4, onStateChange = () => {} } = {}) {
         this.name = 'Starport';
@@ -120,7 +129,7 @@ export class Starport {
         if (this.state === 'grounded') {
             newCommands[0] = {
                 command: 'train_wraith',
-                hotkey: 'W',
+                hotkey: starportHotkeys.trainWraith,
                 icon: 'assets/images/train_wraith_icon.png',
                 name: 'Build Wraith',
                 cost: { minerals: 150, vespene: 100, supply: 2 },
@@ -128,7 +137,7 @@ export class Starport {
             };
             newCommands[1] = {
                 command: 'train_dropship',
-                hotkey: 'D',
+                hotkey: starportHotkeys.trainDropship,
                 icon: 'assets/images/train_dropship_icon.png',
                 name: 'Build Dropship',
                 cost: { minerals: 100, vespene: 100, supply: 2 },
@@ -138,7 +147,7 @@ export class Starport {
             if (this.addonBehavior.addon?.name === 'Control Tower') {
                 newCommands[2] = {
                     command: 'train_science_vessel',
-                    hotkey: 'S',
+                    hotkey: starportHotkeys.trainScienceVessel,
                     icon: 'assets/images/train_science_vessel_icon.png',
                     name: 'Build Science Vessel',
                     cost: { minerals: 100, vespene: 225, supply: 2 },
@@ -149,7 +158,7 @@ export class Starport {
             if (this.addonBehavior.addon?.name === 'Control Tower') {
                 newCommands[3] = {
                     command: 'train_valkyrie',
-                    hotkey: 'Y',
+                    hotkey: starportHotkeys.trainValkyrie,
                     icon: 'assets/images/train_valkyrie_icon.png',
                     name: 'Build Valkyrie',
                     cost: { minerals: 250, vespene: 125, supply: 3 },
@@ -160,7 +169,7 @@ export class Starport {
             if (this.addonBehavior.addon?.name === 'Control Tower' && gameState.physicsLabBuilt) {
                 newCommands[4] = {
                     command: 'train_battlecruiser',
-                    hotkey: 'B',
+                    hotkey: starportHotkeys.trainBattlecruiser,
                     icon: 'assets/images/train_battlecruiser_icon.png',
                     name: 'Build Battlecruiser',
                     cost: { minerals: 400, vespene: 300, supply: 6 },

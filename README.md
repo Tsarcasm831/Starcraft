@@ -18,9 +18,7 @@ This project is a small browser-based real-time strategy game inspired by StarCr
 3. Verify the game loads with no errors in the console.
 
 ## Usage
-- Use the in-game menus to start a match and adjust options.
-- Keyboard and mouse controls mimic classic RTS interactions.
-- The `Changelog` button in the main menu shows update notes from `0changelog.md`.
-- See `manual.md` for gameplay instructions and tips.
+- Use the in-game menus to start a match and view the tutorial or changelog.
+- The `Changelog` button in the main menu opens the game manual which is loaded from `changelog.md`.
 
 For contribution guidelines and more details see `AGENTS.md`.

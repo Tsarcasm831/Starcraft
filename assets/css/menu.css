@@ -90,7 +90,7 @@
     display: none !important;
 }
 
-#start-button, #options-button, #back-button, #changelog-button {
+#start-button, #options-button, #back-button, #changelog-button, #manual-button {
     padding: 15px 30px;
     font-size: 24px;
     color: #fff;
@@ -104,11 +104,11 @@
     transition: background-color 0.2s, transform 0.1s;
 }
 
-#start-button:hover, #options-button:hover, #back-button:hover, #changelog-button:hover {
+#start-button:hover, #options-button:hover, #back-button:hover, #changelog-button:hover, #manual-button:hover {
     background: rgba(30, 30, 50, 0.8);
 }
 
-#start-button:active, #options-button:active, #back-button:active, #changelog-button:active {
+#start-button:active, #options-button:active, #back-button:active, #changelog-button:active, #manual-button:active {
     transform: scale(0.98);
 }
 
@@ -178,7 +178,7 @@
 .menu-button:hover {
     background: rgba(30, 30, 50, 0.8);
 }
+
 .menu-button:active {
     transform: scale(0.98);
 }
-

@@ -24,6 +24,26 @@ class AssetManager {
         }
     }
 
+    async loadJSON(url, assetName) {
+        if (this.loadedAssets.has(assetName)) {
+            return this.loadedAssets.get(assetName);
+        }
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status} ${response.statusText}`);
+            }
+            const json = await response.json();
+            this.loadedAssets.set(assetName, json);
+            console.log(`Loaded JSON: ${assetName} from ${url}`);
+            return json;
+        } catch (error) {
+            console.error(`Failed to load JSON asset '${assetName}' from '${url}': ${error.message}`);
+            throw error;
+        }
+    }
+
     async loadGLB(url, assetName) {
         if (this.loadedAssets.has(assetName)) {
             return this.loadedAssets.get(assetName);

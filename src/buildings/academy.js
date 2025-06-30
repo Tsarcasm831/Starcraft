@@ -1,5 +1,11 @@
 import * as THREE from 'three';
 
+/** @tweakable Hotkeys for Academy research commands */
+const academyHotkeys = {
+    stimpack: 'T',
+    u238shells: 'U',
+};
+
 export class Academy {
     constructor(position, { isUnderConstruction = false, buildTime = 50.4 } = {}) {
         this.name = 'Academy';
@@ -100,7 +106,7 @@ export class Academy {
         if (!gameState.upgrades.stimpack) {
             newCommands[0] = {
                 command: 'research_stimpack',
-                hotkey: 'T',
+                hotkey: academyHotkeys.stimpack,
                 icon: 'assets/images/stim_pack_icon.png',
                 name: 'Research Stim Packs',
                 cost: { minerals: 100, vespene: 100 },
@@ -111,7 +117,7 @@ export class Academy {
         if (!gameState.upgrades.u238shells) {
             newCommands[1] = {
                 command: 'research_u238shells',
-                hotkey: 'U',
+                hotkey: academyHotkeys.u238shells,
                 icon: 'assets/images/u238_shells_icon.png',
                 name: 'Research U-238 Shells',
                 cost: { minerals: 150, vespene: 150 },

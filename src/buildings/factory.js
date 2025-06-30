@@ -1,6 +1,14 @@
 import * as THREE from 'three';
 import { FlyingBuildingBehavior } from './flying-building-behavior.js';
 
+/** @tweakable Hotkeys for Factory commands */
+const factoryHotkeys = {
+    trainVulture: 'V',
+    trainSiegeTank: 'T',
+    trainGoliath: 'G',
+    researchSiegeMode: 'E',
+};
+
 export class Factory {
     constructor(position, { isUnderConstruction = false, buildTime = 50.4, onStateChange = () => {} } = {}) {
         this.name = 'Factory';
@@ -115,7 +123,7 @@ export class Factory {
         if (this.state === 'grounded') {
             newCommands[0] = {
                 command: 'train_vulture',
-                hotkey: 'V',
+                hotkey: factoryHotkeys.trainVulture,
                 icon: 'assets/images/train_vulture_icon.png',
                 name: 'Build Vulture',
                 cost: { minerals: 75, supply: 2 },
@@ -123,7 +131,7 @@ export class Factory {
             };
             newCommands[1] = {
                 command: 'train_siege_tank',
-                hotkey: 'T',
+                hotkey: factoryHotkeys.trainSiegeTank,
                 icon: 'assets/images/train_siege_tank_icon.png',
                 name: 'Build Siege Tank',
                 cost: { minerals: 150, vespene: 100, supply: 2 },
@@ -132,7 +140,7 @@ export class Factory {
             if (gameState.armoryBuilt) {
                 newCommands[2] = {
                     command: 'train_goliath',
-                    hotkey: 'G',
+                    hotkey: factoryHotkeys.trainGoliath,
                     icon: 'assets/images/train_goliath_icon.png',
                     name: 'Build Goliath',
                     cost: { minerals: 100, vespene: 50, supply: 2 },
@@ -143,7 +151,7 @@ export class Factory {
             if (!gameState.upgrades.siegeModeResearched) {
                 newCommands[5] = {
                     command: 'research_siege_mode',
-                    hotkey: 'S',
+                    hotkey: factoryHotkeys.researchSiegeMode,
                     icon: 'assets/images/research_siege_mode_icon.png',
                     name: 'Research Siege Mode',
                     cost: { minerals: 150, vespene: 150 },

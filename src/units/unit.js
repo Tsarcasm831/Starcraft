@@ -13,7 +13,7 @@ export class Unit extends Infantry {
 
         this.commands = [
             { command: 'move', hotkey: 'M', icon: 'assets/images/move_icon.png', name: 'Move' },
-            { command: 'stop', hotkey: 'S', icon: 'assets/images/stop_icon.png', name: 'Stop' },
+            { command: 'stop', hotkey: 'T', icon: 'assets/images/stop_icon.png', name: 'Stop' },
             { command: 'hold', hotkey: 'H', icon: 'assets/images/hold_position_icon.png', name: 'Hold Position' },
             { command: 'patrol', hotkey: 'P', icon: 'assets/images/patrol_icon.png', name: 'Patrol' },
             { command: 'attack', hotkey: 'A', icon: 'assets/images/attack_icon.png', name: 'Attack' },

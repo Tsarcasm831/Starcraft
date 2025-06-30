@@ -15,11 +15,14 @@ export class Infantry {
         this.selected = false;
         this.path = [];
         this.currentWaypointIndex = 0;
+        /** @tweakable Default movement speed for infantry units. */
         this.speed = 4; // Default speed, can be overridden by subclass
 
         // For walk animation
         this.walkTime = 0;
+        /** @tweakable The frequency of the bobbing motion in the infantry walk animation. Higher is faster. */
         this.walkFrequency = 15;
+        /** @tweakable The amplitude of the bobbing motion in the infantry walk animation. Higher is more pronounced. */
         this.walkAmplitude = 0.08;
 
         // Subclass should define: name, portraitUrl, maxHealth, currentHealth, commands, mesh

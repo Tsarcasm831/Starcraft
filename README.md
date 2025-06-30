@@ -8,7 +8,7 @@ This project is a small browser-based real-time strategy game inspired by StarCr
    apt-get update -y && apt-get install -y apt-utils
    ```
 2. Clone this repository and open a shell in the project directory.
-3. Install Node dependencies:
+3. Install Node dependencies (includes `jsdom` for the changelog archiving script):
    ```bash
    npm install
    ```
@@ -26,4 +26,13 @@ This project is a small browser-based real-time strategy game inspired by StarCr
 - The `Changelog` button in the main menu opens the changelog modal sourced from `changelog.md` and `changelog.old.md`, not the manual.
 - Press the `/` key at any time to open the promotional video modal.
 
+
 For contribution guidelines and more details see `AGENTS.md`.
+
+## Development Notes
+- `scripts/changelog-archive.js` automatically runs when `index.html` loads and moves entries older than today from `changelog.md` to `changelog.old.md`.
+- Ensure you run `npm install` to fetch `jsdom`, which the archiving script depends on.
+- To add a new unit, create a stats JSON file and corresponding unit class as outlined in `agent-units.md`. Log your work in `changelog.md`; the archiver will relocate older logs on the next page load.
+
+For contribution guidelines and more details see `AGENTS.md`.
+

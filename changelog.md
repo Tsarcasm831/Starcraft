@@ -2,6 +2,8 @@
 
 This file contains recent changes. For older entries, see the `Archive` tab.
 
+[TS] 063025-1834 | [MOD] archive | [ACT] ^FUNC -MOD ^DOC | [TGT] changelog-archive.js, package.json, AGENTS.md | [VAL] removed jsdom dependency and parse changelog lines directly | [REF] scripts/changelog-archive.js, package.json, AGENTS.md:59-66
+
 [TS] 063025-1824 | [MOD] deps | [ACT] +FILE | [TGT] package.json | [VAL] added jsdom dependency | [REF] package.json
 [TS] 063025-1824 | [MOD] docs | [ACT] ^DOC | [TGT] README.md, AGENTS.md | [VAL] include npm install instructions and note jsdom | [REF] README.md:6-14, AGENTS.md:33-67
 

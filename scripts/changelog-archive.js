@@ -1,4 +1,3 @@
-import { JSDOM } from 'https://cdn.jsdelivr.net/npm/jsdom@22.1.0/+esm';
 
 async function archiveChangelog() {
   const lastRun = localStorage.getItem('lastChangelogArchive');
@@ -21,8 +20,7 @@ async function archiveChangelog() {
     const recentText = await recentResp.text();
     const oldText = oldResp.ok ? await oldResp.text() : '';
 
-    const dom = new JSDOM(`<pre>${recentText}</pre>`);
-    const lines = dom.window.document.querySelector('pre').textContent.split('\n');
+    const lines = recentText.split('\n');
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);

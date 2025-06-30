@@ -1,51 +1,81 @@
 # Agent's Guide to Creating Units
 
-This document provides a concise workflow for adding a new unit to the game engine. Follow the steps below to avoid missing any integration points.
+This guide breaks down every step required to introduce a new unit. Follow the order below and reference the **High Templar** implementation for a working example.
+
+---
+
+## Overview
+
+1. Create the unit's JSON data file.
+2. Implement the JavaScript class.
+3. Register assets in the preloader.
+4. Hook the unit into spawn logic.
+5. Add the model, icon and portrait files.
+
+Once complete, launch the game to verify the unit appears.
 
 ---
 
 ## Step 1: Create the Unit Data File (`.json`)
 
-All unit stats are stored in JSON files for easy tweaking.
+All gameplay stats live in JSON files so they can be tweaked without touching code.
 
-1. **Create the file**: Add a new JSON file in the appropriate faction directory, e.g. `assets/data/protoss/<unit_name>.json`.
-2. **Define stats**: Populate the file with the unit's core attributes.
+1. **Create the file** in the faction directory, e.g. `assets/data/protoss/<unit_name>.json`.
+2. **Add a `stats` object** containing numbers for attributes like `health`, `shields`, `armor`, `speed` and `energy` if applicable.
 
-**Example: `assets/data/terran/new_unit.json`**
+Example file:
+
 ```json
 {
     "stats": {
         "health": 100,
         "shields": 0,
         "armor": 1,
-        "speed": 3.5
+        "speed": 3.5,
+        "energy": 50
     }
 }
 ```
 
-## Step 2: Create the Unit Class File
+## Step 2: Write the Unit Class
 
-1. Add a new JavaScript file under `src/<faction>/<unit_name>.js`.
-2. Extend the appropriate base class (`Infantry`, `Unit`, etc.) and load stats from the JSON file via `assetManager.get('unit_<unit_name>')`.
-3. Define the unit's commands, load its model with `createMeshFromGLB`, and fall back to a procedural mesh if the model fails.
-4. For a full reference once available, see `src/protoss/high-templar.js` and its data file `assets/data/protoss/high_templar.json`.
+1. Create `src/<faction>/<unit_name>.js` and import the correct base class (`Infantry`, `Unit`, etc.).
+2. Load stats via `assetManager.get('unit_<unit_name>').stats`.
+3. Assign properties like `maxHealth`, `maxShields`, `speed` and any energy values.
+4. Build the `commands` array (`move`, `stop`, `attack` and others as needed).
+5. Load the mesh using `createMeshFromGLB(assetManager.get('<faction>_<unit_name>'))`.
+6. Provide a `createProceduralMesh` fallback in case the GLB fails to load.
+7. Call `setup(position)` at the end of the constructor.
 
-## Step 3: Update Preloader and Spawn Logic
+See `src/protoss/hightemplar.js` for a complete reference implementation.
 
-1. In `src/game/preloader.js`, load the new model, JSON data, command icon, and portrait.
-   ```javascript
-   tasks.push(() => assetManager.loadGLB('assets/models/protoss/high_templar.glb', 'protoss_hightemplar'));
-   tasks.push(() => assetManager.loadJSON('assets/data/protoss/high_templar.json', 'unit_high_templar'));
-   tasks.push(() => assetManager.loadImage('assets/images/protoss/train_high_templar_icon.png', 'train_high_templar_icon'));
-   tasks.push(() => assetManager.loadImage('assets/images/protoss/high_templar_portrait.png', 'high_templar_portrait'));
-   ```
-2. Import the class in `src/game/spawn.js` and add a case to `spawnUnit` so the game can create the unit.
-3. If you want the unit spawned in developer mode, also import it in `src/game/initial-state.js` and add it to `devUnitsToSpawn`.
+## Step 3: Register Assets in the Preloader
 
-## Step 4: Add Assets
+Open `src/game/preloader.js` and queue tasks for each asset:
 
-1. Place the model, icon, and portrait in the `assets` directories shown above.
-2. Append their paths to `assets/asset-list.json` so the downloader caches them offline.
-3. Ensure the paths match those used in the preloader.
+```javascript
+tasks.push(() => assetManager.loadGLB('assets/models/protoss/high_templar.glb', 'protoss_hightemplar'));
+tasks.push(() => assetManager.loadJSON('assets/data/protoss/high_templar.json', 'unit_high_templar'));
+tasks.push(() => assetManager.loadImage('assets/images/protoss/train_high_templar_icon.png', 'train_high_templar_icon'));
+tasks.push(() => assetManager.loadImage('assets/images/protoss/high_templar_portrait.png', 'high_templar_portrait'));
+```
 
-After completing these steps and verifying the High Templar example, your new unit should be fully integrated into the game.
+Replace paths and keys with your unit's name. The key string after the comma is what `assetManager.get()` uses.
+
+## Step 4: Hook the Unit into Spawn Logic
+
+1. Import your class in `src/game/spawn.js`.
+2. Add a case in `spawnUnit()` returning `new YourUnit(position)`.
+3. (Optional) For quick testing, import the class in `src/game/initial-state.js` and add its name to `devUnitsToSpawn`.
+
+## Step 5: Add Assets and Update the Asset List
+
+1. Place the GLB model under `assets/models/<faction>/`, the command icon under `assets/images/<faction>/` and the portrait in the same `images` folder.
+2. Append each asset path to `assets/asset-list.json` so the downloader caches it for offline play.
+3. Ensure the same paths are used in the preloader snippet above.
+
+When all steps are finished, start a local server (`python3 -m http.server 8000`) and open the game in your browser. The new unit should load without errors.
+
+---
+
+Remember to record every change in `changelog.md` using the ASCL format. Following this checklist ensures even a less experienced agent can integrate new units smoothly.

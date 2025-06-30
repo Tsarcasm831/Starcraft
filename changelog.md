@@ -2,6 +2,8 @@
 
 This file contains recent changes. For older entries, see the `Archive` tab.
 
+[TS] 063025-1838 | [MOD] ui | [ACT] +FN ^UX | [TGT] promo modal | [VAL] YouTube iframe triggered by '/' key | [REF] index.html:215-223, assets/css/modals.css:343-366, src/game/ui/ModalManager.js:98-104,253-267, src/game/ui.js:63-67
+
 [TS] 063025-1824 | [MOD] deps | [ACT] +FILE | [TGT] package.json | [VAL] added jsdom dependency | [REF] package.json
 [TS] 063025-1824 | [MOD] docs | [ACT] ^DOC | [TGT] README.md, AGENTS.md | [VAL] include npm install instructions and note jsdom | [REF] README.md:6-14, AGENTS.md:33-67
 

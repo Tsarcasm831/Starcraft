@@ -19,16 +19,6 @@ const modalManager = new ModalManager();
 let commandExecutorRef;
 
 
-/** @tweakable How many status messages must be shown before an "ad" plays. Set to 0 to disable. */
-const adFrequency = 5;
-let statusMessageCount = 0;
-
-/** @tweakable Adjust the video player settings */
-const videoPlayerSettings = {
-    volume: 0, // Muted by default to allow autoplay
-    playbackRate: 1.0,
-    opacity: 0.8
-};
 
 function togglePause() {
     menuManager.isPaused = !menuManager.isPaused;
@@ -49,89 +39,6 @@ function toggleGrid() {
     }
 }
 
-let adTimeout = null;
-
-function setupVideoPanel() {
-    const videoPanel = document.getElementById('video-panel');
-    if (!videoPanel) return;
-
-    try {
-        const videoElement = assetManager.get('ad_video'); // This is the preloaded <video> element
-        videoElement.loop = true;
-        videoElement.muted = true; // Essential for autoplay in most browsers
-        videoElement.volume = videoPlayerSettings.volume;
-        videoElement.playbackRate = videoPlayerSettings.playbackRate;
-
-        // Style the video to fit its container
-        videoElement.style.width = '100%';
-        videoElement.style.height = '100%';
-        videoElement.style.objectFit = 'cover';
-        videoElement.style.opacity = videoPlayerSettings.opacity;
-
-        videoPanel.innerHTML = ''; // Clear any placeholder text
-        videoPanel.appendChild(videoElement);
-
-        videoElement.play().catch(e => {
-            console.warn("Video autoplay was prevented. User interaction might be needed.", e);
-            // We can add a click handler to the panel to attempt to play again.
-            videoPanel.addEventListener('click', () => videoElement.play(), { once: true });
-        });
-    } catch (e) {
-        console.error("Could not find preloaded video asset 'ad_video'.", e);
-        videoPanel.textContent = 'Video asset not found.';
-    }
-}
-
-function showVideoAd() {
-    if (!menuManager.isGameRunning) return;
-
-    if (audioManager) {
-        audioManager.pauseBackgroundMusic();
-    }
-    
-    const videoPanel = document.getElementById('video-panel');
-    if (!videoPanel) return;
-
-    try {
-        const adPlayer = assetManager.get('ad_video').cloneNode(true);
-        adPlayer.loop = false;
-        adPlayer.muted = false;
-        adPlayer.volume = videoPlayerSettings.volume > 0 ? videoPlayerSettings.volume : 0.5; // Unmute for ad
-        
-        const originalContent = videoPanel.innerHTML;
-        videoPanel.innerHTML = '';
-        videoPanel.appendChild(adPlayer);
-        
-        adPlayer.play().catch(e => {
-            console.warn("Ad video playback prevented:", e);
-            // Restore original video if ad fails to play
-            videoPanel.innerHTML = originalContent;
-            if(audioManager) audioManager.resumeBackgroundMusic();
-        });
-
-        adPlayer.onended = () => {
-            videoPanel.innerHTML = originalContent;
-            const originalVideo = videoPanel.querySelector('video');
-            if (originalVideo) {
-                originalVideo.play().catch(e => console.warn("Could not resume panel video", e));
-            }
-            if (audioManager) {
-                audioManager.resumeBackgroundMusic();
-            }
-        };
-
-    } catch (e) {
-        console.error("Could not find ad video asset 'ad_video'.", e);
-        if (audioManager) {
-            audioManager.resumeBackgroundMusic();
-        }
-    }
-}
-
-function hideVideoAd() {
-    // This function is now obsolete as the ad plays in-panel.
-    // Kept for legacy event listeners, but does nothing.
-}
 
 
 export function initUI(commandExecutor, startGameCallback, audioManager, getGridHelper, getKeyState, getCamera) {
@@ -156,7 +63,7 @@ export function initUI(commandExecutor, startGameCallback, audioManager, getGrid
 
         if (e.key === '/' || e.code === 'Slash') {
             e.preventDefault();
-            messageDisplay.showVideoAd();
+            modalManager.togglePromoModal();
             return;
         }
 

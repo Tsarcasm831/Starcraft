@@ -1,5 +1,6 @@
 # Changelog
 
+[TS] 063025-1855 | [MOD] units | [ACT] ^FUNC | [TGT] createMeshFromGLB/createProceduralMesh | [VAL] rotated child groups so lookAt controls heading | [REF] src/units/battlecruiser.js:63-120 src/units/dropship.js:87-142 src/units/wraith.js:74-120
 This file contains recent changes. For older entries, see the `Archive` tab.
 
 [TS] 063025-1838 | [MOD] ui | [ACT] +FN ^UX | [TGT] promo modal | [VAL] YouTube iframe triggered by '/' key | [REF] index.html:215-223, assets/css/modals.css:343-366, src/game/ui/ModalManager.js:98-104,253-267, src/game/ui.js:63-67

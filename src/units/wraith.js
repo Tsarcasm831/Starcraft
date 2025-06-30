@@ -73,6 +73,7 @@ export class Wraith {
         }
 
         const wrapper = new THREE.Group();
+        model.rotation.y = -Math.PI / 2;
         wrapper.add(model);
 
         wrapper.traverse((child) => {
@@ -86,6 +87,7 @@ export class Wraith {
     }
 
     createProceduralMesh() {
+        const wrapper = new THREE.Group();
         const group = new THREE.Group();
         const mainMaterial = new THREE.MeshStandardMaterial({ color: 0x6a8aaa, metalness: 0.8, roughness: 0.4 });
         const cockpitMaterial = new THREE.MeshStandardMaterial({ color: 0x00a1ff, emissive: 0x00a1ff, emissiveIntensity: 0.5 });
@@ -112,9 +114,10 @@ export class Wraith {
                 child.castShadow = true;
             }
         });
-        
+
         group.rotation.y = -Math.PI / 2;
-        return group;
+        wrapper.add(group);
+        return wrapper;
     }
 
     select() { this.selected = true; this.selectionIndicator.visible = true; }

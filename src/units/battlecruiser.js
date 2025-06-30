@@ -74,6 +74,7 @@ export class Battlecruiser {
         }
 
         const wrapper = new THREE.Group();
+        model.rotation.y = -Math.PI / 2;
         wrapper.add(model);
 
         wrapper.traverse((child) => {
@@ -82,12 +83,12 @@ export class Battlecruiser {
                 child.userData.owner = this;
             }
         });
-        
-        wrapper.rotation.y = -Math.PI / 2;
+
         return wrapper;
     }
 
     createProceduralMesh() {
+        const wrapper = new THREE.Group();
         const group = new THREE.Group();
         const mainMaterial = new THREE.MeshStandardMaterial({ color: 0x8a9aaa, metalness: 0.8, roughness: 0.4 });
         const darkMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
@@ -113,9 +114,10 @@ export class Battlecruiser {
                 child.castShadow = true;
             }
         });
-        
+
         group.rotation.y = -Math.PI / 2;
-        return group;
+        wrapper.add(group);
+        return wrapper;
     }
 
     select() { this.selected = true; this.selectionIndicator.visible = true; }

@@ -25,6 +25,7 @@ export async function preloadAssets(audioManager) {
     tasks.push(() => assetManager.loadGLB('assets/models/protoss/adept.glb', 'protoss_adept'));
     tasks.push(() => assetManager.loadGLB('assets/models/protoss/stalker.glb', 'protoss_stalker'));
     tasks.push(() => assetManager.loadGLB('assets/models/protoss/dragoon.glb', 'protoss_dragoon'));
+    tasks.push(() => assetManager.loadGLB('assets/models/protoss/darktemplar.glb', 'protoss_darktemplar'));
     tasks.push(() => assetManager.loadSound('assets/audio/select.mp3', 'select'));
     tasks.push(() => assetManager.loadSound('assets/audio/move.mp3', 'move'));
 
@@ -35,6 +36,7 @@ export async function preloadAssets(audioManager) {
         'assets/data/protoss/adept.json',
         'assets/data/protoss/stalker.json',
         'assets/data/protoss/dragoon.json',
+        'assets/data/protoss/darktemplar.json',
     ];
     unitDataPaths.forEach(path => {
         const name = `unit_${path.split('/').pop().replace('.json', '')}`;
@@ -107,6 +109,7 @@ export async function preloadAssets(audioManager) {
         'assets/images/protoss/train_adept_icon.png',
         'assets/images/protoss/train_stalker_icon.png',
         'assets/images/protoss/train_dragoon_icon.png',
+        'assets/images/protoss/train_darktemplar_icon.png',
     ];
 
     iconPaths.forEach(path => {
@@ -129,6 +132,7 @@ export async function preloadAssets(audioManager) {
         'assets/images/protoss/adept_portrait.png',
         'assets/images/protoss/stalker_portrait.png',
         'assets/images/protoss/dragoon_portrait.png',
+        'assets/images/protoss/darktemplar_portrait.png',
     ];
     portraitPaths.forEach(path => {
         const name = path.split('/').pop().replace('.png', '');

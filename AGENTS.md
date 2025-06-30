@@ -11,7 +11,7 @@ This project is maintained by a distributed team of AI and human developers. To 
 **Every action must be logged.** Before committing any changes, you must document your work in `changelog.md`. This is not optional; it is the most critical step in the development process. The log provides the ground truth for project status, enables synchronization between agents, and allows for automated auditing.
 
 *   **Format**: All log entries **must** use the **Agent Shorthand Change Log (ASCL)** format. Review `ascl.md` for the full specification.
-*   **Timestamp**: The `[TS]` tag in your log entry **must** reflect the current time of the change in `MMDDYY-HHMM` format. This is non-negotiable for synchronization.
+*   **Timestamp**: The `[TS]` tag must capture the exact time you commit the change in `MMDDYY-HHMM` format. Do not reuse or approximate this value.
 *   **Scope**: Log every change, no matter how small. This includes code refactoring, asset creation, documentation updates, and bug fixes.
 *   **Immutability**: Once an entry is logged, it should not be altered.
 

@@ -23,6 +23,7 @@ import { Battlecruiser } from '../units/battlecruiser.js';
 import { Adept } from '../protoss/adept.js';
 import { Dragoon } from '../protoss/dragoon.js';
 import { DarkTemplar } from '../protoss/darktemplar.js';
+import { HighTemplar } from '../protoss/hightemplar.js';
 
 /** @tweakable The layout for spawning all dev units on the map. */
 const devUnitSpawnLayout = {
@@ -136,7 +137,7 @@ export function setupInitialState({
         selectables.push(dragoon);
 
         const devUnitsToSpawn = [
-            Unit, Firebat, Medic, Ghost, Adept,
+            Unit, Firebat, Medic, Ghost, Adept, HighTemplar,
             Goliath, SiegeTank, Vulture,
             Wraith, Dropship, ScienceVessel, Valkyrie, Battlecruiser
         ];

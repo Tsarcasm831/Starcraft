@@ -19,6 +19,6 @@ This project is a small browser-based real-time strategy game inspired by StarCr
 
 ## Usage
 - Use the in-game menus to start a match and view the tutorial or changelog.
-- The `Changelog` button in the main menu opens the game manual which is loaded from `changelog.md`.
+- The `Changelog` button in the main menu opens the changelog modal sourced from `changelog.md` and `changelog.old.md`, not the manual.
 
 For contribution guidelines and more details see `AGENTS.md`.

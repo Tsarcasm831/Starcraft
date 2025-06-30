@@ -73,7 +73,7 @@ export class Wraith {
         }
 
         const wrapper = new THREE.Group();
-        model.rotation.y = -Math.PI / 2;
+        model.rotation.y = Math.PI / 2; // Rotate 180° so forward matches lookAt
         wrapper.add(model);
 
         wrapper.traverse((child) => {
@@ -115,7 +115,7 @@ export class Wraith {
             }
         });
 
-        group.rotation.y = -Math.PI / 2;
+        group.rotation.y = Math.PI / 2; // Rotate 180° so forward matches lookAt
         wrapper.add(group);
         return wrapper;
     }

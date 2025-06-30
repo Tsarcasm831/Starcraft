@@ -3,9 +3,6 @@ import { assetManager } from '../../utils/asset-manager.js';
 let statusTextPanel, placementTextPanel, globalMessageContainer;
 let audioManagerRef;
 
-/** @tweakable How many status messages must be shown before an "ad" plays. Set to 0 to disable. */
-const adFrequency = 0;
-let statusMessageCount = 0;
 
 /** @tweakable Adjust the video player settings */
 const videoPlayerSettings = {
@@ -56,59 +53,6 @@ export class MessageDisplay {
         }
     }
 
-    showVideoAd() {
-        if (audioManagerRef) {
-            audioManagerRef.pauseBackgroundMusic();
-        }
-
-        const videoPanel = document.getElementById('video-panel');
-        if (!videoPanel) return;
-
-        try {
-            const adPlayer = assetManager.get('ad_video').cloneNode(true);
-            adPlayer.autoplay = true;
-            adPlayer.loop = true;
-            adPlayer.muted = false;
-            adPlayer.volume = videoPlayerSettings.volume > 0 ? videoPlayerSettings.volume : 0.5;
-
-            const originalContent = videoPanel.innerHTML;
-            videoPanel.innerHTML = '';
-
-            const closeBtn = document.createElement('button');
-            closeBtn.className = 'close-button';
-            closeBtn.style.display = 'none';
-            closeBtn.addEventListener('click', () => {
-                videoPanel.innerHTML = originalContent;
-                const originalVideo = videoPanel.querySelector('video');
-                if (originalVideo) {
-                    originalVideo.play().catch(e => console.warn("Could not resume panel video", e));
-                }
-                if (audioManagerRef) {
-                    audioManagerRef.resumeBackgroundMusic();
-                }
-            });
-
-            videoPanel.appendChild(closeBtn);
-            videoPanel.appendChild(adPlayer);
-
-            adPlayer.play().catch(e => {
-                console.warn("Ad video playback prevented:", e);
-                videoPanel.innerHTML = originalContent;
-                if(audioManagerRef) audioManagerRef.resumeBackgroundMusic();
-            });
-
-            setTimeout(() => {
-                closeBtn.style.display = 'block';
-            }, 30000);
-
-        } catch (e) {
-            console.error("Could not find ad video asset 'ad_video'.", e);
-            if (audioManagerRef) {
-                audioManagerRef.resumeBackgroundMusic();
-            }
-        }
-    }
-
     updatePlacementText(message) {
         if (placementTextPanel) {
             placementTextPanel.textContent = message;
@@ -155,13 +99,6 @@ export class MessageDisplay {
             return;
         }
 
-        if (adFrequency > 0) {
-            statusMessageCount++;
-            if (statusMessageCount >= adFrequency) {
-                statusMessageCount = 0;
-                this.showVideoAd();
-            }
-        }
 
         Array.from(statusTextPanel.children).forEach(child => {
             if (child.textContent === message) {

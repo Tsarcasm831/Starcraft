@@ -34,6 +34,7 @@ import { Probe } from '../protoss/probe.js';
 import { Adept } from '../protoss/adept.js';
 import { Stalker } from '../protoss/stalker.js';
 import { Dragoon } from '../protoss/dragoon.js';
+import { DarkTemplar } from '../protoss/darktemplar.js';
 import { audioManager } from '../utils/audio.js';
 
 const raycaster = new THREE.Raycaster();
@@ -141,6 +142,7 @@ export function handleBoxSelection(selectionBox) {
                 selectable instanceof Probe ||
                 selectable instanceof Adept ||
                 selectable instanceof Stalker ||
+                selectable instanceof DarkTemplar ||
                 selectable instanceof Dragoon ||
                 selectable instanceof CommandCenter ||
                 selectable instanceof SupplyDepot ||

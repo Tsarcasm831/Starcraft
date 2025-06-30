@@ -22,6 +22,7 @@ import { Valkyrie } from '../units/valkyrie.js';
 import { Battlecruiser } from '../units/battlecruiser.js';
 import { Adept } from '../protoss/adept.js';
 import { Dragoon } from '../protoss/dragoon.js';
+import { DarkTemplar } from '../protoss/darktemplar.js';
 
 /** @tweakable The layout for spawning all dev units on the map. */
 const devUnitSpawnLayout = {
@@ -122,6 +123,11 @@ export function setupInitialState({
         scene.add(stalker.mesh);
         units.push(stalker);
         selectables.push(stalker);
+
+        const darkTemplar = new DarkTemplar(new THREE.Vector3(-18, 0, -18));
+        scene.add(darkTemplar.mesh);
+        units.push(darkTemplar);
+        selectables.push(darkTemplar);
 
         const dragoon = new Dragoon(new THREE.Vector3(-21, 0, -15));
         scene.add(dragoon.mesh);

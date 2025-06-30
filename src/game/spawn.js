@@ -35,6 +35,7 @@ import { Probe } from '../protoss/probe.js';
 import { Adept } from '../protoss/adept.js';
 import { Stalker } from '../protoss/stalker.js';
 import { Dragoon } from '../protoss/dragoon.js';
+import { DarkTemplar } from '../protoss/darktemplar.js';
 
 let deps;
 
@@ -140,6 +141,10 @@ export function spawnUnit(unitType, position) {
             break;
         case 'Adept':
             unit = new Adept(spawnPos);
+            gameState.supplyUsed += 2;
+            break;
+        case 'Dark Templar':
+            unit = new DarkTemplar(spawnPos);
             gameState.supplyUsed += 2;
             break;
         case 'Stalker':

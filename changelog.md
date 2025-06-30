@@ -1,6 +1,6 @@
 # Changelog
 
-This file contains recent changes. For older entries, see `changelog.old.md`.
+This file contains recent changes. For older entries, see the `Archive` tab.
 
 
 [TS] 063025-1809 | [MOD] ui | [ACT] ^FIX | [TGT] changelog paths | [VAL] set root-relative changelog file paths | [REF] src/game/ui/ModalManager.js:13-16

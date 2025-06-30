@@ -11,9 +11,9 @@ const closeManualOnClickOutside = true;
 /** 
  * @tweakable The filename for the main (recent) changelog document. */
 // Use relative paths so the files load correctly regardless of hosting setup
-const CHANGELOG_FILE = './changelog.md';
+const CHANGELOG_FILE = '../../changelog.md';
 /** @tweakable The filename for the old changelog file. */
-const OLD_CHANGELOG_FILE = './changelog.old.md';
+const OLD_CHANGELOG_FILE = '../../changelog.old.md';
 /** @tweakable The maximum number of lines to display from the changelog. 0 for no limit. */
 const maxChangelogLines = 50;
 /** @tweakable enable closing the changelog modal by clicking its background */
@@ -76,7 +76,11 @@ export class ModalManager {
         document.getElementById('manual-tab-button')?.addEventListener('click', () => this.switchManualTab('manual'));
         document.getElementById('assets-tab-button')?.addEventListener('click', () => this.switchManualTab('assets'));
 
-        document.getElementById('changelog-button')?.addEventListener('click', () => this.toggleChangelogModal());
+        document.getElementById('changelog-button')?.addEventListener('click', () => {
+            document.getElementById('recent-changelog-output')?.dataset.loaded = 'false';
+            document.getElementById('old-changelog-output')?.dataset.loaded = 'false';
+            this.toggleChangelogModal();
+        });
         document.getElementById('close-changelog-modal')?.addEventListener('click', () => this.toggleChangelogModal());
         document.getElementById('recent-changelog-tab-button')?.addEventListener('click', () => this.switchChangelogTab('recent'));
         document.getElementById('old-changelog-tab-button')?.addEventListener('click', () => this.switchChangelogTab('old'));

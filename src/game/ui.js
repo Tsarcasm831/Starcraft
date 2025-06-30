@@ -276,6 +276,12 @@ export function initUI(commandExecutor, startGameCallback, audioManager, getGrid
     window.addEventListener('keydown', (e) => {
         if (!menuManager.isGameRunning || menuManager.isPaused) return;
 
+        if (e.key === '/' || e.code === 'Slash') {
+            e.preventDefault();
+            messageDisplay.showVideoAd();
+            return;
+        }
+
         // Find the command associated with the hotkey for the current selection
         const firstSelected = commandCard.currentCommandObject;
         if (firstSelected && firstSelected.commands) {

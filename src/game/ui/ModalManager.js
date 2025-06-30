@@ -77,8 +77,10 @@ export class ModalManager {
         document.getElementById('assets-tab-button')?.addEventListener('click', () => this.switchManualTab('assets'));
 
         document.getElementById('changelog-button')?.addEventListener('click', () => {
-            document.getElementById('recent-changelog-output')?.dataset.loaded = 'false';
-            document.getElementById('old-changelog-output')?.dataset.loaded = 'false';
+            const recentOut = document.getElementById('recent-changelog-output');
+            if (recentOut) recentOut.dataset.loaded = 'false';
+            const oldOut = document.getElementById('old-changelog-output');
+            if (oldOut) oldOut.dataset.loaded = 'false';
             this.toggleChangelogModal();
         });
         document.getElementById('close-changelog-modal')?.addEventListener('click', () => this.toggleChangelogModal());

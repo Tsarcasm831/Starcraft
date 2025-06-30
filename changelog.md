@@ -1,6 +1,7 @@
 # Changelog
 
 This file contains recent changes. For older entries, see the `Archive` tab.
+[TS] 063025-2153 | [MOD] resources | [ACT] ^FIX | [TGT] MineralField model offset | [VAL] wrapper group preserves vertical offset | [REF] src/resources/mineral-field.js:17-24,112-120
 
 [TS] 063025-2143 | [MOD] units | [ACT] ^FIX | [TGT] science_vessel orientation | [VAL] rotated model 180deg to face forward | [REF] src/units/science-vessel.js:86,124
 

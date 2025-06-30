@@ -14,8 +14,14 @@ export class MineralField {
 
         this.commands = []; // Mineral fields don't have commands.
 
-        this.mesh = this.createMesh();
+        this.model = this.createMesh();
+        this.mesh = new THREE.Group();
+        this.mesh.add(this.model);
         this.mesh.position.copy(position);
+        // Raise the model so it rests on the ground while keeping the selection
+        // ring at y=0 on the parent group.
+        const offsetY = this.model.userData.offsetY || 0;
+        this.model.position.y = offsetY;
 
         this.mesh.traverse((child) => {
             if (child instanceof THREE.Mesh) {
@@ -104,11 +110,14 @@ export class MineralField {
         // Align the model so its bottom touches the ground. Imported models have
         // their origin at the center, leaving half of them below y=0.
         const adjustedBox = new THREE.Box3().setFromObject(model);
-        model.position.y -= adjustedBox.min.y;
-
-        /** @tweakable An additional vertical offset for the mineral field model to fine-tune its position on the ground. */
+        /**
+         * Offset needed to raise the model so its bottom rests on the ground.
+         * We apply this after positioning the parent group so the selection
+         * indicator remains at ground level.
+         */
         const modelYOffset = 0.0;
-        model.position.y += modelYOffset;
+        const offsetY = -adjustedBox.min.y + modelYOffset;
+        model.userData.offsetY = offsetY;
 
         model.traverse(child => {
             if (child.isMesh) {

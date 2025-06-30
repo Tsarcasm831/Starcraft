@@ -2,6 +2,8 @@
 
 This file contains recent changes. For older entries, see the `Archive` tab.
 
+[TS] 063025-1903 | [MOD] docs | [ACT] ^DOC | [TGT] README.md | [VAL] note '/' key opens promo video | [REF] README.md:25-27
+[TS] 063025-1859 | [MOD] spawn | [ACT] ^FUNC ^VAR | [TGT] spawnUnit, devUnitSpawnLayout.startPosition | [VAL] ensure walkable spawn coords and move dev units onto land | [REF] src/game/spawn.js:127-134 src/game/initial-state.js:28-33
 [TS] 063025-1904 | [MOD] docs | [ACT] ^DOC | [TGT] agent-units.md | [VAL] replaced missing unit integration sections, referenced High Templar example | [REF] agent-units.md:1-51
 [TS] 063025-1859 | [MOD] spawn | [ACT] ^FUNC ^VAR | [TGT] spawnUnit, devUnitSpawnLayout.startPosition | [VAL] ensure walkable spawn coords and move dev units onto land | [REF] src/game/spawn.js:127-134 src/game/initial-state.js:28-33
 [TS] 063025-1855 | [MOD] units | [ACT] ^FUNC | [TGT] createMeshFromGLB/createProceduralMesh | [VAL] rotated child groups so lookAt controls heading | [REF] src/units/battlecruiser.js:63-120 src/units/dropship.js:87-142 src/units/wraith.js:74-120

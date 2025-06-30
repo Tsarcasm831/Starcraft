@@ -60,27 +60,24 @@ export class MessageDisplay {
         if (audioManagerRef) {
             audioManagerRef.pauseBackgroundMusic();
         }
-        
+
         const videoPanel = document.getElementById('video-panel');
         if (!videoPanel) return;
 
         try {
             const adPlayer = assetManager.get('ad_video').cloneNode(true);
-            adPlayer.loop = false;
+            adPlayer.autoplay = true;
+            adPlayer.loop = true;
             adPlayer.muted = false;
             adPlayer.volume = videoPlayerSettings.volume > 0 ? videoPlayerSettings.volume : 0.5;
-            
+
             const originalContent = videoPanel.innerHTML;
             videoPanel.innerHTML = '';
-            videoPanel.appendChild(adPlayer);
-            
-            adPlayer.play().catch(e => {
-                console.warn("Ad video playback prevented:", e);
-                videoPanel.innerHTML = originalContent;
-                if(audioManagerRef) audioManagerRef.resumeBackgroundMusic();
-            });
 
-            adPlayer.onended = () => {
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'close-button';
+            closeBtn.style.display = 'none';
+            closeBtn.addEventListener('click', () => {
                 videoPanel.innerHTML = originalContent;
                 const originalVideo = videoPanel.querySelector('video');
                 if (originalVideo) {
@@ -89,7 +86,20 @@ export class MessageDisplay {
                 if (audioManagerRef) {
                     audioManagerRef.resumeBackgroundMusic();
                 }
-            };
+            });
+
+            videoPanel.appendChild(closeBtn);
+            videoPanel.appendChild(adPlayer);
+
+            adPlayer.play().catch(e => {
+                console.warn("Ad video playback prevented:", e);
+                videoPanel.innerHTML = originalContent;
+                if(audioManagerRef) audioManagerRef.resumeBackgroundMusic();
+            });
+
+            setTimeout(() => {
+                closeBtn.style.display = 'block';
+            }, 30000);
 
         } catch (e) {
             console.error("Could not find ad video asset 'ad_video'.", e);

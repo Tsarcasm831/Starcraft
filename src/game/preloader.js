@@ -37,6 +37,7 @@ export async function preloadAssets(audioManager) {
         'assets/data/protoss/stalker.json',
         'assets/data/protoss/dragoon.json',
         'assets/data/protoss/darktemplar.json',
+        'assets/data/protoss/hightemplar.json',
     ];
     unitDataPaths.forEach(path => {
         const name = `unit_${path.split('/').pop().replace('.json', '')}`;

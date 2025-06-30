@@ -39,6 +39,28 @@ import { DarkTemplar } from '../protoss/darktemplar.js';
 
 let deps;
 
+function findNearestWalkablePos(pos, pathfinder) {
+    const node = pathfinder.getNodeFromWorld(pos);
+    if (node && node.walkable) {
+        return pathfinder.gridToWorld(node.x, node.y);
+    }
+    let nearest = null;
+    let minDist = Infinity;
+    for (let x = 0; x < pathfinder.gridWidth; x++) {
+        for (let y = 0; y < pathfinder.gridHeight; y++) {
+            const n = pathfinder.grid[x][y];
+            if (!n.walkable) continue;
+            const world = pathfinder.gridToWorld(n.x, n.y);
+            const dist = world.distanceToSquared(pos);
+            if (dist < minDist) {
+                minDist = dist;
+                nearest = world;
+            }
+        }
+    }
+    return nearest || pos;
+}
+
 export function setPathfinder(newPathfinder) {
     if (deps) {
         deps.pathfinder = newPathfinder;
@@ -103,9 +125,13 @@ export function spawnBuilding(type, position, buildTime, extraData = {}) {
 }
 
 export function spawnUnit(unitType, position) {
-    const { scene, units, selectables, gameState, audioManager } = deps;
-    const terrainY = getTerrainHeight(scene, position.x, position.z);
-    const spawnPos = new THREE.Vector3(position.x, terrainY, position.z);
+    const { scene, units, selectables, gameState, audioManager, pathfinder } = deps;
+    let spawnPos = new THREE.Vector3(position.x, position.y || 0, position.z);
+    if (pathfinder) {
+        spawnPos = findNearestWalkablePos(spawnPos, pathfinder).clone();
+    }
+    const terrainY = getTerrainHeight(scene, spawnPos.x, spawnPos.z);
+    spawnPos.y = terrainY;
     let unit;
     switch (unitType) {
         case 'SCV':

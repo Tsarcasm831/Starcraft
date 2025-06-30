@@ -17,6 +17,8 @@ const OLD_CHANGELOG_FILE = 'changelog.old.md';
 const maxChangelogLines = 50;
 /** @tweakable enable closing the changelog modal by clicking its background */
 const closeChangelogOnClickOutside = true;
+/** @tweakable The default tab to show when opening the changelog modal. Can be 'recent' or 'old'. */
+const defaultChangelogTab = 'recent';
 
 /** 
  * @tweakable Configuration for formatting ASCL timestamps in the changelog modal.
@@ -75,6 +77,8 @@ export class ModalManager {
 
         document.getElementById('changelog-button')?.addEventListener('click', () => this.toggleChangelogModal());
         document.getElementById('close-changelog-modal')?.addEventListener('click', () => this.toggleChangelogModal());
+        document.getElementById('recent-changelog-tab-button')?.addEventListener('click', () => this.switchChangelogTab('recent'));
+        document.getElementById('old-changelog-tab-button')?.addEventListener('click', () => this.switchChangelogTab('old'));
         document.getElementById('changelog-modal')?.addEventListener('click', (event) => {
             if (closeChangelogOnClickOutside && event.target === event.currentTarget) {
                 this.toggleChangelogModal();
@@ -100,6 +104,13 @@ export class ModalManager {
         // Activate the selected tab and pane
         document.getElementById(`${tabName}-tab-button`)?.classList.add('active');
         document.getElementById(`${tabName}-tab-content`)?.classList.add('active');
+    }
+
+    switchChangelogTab(tabName) {
+        document.querySelectorAll('.changelog-tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.changelog-tab-pane').forEach(pane => pane.classList.remove('active'));
+        document.getElementById(`${tabName}-changelog-tab-button`)?.classList.add('active');
+        document.getElementById(`${tabName}-changelog-tab-content`)?.classList.add('active');
     }
 
     async toggleManualModal() {
@@ -169,13 +180,17 @@ export class ModalManager {
 
     async toggleChangelogModal() {
         const modal = document.getElementById('changelog-modal');
-        const output = document.getElementById('changelog-output');
-        if (!modal || !output) return;
+        const recentOutput = document.getElementById('recent-changelog-output');
+        const oldOutput = document.getElementById('old-changelog-output');
+        if (!modal || !recentOutput || !oldOutput) return;
 
         modal.classList.toggle('hidden');
         if (!modal.classList.contains('hidden')) {
-            if (output.dataset.loaded !== 'true') {
-                output.textContent = 'Loading...';
+            this.switchChangelogTab(defaultChangelogTab);
+
+            if (recentOutput.dataset.loaded !== 'true' || oldOutput.dataset.loaded !== 'true') {
+                recentOutput.textContent = 'Loading...';
+                oldOutput.textContent = 'Loading...';
                 try {
                     const [recentResponse, oldResponse] = await Promise.all([
                         fetch(CHANGELOG_FILE).catch(e => { console.warn(`Could not load ${CHANGELOG_FILE}`, e); return null; }),
@@ -183,32 +198,29 @@ export class ModalManager {
                     ]);
 
                     let recentText = recentResponse && recentResponse.ok ? await recentResponse.text() : `Error loading ${CHANGELOG_FILE}.`;
-                    let oldText = oldResponse && oldResponse.ok ? await oldResponse.text() : ``;
+                    let oldText = oldResponse && oldResponse.ok ? await oldResponse.text() : '';
 
-                    let fullText = recentText;
-                    if (oldText) {
-                        fullText += `\n\n<hr>\n\n${oldText}`;
-                    }
-
-                    if (maxChangelogLines > 0) {
-                        const lines = fullText.split('\n');
+                    if (maxChangelogLines > 0 && recentText) {
+                        const lines = recentText.split('\n');
                         if (lines.length > maxChangelogLines) {
-                            fullText = lines.slice(0, maxChangelogLines).join('\n') + `\n\n... (and more)`;
+                            recentText = lines.slice(0, maxChangelogLines).join('\n') + `\n\n... (and more)`;
                         }
                     }
 
-                    let processedText = fullText.replace(/<hr>/g, '<hr style="border-top: 1px solid #555c6e; margin: 20px 0;">');
-
                     if (changelogTimestampConfig.enabled) {
                         const replacement = `<span style="color:${changelogTimestampConfig.color}">${changelogTimestampConfig.prefix}$1${changelogTimestampConfig.suffix}</span>`;
-                        processedText = processedText.replace(changelogTimestampConfig.regex, replacement);
+                        recentText = recentText.replace(changelogTimestampConfig.regex, replacement);
+                        oldText = oldText.replace(changelogTimestampConfig.regex, replacement);
                     }
 
-                    output.innerHTML = processedText;
-                    output.dataset.loaded = 'true';
+                    recentOutput.innerHTML = recentText;
+                    oldOutput.innerHTML = oldText || 'No archived entries.';
+                    recentOutput.dataset.loaded = 'true';
+                    oldOutput.dataset.loaded = 'true';
                 } catch (error) {
                     console.error('Failed to fetch changelogs:', error);
-                    output.textContent = 'Error loading changelogs.';
+                    recentOutput.textContent = 'Error loading changelog.';
+                    oldOutput.textContent = 'Error loading changelog.';
                 }
             }
         }
@@ -297,10 +309,10 @@ export class ModalManager {
             alert(`Archived ${entriesToArchive.length} entries. See console for details.`);
 
             // Invalidate the cached changelog in the modal so it re-fetches next time
-            const output = document.getElementById('changelog-output');
-            if (output) {
-                output.dataset.loaded = 'false';
-            }
+            const recentOut = document.getElementById('recent-changelog-output');
+            const oldOut = document.getElementById('old-changelog-output');
+            if (recentOut) recentOut.dataset.loaded = 'false';
+            if (oldOut) oldOut.dataset.loaded = 'false';
 
         } catch (error) {
             console.error('Failed to archive changelog:', error);

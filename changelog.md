@@ -3,6 +3,8 @@
 This file contains recent changes. For older entries, see `changelog.old.md`.
 
 
+[TS] 063025-1809 | [MOD] ui | [ACT] ^FIX | [TGT] changelog paths | [VAL] set root-relative changelog file paths | [REF] src/game/ui/ModalManager.js:13-16
+
 [TS] 063025-1803 | [MOD] ui | [ACT] ^FIX | [TGT] ModalManager dataset assignment | [VAL] replaced optional chaining with null checks | [REF] src/game/ui/ModalManager.js:80-83
 [TS] 063025-1754 | [MOD] ui | [ACT] -FN -VAR | [TGT] unused modal handlers | [VAL] removed legacy toggle functions and constants | [REF] src/game/ui.js
 [TS] 063025-1748 | [MOD] docs | [ACT] ^FIX | [TGT] README.md | [VAL] Clarified changelog button opens modal sourced from changelog files, not the manual. | [REF] README.md:22

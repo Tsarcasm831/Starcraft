@@ -1,4 +1,5 @@
 # Changelog
+[TS] 063025-1904 | [MOD] docs | [ACT] ^DOC | [TGT] README.md | [VAL] note changelog archiving script, jsdom install, and unit add instructions | [REF] README.md:11-31
 [TS] 063025-1859 | [MOD] spawn | [ACT] ^FUNC ^VAR | [TGT] spawnUnit, devUnitSpawnLayout.startPosition | [VAL] ensure walkable spawn coords and move dev units onto land | [REF] src/game/spawn.js:127-134 src/game/initial-state.js:28-33
 
 [TS] 063025-1855 | [MOD] units | [ACT] ^FUNC | [TGT] createMeshFromGLB/createProceduralMesh | [VAL] rotated child groups so lookAt controls heading | [REF] src/units/battlecruiser.js:63-120 src/units/dropship.js:87-142 src/units/wraith.js:74-120

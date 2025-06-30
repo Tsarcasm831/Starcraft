@@ -26,7 +26,8 @@ import { DarkTemplar } from '../protoss/darktemplar.js';
 
 /** @tweakable The layout for spawning all dev units on the map. */
 const devUnitSpawnLayout = {
-    startPosition: new THREE.Vector3(-25, 0, 0),
+    // Spawn dev units near the southern plateau, away from lake colliders
+    startPosition: new THREE.Vector3(-15, 0, -10),
     spacing: 3,
     unitsPerRow: 5,
 };

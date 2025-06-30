@@ -2,6 +2,7 @@
 
 This file contains recent changes. For older entries, see `changelog.old.md`.
 
+[TS] 063025-1754 | [MOD] ui | [ACT] -FN -VAR | [TGT] unused modal handlers | [VAL] removed legacy toggle functions and constants | [REF] src/game/ui.js
 [TS] 063025-1748 | [MOD] docs | [ACT] ^FIX | [TGT] README.md | [VAL] Clarified changelog button opens modal sourced from changelog files, not the manual. | [REF] README.md:22
 
 [TS] 063025-1745 | [MOD] ui | [ACT] ^VAR ^FUNC | [TGT] ModalManager | [VAL] Updated changelog paths and reload logic | [REF] src/game/ui/ModalManager.js

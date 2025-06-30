@@ -18,46 +18,6 @@ const modalManager = new ModalManager();
 // Callbacks to game logic
 let commandExecutorRef;
 
-/** @tweakable The filename for the manual document. */
-const MANUAL_FILE = 'manual.md';
-
-/** @tweakable The maximum number of lines to display from the manual. 0 for no limit. */
-const maxManualLines = 0;
-
-/** @tweakable enable closing the manual modal by clicking its background */
-const closeManualOnClickOutside = true;
-
-/** @tweakable The filename for the main (recent) changelog document. */
-const CHANGELOG_FILE = 'changelog.md';
-
-/** @tweakable The filename for the archived (old) changelog document. */
-const OLD_CHANGELOG_FILE = 'changelog.old.md';
-
-/** @tweakable The maximum number of lines to display from the changelog. 0 for no limit. */
-const maxChangelogLines = 50;
-
-/** @tweakable enable closing the changelog modal by clicking its background */
-const closeChangelogOnClickOutside = true;
-
-/** @tweakable The cutoff date for archiving changelog entries, in MMDDYY format. Entries on or before this date are considered old. */
-const changelogArchiveCutoffDate = '062824';
-
-/** 
- * @tweakable Configuration for formatting ASCL timestamps in the changelog modal.
- * @property {boolean} enabled - Whether to apply custom styling to timestamps.
- * @property {RegExp} regex - The regular expression used to find timestamps. The first capture group should be the timestamp itself.
- * @property {string} color - The color to apply to the timestamp text.
- * @property {string} prefix - Text to add before the timestamp.
- * @property {string} suffix - Text to add after the timestamp.
- */
-const changelogTimestampConfig = {
-    enabled: true,
-    /** @tweakable The regular expression for finding and styling timestamps in the changelog. The first capture group should contain the date and time. */
-    regex: /\[TS:? ?(\d{6}-\d{4})]/g,
-    color: '#88aaff',
-    prefix: '[',
-    suffix: ']'
-};
 
 /** @tweakable How many status messages must be shown before an "ad" plays. Set to 0 to disable. */
 const adFrequency = 5;
@@ -173,88 +133,6 @@ function hideVideoAd() {
     // Kept for legacy event listeners, but does nothing.
 }
 
-function toggleDevLogModal() {
-    if (!menuManager.isGameRunning || !devLogger.isActive) return;
-    devLogModal.classList.toggle('hidden');
-    // Populate the log when it's opened
-    if (!devLogModal.classList.contains('hidden')) {
-        const devLogOutput = document.getElementById('dev-log-output');
-        if (devLogOutput) {
-            devLogOutput.textContent = devLogger.getLogs().join('\n');
-        }
-    }
-}
-
-async function toggleChangelogModal() {
-    changelogModal.classList.toggle('hidden');
-    if (!changelogModal.classList.contains('hidden')) {
-        if (changelogOutput.dataset.loaded !== 'true') {
-            changelogOutput.textContent = 'Loading...';
-            try {
-                // Fetch both changelogs concurrently
-                const [recentResponse, oldResponse] = await Promise.all([
-                    fetch(CHANGELOG_FILE).catch(e => { console.warn(`Could not load ${CHANGELOG_FILE}`, e); return null; }),
-                    fetch(OLD_CHANGELOG_FILE).catch(e => { console.warn(`Could not load ${OLD_CHANGELOG_FILE}`, e); return null; })
-                ]);
-
-                let recentText = recentResponse && recentResponse.ok ? await recentResponse.text() : `Error loading ${CHANGELOG_FILE}.`;
-                let oldText = oldResponse && oldResponse.ok ? await oldResponse.text() : ``; // Don't show error if old log is missing
-
-                let fullText = recentText;
-                if (oldText) {
-                    fullText += `\n\n<hr>\n\n${oldText}`;
-                }
-
-                if (maxChangelogLines > 0) {
-                    const lines = fullText.split('\n');
-                    if (lines.length > maxChangelogLines) {
-                        fullText = lines.slice(0, maxChangelogLines).join('\n') + `\n\n... (and more)`;
-                    }
-                }
-                
-                let processedText = fullText.replace(/<hr>/g, '<hr style="border-top: 1px solid #555c6e; margin: 20px 0;">');
-
-                if (changelogTimestampConfig.enabled) {
-                    const replacement = `<span style="color:${changelogTimestampConfig.color}">${changelogTimestampConfig.prefix}$1${changelogTimestampConfig.suffix}</span>`;
-                    processedText = processedText.replace(changelogTimestampConfig.regex, replacement);
-                }
-
-                changelogOutput.innerHTML = processedText; // Use innerHTML to render the spans and hr
-                changelogOutput.dataset.loaded = 'true';
-            } catch (error) {
-                console.error('Failed to fetch changelogs:', error);
-                changelogOutput.textContent = 'Error loading changelogs.';
-            }
-        }
-    }
-}
-
-async function toggleManualModal() {
-    manualModal.classList.toggle('hidden');
-    if (!manualModal.classList.contains('hidden')) {
-        if (manualOutput.dataset.loaded !== 'true') {
-            try {
-                const response = await fetch(MANUAL_FILE);
-                if (response.ok) {
-                    let text = await response.text();
-                    if (maxManualLines > 0) {
-                        const lines = text.split('\n');
-                        if (lines.length > maxManualLines) {
-                            text = lines.slice(0, maxManualLines).join('\n') + `\n\n... (and more)`;
-                        }
-                    }
-                    manualOutput.textContent = text;
-                    manualOutput.dataset.loaded = 'true';
-                } else {
-                    manualOutput.textContent = 'Error loading manual.';
-                }
-            } catch (error) {
-                console.error(`Failed to fetch ${MANUAL_FILE}:`, error);
-                manualOutput.textContent = 'Error loading manual.';
-            }
-        }
-    }
-}
 
 export function initUI(commandExecutor, startGameCallback, audioManager, getGridHelper, getKeyState, getCamera) {
     resourceDisplay.init();

@@ -2,6 +2,8 @@
 
 This file contains recent changes. For older entries, see `changelog.old.md`.
 
+[TS] 063025-1745 | [MOD] ui | [ACT] ^VAR ^FUNC | [TGT] ModalManager | [VAL] Updated changelog paths and reload logic | [REF] src/game/ui/ModalManager.js
+
 [TS] 063025-1733 | [MOD] ui | [ACT] ^FIX | [TGT] ModalManager | [VAL] Use relative paths for changelog fetch to restore button | [REF] src/game/ui/ModalManager.js
 
 [TS] 063025-1720 | [MOD] units | [ACT] +CLASS | [TGT] DarkTemplar | [VAL] Added Protoss Dark Templar unit with data file, game integration, selection handling and asset preloading. | [REF] src/protoss/darktemplar.js, assets/data/protoss/darktemplar.json, src/game/preloader.js, src/game/selection.js, src/game/spawn.js, src/game/initial-state.js, assets/asset-list.json

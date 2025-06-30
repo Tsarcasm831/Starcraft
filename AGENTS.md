@@ -58,6 +58,7 @@ To maintain a clear and automated track of all changes, every contribution must 
     2.  Read `ascl.md` to understand the required logging syntax.
     3.  Add a new entry to the top of `changelog.md` describing your change.
     4.  Commit your code and the updated changelog.
+*   **Automatic Archiving**: `scripts/changelog-archive.js` runs on page load and once per day moves entries older than today from `changelog.md` to `changelog.old.md`.
 
 ## 6. How to Add New Units and Buildings
 

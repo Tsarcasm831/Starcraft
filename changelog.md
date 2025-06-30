@@ -2,6 +2,7 @@
 
 This file contains recent changes. For older entries, see the `Archive` tab.
 
+[TS] 063025-1820 | [MOD] docs | [ACT] +FILE ^DOC | [TGT] changelog archive | [VAL] added auto archive script, html loader and AGENTS note | [REF] scripts/changelog-archive.js, index.html:223, AGENTS.md:61
 
 [TS] 063025-1809 | [MOD] ui | [ACT] ^FIX | [TGT] changelog paths | [VAL] set root-relative changelog file paths | [REF] src/game/ui/ModalManager.js:13-16
 

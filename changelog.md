@@ -1,4 +1,5 @@
 # Changelog
+[TS] 063025-1905 | [MOD] ui | [ACT] MIGR +CLASS -FN | [TGT] ModalManager split | [VAL] extracted ManualModal, ChangelogModal, DevLogModal and PromoModal classes | [REF] src/game/ui/modals
 [TS] 063025-1859 | [MOD] spawn | [ACT] ^FUNC ^VAR | [TGT] spawnUnit, devUnitSpawnLayout.startPosition | [VAL] ensure walkable spawn coords and move dev units onto land | [REF] src/game/spawn.js:127-134 src/game/initial-state.js:28-33
 
 [TS] 063025-1855 | [MOD] units | [ACT] ^FUNC | [TGT] createMeshFromGLB/createProceduralMesh | [VAL] rotated child groups so lookAt controls heading | [REF] src/units/battlecruiser.js:63-120 src/units/dropship.js:87-142 src/units/wraith.js:74-120

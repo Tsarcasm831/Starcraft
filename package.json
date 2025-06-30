@@ -1,0 +1,9 @@
+{
+  "name": "starcraft-rts-prototype",
+  "version": "1.0.0",
+  "description": "Browser-based RTS prototype",
+  "type": "module",
+  "dependencies": {
+    "jsdom": "^22.1.0"
+  }
+}

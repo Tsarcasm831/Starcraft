@@ -2,6 +2,9 @@
 
 This file contains recent changes. For older entries, see the `Archive` tab.
 
+[TS] 063025-1824 | [MOD] deps | [ACT] +FILE | [TGT] package.json | [VAL] added jsdom dependency | [REF] package.json
+[TS] 063025-1824 | [MOD] docs | [ACT] ^DOC | [TGT] README.md, AGENTS.md | [VAL] include npm install instructions and note jsdom | [REF] README.md:6-14, AGENTS.md:33-67
+
 [TS] 063025-1820 | [MOD] docs | [ACT] +FILE ^DOC | [TGT] changelog archive | [VAL] added auto archive script, html loader and AGENTS note | [REF] scripts/changelog-archive.js, index.html:223, AGENTS.md:61
 
 [TS] 063025-1809 | [MOD] ui | [ACT] ^FIX | [TGT] changelog paths | [VAL] set root-relative changelog file paths | [REF] src/game/ui/ModalManager.js:13-16

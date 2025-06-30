@@ -8,6 +8,10 @@ This project is a small browser-based real-time strategy game inspired by StarCr
    apt-get update -y && apt-get install -y apt-utils
    ```
 2. Clone this repository and open a shell in the project directory.
+3. Install Node dependencies:
+   ```bash
+   npm install
+   ```
 
 ## Running the Game
 1. Start a local HTTP server from the repository root:

@@ -24,6 +24,8 @@ import { Adept } from '../protoss/adept.js';
 import { Dragoon } from '../protoss/dragoon.js';
 import { DarkTemplar } from '../protoss/darktemplar.js';
 import { HighTemplar } from '../protoss/hightemplar.js';
+import { Zergling } from '../zerg/zergling.js';
+import { Hydralisk } from '../zerg/hydralisk.js';
 
 /** @tweakable The layout for spawning all dev units on the map. */
 const devUnitSpawnLayout = {
@@ -170,6 +172,13 @@ export function setupInitialState({
         gameState.vespene += 500;
         
         pathfinder.updateObstacles(collidableObjects);
+
+        const hatchery = spawnBuilding('build_hatchery', new THREE.Vector3(-5, 0, -15), { isUnderConstruction: false });
+        hatchery.onConstructionComplete(gameState);
+        const z1 = new Zergling(new THREE.Vector3(-5, 0, -20));
+        const h1 = new Hydralisk(new THREE.Vector3(-8, 0, -20));
+        scene.add(z1.mesh); units.push(z1); selectables.push(z1);
+        scene.add(h1.mesh); units.push(h1); selectables.push(h1);
     }
     
     pathfinder.updateObstacles(collidableObjects);

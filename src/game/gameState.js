@@ -23,6 +23,8 @@ export const gameState = {
         dropThrusters: false,
         yamatoGun: false,
         behemothReactor: false,
+        metabolicBoost: false,
+        muscularAugments: false,
     },
     academyBuilt: false,
     engineeringBayBuilt: false,
@@ -36,6 +38,7 @@ export const gameState = {
     covertOpsBuilt: false,
     comsatStationBuilt: false,
     nuclearSiloBuilt: false,
+    hatcheryBuilt: false,
     onFactoryBuilt: null,
     mapChunksUnlocked: 1,
 };

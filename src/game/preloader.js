@@ -27,6 +27,9 @@ export async function preloadAssets(audioManager) {
     tasks.push(() => assetManager.loadGLB('assets/models/protoss/dragoon.glb', 'protoss_dragoon'));
     tasks.push(() => assetManager.loadGLB('assets/models/protoss/darktemplar.glb', 'protoss_darktemplar'));
     tasks.push(() => assetManager.loadGLB('assets/models/protoss/hightemplar.glb', 'protoss_hightemplar'));
+    tasks.push(() => assetManager.loadGLB('assets/models/zerg/zergling.glb', 'zerg_zergling'));
+    tasks.push(() => assetManager.loadGLB('assets/models/zerg/hydralisk.glb', 'zerg_hydralisk'));
+    tasks.push(() => assetManager.loadGLB('assets/models/zerg/hatchery.glb', 'zerg_hatchery'));
     tasks.push(() => assetManager.loadSound('assets/audio/select.mp3', 'select'));
     tasks.push(() => assetManager.loadSound('assets/audio/move.mp3', 'move'));
 
@@ -39,6 +42,8 @@ export async function preloadAssets(audioManager) {
         'assets/data/protoss/dragoon.json',
         'assets/data/protoss/darktemplar.json',
         'assets/data/protoss/hightemplar.json',
+        'assets/data/zerg/zergling.json',
+        'assets/data/zerg/hydralisk.json',
     ];
     unitDataPaths.forEach(path => {
         const name = `unit_${path.split('/').pop().replace('.json', '')}`;
@@ -113,6 +118,11 @@ export async function preloadAssets(audioManager) {
         'assets/images/protoss/train_dragoon_icon.png',
         'assets/images/protoss/train_darktemplar_icon.png',
         'assets/images/protoss/train_hightemplar_icon.png',
+        'assets/images/zerg/train_zergling_icon.png',
+        'assets/images/zerg/train_hydralisk_icon.png',
+        'assets/images/zerg/build_hatchery_icon.png',
+        'assets/images/zerg/metabolic_boost_icon.png',
+        'assets/images/zerg/muscular_augments_icon.png',
     ];
 
     iconPaths.forEach(path => {
@@ -137,6 +147,10 @@ export async function preloadAssets(audioManager) {
         'assets/images/protoss/dragoon_portrait.png',
         'assets/images/protoss/darktemplar_portrait.png',
         'assets/images/protoss/hightemplar_portrait.png',
+        'assets/images/zerg/zergling_portrait.png',
+        'assets/images/zerg/hydralisk_portrait.png',
+        'assets/images/zerg/hatchery_portrait.png',
+        'assets/images/zerg/larva_portrait.png',
     ];
     portraitPaths.forEach(path => {
         const name = path.split('/').pop().replace('.png', '');

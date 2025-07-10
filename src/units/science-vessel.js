@@ -83,7 +83,6 @@ export class ScienceVessel {
             model.scale.set(scale, scale, scale);
         }
         const wrapper = new THREE.Group();
-        model.rotation.y = Math.PI / 2; // Rotate 180° so forward matches lookAt
         wrapper.add(model);
         wrapper.traverse((child) => {
             if (child.isMesh) {
@@ -95,7 +94,6 @@ export class ScienceVessel {
     }
 
     createProceduralMesh() {
-        const wrapper = new THREE.Group();
         const group = new THREE.Group();
         const mainMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.8, roughness: 0.4 });
         const darkMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
@@ -121,9 +119,7 @@ export class ScienceVessel {
                 child.castShadow = true;
             }
         });
-        group.rotation.y = Math.PI / 2; // Rotate 180° so forward matches lookAt
-        wrapper.add(group);
-        return wrapper;
+        return group;
     }
 
     select() { this.selected = true; this.selectionIndicator.visible = true; }

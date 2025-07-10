@@ -8,7 +8,7 @@ export class HighTemplar extends Infantry {
 
         const unitData = assetManager.get('unit_hightemplar').stats;
         this.name = 'High Templar';
-        this.portraitUrl = 'assets/images/protoss/zealot_portrait.png';
+        this.portraitUrl = 'assets/images/protoss/hightemplar_portrait.png';
         this.maxHealth = unitData.health;
         this.currentHealth = unitData.health;
         this.maxShields = unitData.shields;
@@ -31,8 +31,41 @@ export class HighTemplar extends Infantry {
             { command: 'attack', hotkey: 'A', icon: 'assets/images/attack_icon.png', name: 'Attack' },
         ];
 
-        this.mesh = this.createProceduralMesh();
+        try {
+            const asset = assetManager.get('protoss_hightemplar');
+            this.mesh = this.createMeshFromGLB(asset);
+        } catch (error) {
+            console.warn('Could not load high templar model, using procedural fallback.', error);
+            this.mesh = this.createProceduralMesh();
+        }
         this.setup(position);
+    }
+
+    createMeshFromGLB(asset) {
+        const model = asset.scene.clone();
+
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        /** @tweakable The desired size (largest dimension) of the High Templar model. */
+        const desiredSize = 2.0;
+        const maxDim = Math.max(size.x, size.y, size.z);
+
+        if (maxDim > 0) {
+            const scale = desiredSize / maxDim;
+            model.scale.set(scale, scale, scale);
+        }
+
+        const scaledBox = new THREE.Box3().setFromObject(model);
+        model.position.y = -scaledBox.min.y;
+
+        model.traverse((child) => {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.userData.owner = this;
+            }
+        });
+
+        return model;
     }
 
     createProceduralMesh() {

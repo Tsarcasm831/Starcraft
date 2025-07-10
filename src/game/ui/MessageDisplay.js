@@ -14,6 +14,9 @@ const videoPlayerSettings = {
 /** @tweakable The width of the video panel in pixels. */
 const videoPanelWidth = 180;
 
+/** @tweakable If true, the video in the bottom panel will try to play automatically when the game starts. */
+const autoplayVideoPanel = false;
+
 export class MessageDisplay {
     init(audioManager) {
         statusTextPanel = document.getElementById('status-text-panel');
@@ -43,10 +46,12 @@ export class MessageDisplay {
             videoPanel.innerHTML = '';
             videoPanel.appendChild(videoElement);
 
-            videoElement.play().catch(e => {
-                console.warn("Video autoplay was prevented.", e);
-                videoPanel.addEventListener('click', () => videoElement.play(), { once: true });
-            });
+            if (autoplayVideoPanel) {
+                videoElement.play().catch(e => {
+                    console.warn("Video autoplay was prevented.", e);
+                    videoPanel.addEventListener('click', () => videoElement.play(), { once: true });
+                });
+            }
         } catch (e) {
             console.error("Could not find preloaded video asset 'ad_video'.", e);
             videoPanel.textContent = 'Video asset not found.';

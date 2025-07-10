@@ -45,6 +45,7 @@ export class DarkTemplar extends Infantry {
 
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
+        /** @tweakable The desired size (largest dimension) of the Dark Templar model. */
         const desiredSize = 2.0;
         const maxDim = Math.max(size.x, size.y, size.z);
 

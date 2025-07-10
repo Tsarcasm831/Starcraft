@@ -1,6 +1,7 @@
 # Changelog
 
 This file contains recent changes. For older entries, see the `Archive` tab.
+[TS] 071025-2208 | [MOD] ui | [ACT] ^FIX | [TGT] promo video link | [VAL] replaced rickroll with correct track | [REF] index.html:218-220 src/game/ui/modals/PromoModal.js:21 file.txt:218-220,11647
 [TS] 063025-2153 | [MOD] resources | [ACT] ^FIX | [TGT] MineralField model offset | [VAL] wrapper group preserves vertical offset | [REF] src/resources/mineral-field.js:17-24,112-120
 
 [TS] 063025-2143 | [MOD] units | [ACT] ^FIX | [TGT] science_vessel orientation | [VAL] rotated model 180deg to face forward | [REF] src/units/science-vessel.js:86,124

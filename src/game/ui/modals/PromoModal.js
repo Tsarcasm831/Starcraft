@@ -18,7 +18,7 @@ export class PromoModal {
             if (modal.classList.contains('hidden')) {
                 iframe.src = '';
             } else {
-                iframe.src = 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1';
+                iframe.src = 'https://www.youtube.com/embed/mQgRLL3wod0?autoplay=1';
             }
         }
     }

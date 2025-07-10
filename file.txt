@@ -3178,7 +3178,7 @@ https://raw.githubusercontent.com/Tsarcasm831/Starcraft/58aa8b1f6d8b30f331351f23
 216 |         <div class="promo-content">
 217 |             <button id="close-promo-modal" class="close-button">&times;</button>
 218 |             <iframe id="promo-video" width="560" height="315"
-219 |                 src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+219 |                 src="https://www.youtube.com/embed/mQgRLL3wod0?autoplay=1"
 220 |                 title="Promotional Video" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 221 |         </div>
 222 |     </div>
@@ -11644,7 +11644,7 @@ https://raw.githubusercontent.com/Tsarcasm831/Starcraft/58aa8b1f6d8b30f331351f23
 18 |             if (modal.classList.contains('hidden')) {
 19 |                 iframe.src = '';
 20 |             } else {
-21 |                 iframe.src = 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1';
+21 |                 iframe.src = 'https://www.youtube.com/embed/mQgRLL3wod0?autoplay=1';
 22 |             }
 23 |         }
 24 |     }

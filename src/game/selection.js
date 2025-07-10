@@ -36,6 +36,10 @@ import { Stalker } from '../protoss/stalker.js';
 import { Dragoon } from '../protoss/dragoon.js';
 import { DarkTemplar } from '../protoss/darktemplar.js';
 import { HighTemplar } from '../protoss/hightemplar.js';
+import { Zergling } from '../zerg/zergling.js';
+import { Hydralisk } from '../zerg/hydralisk.js';
+import { Larva } from '../zerg/larva.js';
+import { Hatchery } from '../zerg/hatchery.js';
 import { audioManager } from '../utils/audio.js';
 
 const raycaster = new THREE.Raycaster();
@@ -145,6 +149,9 @@ export function handleBoxSelection(selectionBox) {
                 selectable instanceof Stalker ||
                 selectable instanceof DarkTemplar ||
                 selectable instanceof HighTemplar ||
+                selectable instanceof Zergling ||
+                selectable instanceof Hydralisk ||
+                selectable instanceof Larva ||
                 selectable instanceof Dragoon ||
                 selectable instanceof CommandCenter ||
                 selectable instanceof SupplyDepot ||
@@ -160,6 +167,7 @@ export function handleBoxSelection(selectionBox) {
                 selectable instanceof ScienceFacility ||
                 selectable instanceof ControlTower ||
                 selectable instanceof PhysicsLab ||
+                selectable instanceof Hatchery ||
                 selectable instanceof ComsatStation ||
                 selectable instanceof NuclearSilo
             ) {

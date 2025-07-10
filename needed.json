@@ -1,0 +1,50 @@
+[
+  {
+    "path": "assets/models/zerg/zergling.glb",
+    "description": "Low-poly Zergling creature from StarCraft with sharp claws, hunched posture, organic carapace, no background"
+  },
+  {
+    "path": "assets/models/zerg/hydralisk.glb",
+    "description": "Low-poly Hydralisk with tall serpentine body and spiny crest, no background"
+  },
+  {
+    "path": "assets/models/zerg/hatchery.glb",
+    "description": "Model of a Zerg Hatchery structure with organic, fleshy appearance, no background"
+  },
+  {
+    "path": "assets/images/zerg/zergling_portrait.png",
+    "description": "Portrait of a Zergling head, facing slightly left, transparent background"
+  },
+  {
+    "path": "assets/images/zerg/hydralisk_portrait.png",
+    "description": "Portrait of Hydralisk snarling, transparent background"
+  },
+  {
+    "path": "assets/images/zerg/hatchery_portrait.png",
+    "description": "Icon-style portrait of a Zerg Hatchery, transparent background"
+  },
+  {
+    "path": "assets/images/zerg/larva_portrait.png",
+    "description": "Small larva creature portrait, transparent background"
+  },
+  {
+    "path": "assets/images/zerg/train_zergling_icon.png",
+    "description": "Command card icon showing a Zergling ready to hatch"
+  },
+  {
+    "path": "assets/images/zerg/train_hydralisk_icon.png",
+    "description": "Command card icon for training a Hydralisk"
+  },
+  {
+    "path": "assets/images/zerg/build_hatchery_icon.png",
+    "description": "Command card icon to build a Zerg Hatchery"
+  },
+  {
+    "path": "assets/images/zerg/metabolic_boost_icon.png",
+    "description": "Upgrade icon depicting Zergling speed evolution"
+  },
+  {
+    "path": "assets/images/zerg/muscular_augments_icon.png",
+    "description": "Upgrade icon representing Hydralisk range evolution"
+  }
+]

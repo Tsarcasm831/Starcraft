@@ -1,9 +1,29 @@
 import * as THREE from 'three';
 
+const creepPatches = [];
+
+export function spreadCreep(position, radius, scene) {
+    const patch = { position: position.clone(), radius };
+    creepPatches.push(patch);
+    if (scene) {
+        const geo = new THREE.CircleGeometry(radius, 32);
+        const mat = new THREE.MeshStandardMaterial({ color: 0x552266 });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.rotation.x = -Math.PI / 2;
+        mesh.position.set(position.x, 0.02, position.z);
+        mesh.name = 'creep';
+        scene.add(mesh);
+    }
+}
+
+export function isOnCreep(x, z) {
+    return creepPatches.some(p => Math.hypot(x - p.position.x, z - p.position.z) <= p.radius);
+}
+
 export function getGroundMeshes(scene) {
     const grounds = [];
     scene.traverse(obj => {
-        if (obj.name === 'ground') grounds.push(obj);
+        if (obj.name === 'ground' || obj.name === 'creep') grounds.push(obj);
     });
     return grounds;
 }

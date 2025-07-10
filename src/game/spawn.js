@@ -26,7 +26,7 @@ import { ScienceVessel } from '../units/science-vessel.js';
 import { Armory } from '../buildings/armory.js';
 import { ScienceFacility } from '../buildings/science-facility.js';
 import { ControlTower } from '../buildings/control-tower.js';
-import { getTerrainHeight } from '../utils/terrain.js';
+import { getTerrainHeight, spreadCreep } from '../utils/terrain.js';
 import { Valkyrie } from '../units/valkyrie.js';
 import { Battlecruiser } from '../units/battlecruiser.js';
 import { PhysicsLab } from '../buildings/physics-lab.js';
@@ -37,6 +37,10 @@ import { Stalker } from '../protoss/stalker.js';
 import { Dragoon } from '../protoss/dragoon.js';
 import { DarkTemplar } from '../protoss/darktemplar.js';
 import { HighTemplar } from '../protoss/hightemplar.js';
+import { Zergling } from '../zerg/zergling.js';
+import { Hydralisk } from '../zerg/hydralisk.js';
+import { Hatchery } from '../zerg/hatchery.js';
+import { Larva } from '../zerg/larva.js';
 
 let deps;
 
@@ -72,6 +76,18 @@ export function initSpawner(_deps) {
     deps = _deps;
 }
 
+export function spawnLarva(hatchery) {
+    const { scene } = deps;
+    for (let i = 0; i < 3; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 2 + Math.random();
+        const pos = hatchery.mesh.position.clone();
+        pos.x += Math.cos(angle) * dist;
+        pos.z += Math.sin(angle) * dist;
+        spawnUnit('Larva', pos);
+    }
+}
+
 export function spawnBuilding(type, position, buildTime, extraData = {}) {
     const { scene, buildings, selectables, collidableObjects, pathfinder } = deps;
     let building;
@@ -105,6 +121,10 @@ export function spawnBuilding(type, position, buildTime, extraData = {}) {
         building = new Armory(position, options);
     } else if (type === 'build_science_facility') {
         building = new ScienceFacility(position, options);
+    } else if (type === 'build_hatchery') {
+        building = new Hatchery(position, options);
+        spreadCreep(position, 8, scene);
+        spawnLarva(building);
     } else if (type === 'Comsat Station') {
         building = new ComsatStation(position, { ...options, parent: extraData.parent });
     } else if (type === 'Nuclear Silo') {
@@ -185,6 +205,17 @@ export function spawnUnit(unitType, position) {
         case 'Dragoon':
             unit = new Dragoon(spawnPos);
             gameState.supplyUsed += 2;
+            break;
+        case 'Zergling':
+            unit = new Zergling(spawnPos);
+            gameState.supplyUsed += 1;
+            break;
+        case 'Hydralisk':
+            unit = new Hydralisk(spawnPos);
+            gameState.supplyUsed += 2;
+            break;
+        case 'Larva':
+            unit = new Larva(spawnPos);
             break;
         case 'Wraith':
             unit = new Wraith(spawnPos);
